@@ -62,10 +62,7 @@ const (
 	Float   VariableType = "http://www.w3.org/2001/XMLSchema#decimal"
 	Boolean VariableType = "http://www.w3.org/2001/XMLSchema#boolean"
 
-	Array     VariableType = "http://www.sepl.wifa.uni-leipzig.de/onto/device-repo#Array"     //array with predefined length where each element can be of a different type
-	Structure VariableType = "http://www.sepl.wifa.uni-leipzig.de/onto/device-repo#structure" //object with predefined fields where each field can be of a different type
-	Map       VariableType = "http://www.sepl.wifa.uni-leipzig.de/onto/device-repo#map"       //object/map where each element has to be of the same type but the key can change
-	List      VariableType = "http://www.sepl.wifa.uni-leipzig.de/onto/device-repo#list"      //array where each element has to be of the same type but the length can change
+	Collection VariableType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#List"
 )
 
 type Variable struct {
