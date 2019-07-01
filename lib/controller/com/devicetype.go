@@ -8,6 +8,7 @@ import (
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 	"net/url"
+	"runtime/debug"
 )
 
 func (this *Com) GetTechnicalDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {
@@ -21,11 +22,13 @@ func (this *Com) GetSemanticDeviceType(jwt jwt_http_router.Jwt, id string) (dt m
 func (this *Com) getDeviceFromService(service string, jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {
 	req, err := http.NewRequest("GET", service+"/device-types/"+url.PathEscape(id), nil)
 	if err != nil {
+		debug.PrintStack()
 		return dt, err, http.StatusInternalServerError
 	}
 	req.Header.Set("Authorization", string(jwt.Impersonate))
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		debug.PrintStack()
 		return dt, err, http.StatusInternalServerError
 	}
 	defer resp.Body.Close()
@@ -36,6 +39,7 @@ func (this *Com) getDeviceFromService(service string, jwt jwt_http_router.Jwt, i
 	}
 	err = json.NewDecoder(resp.Body).Decode(&dt)
 	if err != nil {
+		debug.PrintStack()
 		return dt, err, http.StatusInternalServerError
 	}
 	return dt, nil, http.StatusOK

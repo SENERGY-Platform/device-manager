@@ -6,6 +6,7 @@ import (
 	"github.com/SmartEnergyPlatform/device-manager/lib/model"
 	"github.com/segmentio/kafka-go"
 	"log"
+	"runtime/debug"
 	"time"
 )
 
@@ -25,7 +26,7 @@ func (this *Publisher) PublishDeviceType(device model.DeviceType, userId string)
 	if err != nil {
 		return err
 	}
-	return this.devicetypes.WriteMessages(
+	err = this.devicetypes.WriteMessages(
 		context.Background(),
 		kafka.Message{
 			Key:   []byte(device.Id),
@@ -33,6 +34,10 @@ func (this *Publisher) PublishDeviceType(device model.DeviceType, userId string)
 			Time:  time.Now(),
 		},
 	)
+	if err != nil {
+		debug.PrintStack()
+	}
+	return err
 }
 
 func (this *Publisher) PublishDeviceDelete(id string, userId string) error {
@@ -42,9 +47,10 @@ func (this *Publisher) PublishDeviceDelete(id string, userId string) error {
 	}
 	message, err := json.Marshal(cmd)
 	if err != nil {
+		debug.PrintStack()
 		return err
 	}
-	return this.devicetypes.WriteMessages(
+	err = this.devicetypes.WriteMessages(
 		context.Background(),
 		kafka.Message{
 			Key:   []byte(id),
@@ -52,4 +58,8 @@ func (this *Publisher) PublishDeviceDelete(id string, userId string) error {
 			Time:  time.Now(),
 		},
 	)
+	if err != nil {
+		debug.PrintStack()
+	}
+	return err
 }

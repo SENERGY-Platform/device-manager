@@ -26,7 +26,7 @@ type Device struct {
 }
 
 func (device *Device) GenerateId() {
-	device.Id = uuid.New().String()
+	device.Id = "urn:infai:ses:device:" + uuid.New().String()
 }
 
 type DeviceType struct {
@@ -39,7 +39,7 @@ type DeviceType struct {
 }
 
 func (deviceType *DeviceType) GenerateId() {
-	deviceType.Id = uuid.New().String()
+	deviceType.Id = "urn:infai:ses:device-type:" + uuid.New().String()
 }
 
 type Service struct {

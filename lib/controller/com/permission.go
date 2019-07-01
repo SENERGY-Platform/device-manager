@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"runtime/debug"
 )
 
 func (this *Com) PermissionCheckForDeviceType(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
@@ -17,11 +18,13 @@ func (this *Com) PermissionCheckForDeviceType(jwt jwt_http_router.Jwt, id string
 func (this *Com) PermissionCheck(jwt jwt_http_router.Jwt, id string, permission string, resource string) (err error, code int) {
 	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/jwt/check/"+url.QueryEscape(resource)+"/"+url.QueryEscape(id)+"/"+permission+"/bool", nil)
 	if err != nil {
+		debug.PrintStack()
 		return err, http.StatusInternalServerError
 	}
 	req.Header.Set("Authorization", string(jwt.Impersonate))
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		debug.PrintStack()
 		return err, http.StatusInternalServerError
 	}
 	defer resp.Body.Close()
@@ -32,12 +35,14 @@ func (this *Com) PermissionCheck(jwt jwt_http_router.Jwt, id string, permission 
 		resp.Body.Close()
 		log.Println(buf.String())
 		err = errors.New("access denied")
+		debug.PrintStack()
 		return err, http.StatusInternalServerError
 	}
 
 	var ok bool
 	err = json.NewDecoder(resp.Body).Decode(&ok)
 	if err != nil {
+		debug.PrintStack()
 		return err, http.StatusInternalServerError
 	}
 	if !ok {
