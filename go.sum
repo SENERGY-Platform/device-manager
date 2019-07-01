@@ -1,0 +1,4 @@
+github.com/SmartEnergyPlatform/jwt-http-router v0.0.0-20190318131115-1c2a98f99363 h1:6zd512keQGg/ionPhDFrUuJpcuMUwk4WQJ0avHWMfpU=
+github.com/SmartEnergyPlatform/jwt-http-router v0.0.0-20190318131115-1c2a98f99363/go.mod h1:64s8L4LwgDDohBNVwdE0tQGbfYldd+D0+4Jn6qfDlUg=
+github.com/dgrijalva/jwt-go v3.1.0+incompatible h1:FFziAwDQQ2dz1XClWMkwvukur3evtZx7x/wMHKM1i20=
+github.com/dgrijalva/jwt-go v3.1.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
