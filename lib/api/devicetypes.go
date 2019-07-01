@@ -31,11 +31,11 @@ func init() {
 }
 
 func DeviceEndpoints(config config.Config, control Controller, router *jwt_http_router.Router) {
-	resource := "/devices"
+	resource := "/device-types"
 
 	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
 		id := params.ByName("id")
-		result, err, errCode := control.ReadDevice(id, jwt)
+		result, err, errCode := control.ReadDeviceType(jwt, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -70,7 +70,7 @@ func DeviceEndpoints(config config.Config, control Controller, router *jwt_http_
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.ListDevices(jwt, q)
+		result, err, errCode := control.ListDeviceTypes(jwt, q)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -83,13 +83,13 @@ func DeviceEndpoints(config config.Config, control Controller, router *jwt_http_
 	})
 
 	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
-		device := model.Device{}
-		err := json.NewDecoder(request.Body).Decode(&device)
+		devicetype := model.DeviceType{}
+		err := json.NewDecoder(request.Body).Decode(&devicetype)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceCreate(jwt, device)
+		result, err, errCode := control.PublishDeviceTypeCreate(jwt, devicetype)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -103,13 +103,13 @@ func DeviceEndpoints(config config.Config, control Controller, router *jwt_http_
 
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
 		id := params.ByName("id")
-		device := model.Device{}
-		err := json.NewDecoder(request.Body).Decode(&device)
+		devicetype := model.DeviceType{}
+		err := json.NewDecoder(request.Body).Decode(&devicetype)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceUpdate(jwt, id, device)
+		result, err, errCode := control.PublishDeviceTypeUpdate(jwt, id, devicetype)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -123,7 +123,7 @@ func DeviceEndpoints(config config.Config, control Controller, router *jwt_http_
 
 	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
 		id := params.ByName("id")
-		err, errCode := control.PublishDeviceDelete(jwt, id)
+		err, errCode := control.PublishDeviceTypeDelete(jwt, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

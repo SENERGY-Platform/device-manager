@@ -16,11 +16,17 @@
 
 package model
 
+import "github.com/google/uuid"
+
 type Device struct {
 	Id           string `json:"id"`
 	LocalId      string `json:"local_id"`
 	Name         string `json:"name"`
 	DeviceTypeId string `json:"device_type_id"`
+}
+
+func (device *Device) GenerateId() {
+	device.Id = uuid.New().String()
 }
 
 type DeviceType struct {
@@ -30,6 +36,10 @@ type DeviceType struct {
 	Image       string      `json:"image"`
 	Services    []Service   `json:"services"`
 	DeviceClass DeviceClass `json:"device_class"`
+}
+
+func (deviceType *DeviceType) GenerateId() {
+	deviceType.Id = uuid.New().String()
 }
 
 type Service struct {

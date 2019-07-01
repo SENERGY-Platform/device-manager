@@ -33,6 +33,13 @@ type Config struct {
 	ForceUser  bool   `json:"force_user"`
 	LogLevel   string `json:"log_level"` //DEBUG | CALL | NONE
 	ServerPort string `json:"server_port"`
+
+	PermissionsUrl        string `json:"permissions_url"`
+	DeviceTopic           string `json:"device_topic"`
+	DeviceTypeTopic       string `json:"device_type_topic"`
+	DeviceRepoUrl         string `json:"device_repo_url"`
+	SemanticDeviceRepoUrl string `json:"semantic_device_repo_url"`
+	ZookeeperUrl          string `json:"zookeeper_url"`
 }
 
 //loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)

@@ -23,9 +23,9 @@ import (
 )
 
 type Controller interface {
-	ReadDevice(id string, jwt jwt_http_router.Jwt) (device model.Device, err error, code int)
-	ListDevices(jwt jwt_http_router.Jwt, params *util.QueryParamsStruct) (devices []model.Device, err error, code int)
-	PublishDeviceCreate(jwt jwt_http_router.Jwt, device model.Device) (result model.Device, err error, code int)
-	PublishDeviceUpdate(jwt jwt_http_router.Jwt, id string, device model.Device) (result model.Device, err error, code int)
-	PublishDeviceDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
+	ReadDeviceType(jwt jwt_http_router.Jwt, id string) (device model.DeviceType, err error, code int)
+	ListDeviceTypes(jwt jwt_http_router.Jwt, params *util.QueryParamsStruct) (devices []model.DeviceType, err error, code int)
+	PublishDeviceTypeCreate(jwt jwt_http_router.Jwt, dt model.DeviceType) (result model.DeviceType, err error, code int)
+	PublishDeviceTypeUpdate(jwt jwt_http_router.Jwt, id string, device model.DeviceType) (result model.DeviceType, err error, code int)
+	PublishDeviceTypeDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
 }
