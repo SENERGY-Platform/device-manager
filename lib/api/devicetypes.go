@@ -18,7 +18,6 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SmartEnergyPlatform/device-manager/lib/api/util"
 	"github.com/SmartEnergyPlatform/device-manager/lib/config"
 	"github.com/SmartEnergyPlatform/device-manager/lib/model"
 	"github.com/SmartEnergyPlatform/jwt-http-router"
@@ -36,41 +35,6 @@ func DeviceEndpoints(config config.Config, control Controller, router *jwt_http_
 	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
 		id := params.ByName("id")
 		result, err, errCode := control.ReadDeviceType(jwt, id)
-		if err != nil {
-			http.Error(writer, err.Error(), errCode)
-			return
-		}
-		err = json.NewEncoder(writer).Encode(result)
-		if err != nil {
-			log.Println("ERROR: unable to encode response", err)
-		}
-		return
-	})
-
-	/*
-			query params:
-			- limit: number; default 100
-		    - offset: number; default 0
-			- permission: 'r' || 'w' || 'x' || 'x'; default 'r'
-			- sort: <field>[.<direction>]; optional;
-				- field: declared by https://github.com/SENERGY-Platform/permission-search/config.json -> Resources.deviceinstance.Features[*].Name
-				- direction: 'asc' || 'desc'; optional
-				- examples:
-					?sort=name.asc
-					?sort=name
-	*/
-	router.GET(resource, func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
-		q, err := util.QueryParams(request).
-			Define("limit", 100).
-			Define("offset", 0).
-			Define("sort", "name.asc").
-			Define("permission", "r").
-			Strict()
-		if err != nil {
-			http.Error(writer, err.Error(), http.StatusBadRequest)
-			return
-		}
-		result, err, errCode := control.ListDeviceTypes(jwt, q)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

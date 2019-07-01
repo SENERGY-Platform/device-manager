@@ -17,14 +17,12 @@
 package api
 
 import (
-	"github.com/SmartEnergyPlatform/device-manager/lib/api/util"
 	"github.com/SmartEnergyPlatform/device-manager/lib/model"
 	"github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
 type Controller interface {
 	ReadDeviceType(jwt jwt_http_router.Jwt, id string) (device model.DeviceType, err error, code int)
-	ListDeviceTypes(jwt jwt_http_router.Jwt, params *util.QueryParamsStruct) (devices []model.DeviceType, err error, code int)
 	PublishDeviceTypeCreate(jwt jwt_http_router.Jwt, dt model.DeviceType) (result model.DeviceType, err error, code int)
 	PublishDeviceTypeUpdate(jwt jwt_http_router.Jwt, id string, device model.DeviceType) (result model.DeviceType, err error, code int)
 	PublishDeviceTypeDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)

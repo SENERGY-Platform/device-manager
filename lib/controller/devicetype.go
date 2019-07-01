@@ -2,7 +2,6 @@ package controller
 
 import (
 	"errors"
-	"github.com/SmartEnergyPlatform/device-manager/lib/api/util"
 	"github.com/SmartEnergyPlatform/device-manager/lib/model"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
@@ -28,10 +27,6 @@ func (this *Controller) ReadDeviceType(jwt jwt_http_router.Jwt, id string) (dt m
 		tdt.Services[i] = service
 	}
 	return tdt, nil, http.StatusOK
-}
-
-func (this *Controller) ListDeviceTypes(jwt jwt_http_router.Jwt, params *util.QueryParamsStruct) (dt []model.DeviceType, err error, code int) {
-	panic("implement me")
 }
 
 func (this *Controller) PublishDeviceTypeCreate(jwt jwt_http_router.Jwt, dt model.DeviceType) (model.DeviceType, error, int) {
