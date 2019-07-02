@@ -2,7 +2,7 @@ package publisher
 
 import (
 	"errors"
-	"github.com/SmartEnergyPlatform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/segmentio/kafka-go"
 	"io/ioutil"
 	"log"

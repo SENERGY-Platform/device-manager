@@ -17,8 +17,8 @@
 package api
 
 import (
-	"github.com/SmartEnergyPlatform/device-manager/lib/api/util"
-	"github.com/SmartEnergyPlatform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/device-manager/lib/api/util"
+	"github.com/SENERGY-Platform/device-manager/lib/config"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"log"
 	"net/http"
@@ -28,7 +28,7 @@ import (
 
 var endpoints = []func(config config.Config, control Controller, router *jwt_http_router.Router){}
 
-func Start(config config.Config, control Controller) (err error) {
+func Start(config config.Config, control Controller) (srv *http.Server, err error) {
 	log.Println("start api")
 	router := jwt_http_router.New(jwt_http_router.JwtConfig{PubRsa: config.JwtPubRsa, ForceAuth: config.ForceAuth, ForceUser: config.ForceUser})
 	for _, e := range endpoints {
@@ -39,6 +39,7 @@ func Start(config config.Config, control Controller) (err error) {
 	corsHandler := util.NewCors(router)
 	logger := util.NewLogger(corsHandler, config.LogLevel)
 	log.Println("listen on port", config.ServerPort)
-	go func() { log.Println(http.ListenAndServe(":"+config.ServerPort, logger)) }()
-	return nil
+	srv = &http.Server{Addr: ":" + config.ServerPort, Handler: logger}
+	go func() { log.Println(srv.ListenAndServe()) }()
+	return srv, nil
 }

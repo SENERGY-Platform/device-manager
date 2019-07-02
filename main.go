@@ -17,10 +17,11 @@
 package main
 
 import (
+	"context"
 	"flag"
-	"github.com/SmartEnergyPlatform/device-manager/lib/api"
-	"github.com/SmartEnergyPlatform/device-manager/lib/config"
-	"github.com/SmartEnergyPlatform/device-manager/lib/controller"
+	"github.com/SENERGY-Platform/device-manager/lib/api"
+	"github.com/SENERGY-Platform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/device-manager/lib/controller"
 	"log"
 	"os"
 	"os/signal"
@@ -38,7 +39,7 @@ func main() {
 
 	ctrl, err := controller.New(conf)
 
-	err = api.Start(conf, ctrl)
+	srv, err := api.Start(conf, ctrl)
 	if err != nil {
 		log.Fatal("ERROR: unable to start api", err)
 	}
@@ -47,4 +48,5 @@ func main() {
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 	sig := <-shutdown
 	log.Println("received shutdown signal", sig)
+	log.Println(srv.Shutdown(context.Background()))
 }

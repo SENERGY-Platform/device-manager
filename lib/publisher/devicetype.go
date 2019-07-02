@@ -3,7 +3,7 @@ package publisher
 import (
 	"context"
 	"encoding/json"
-	"github.com/SmartEnergyPlatform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"runtime/debug"

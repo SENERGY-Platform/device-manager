@@ -1,0 +1,12 @@
+{
+  "force_auth": true,
+  "force_user": true,
+  "log_level": "DEBUG",
+  "server_port": "8080",
+  "permissions_url": "http://perm:8080",
+  "device_topic": "devices",
+  "device_type_topic": "device-types",
+  "device_repo_url": "http://device-repo:8080",
+  "semantic_repo_url": "http://semantic-repo:8080",
+  "zookeeper_url": "zk:2181"
+}

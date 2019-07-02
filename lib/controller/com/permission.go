@@ -33,7 +33,7 @@ func (this *Com) PermissionCheck(jwt jwt_http_router.Jwt, id string, permission 
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)
 		resp.Body.Close()
-		log.Println(buf.String())
+		log.Println("DEBUG: PermissionCheck()", buf.String())
 		err = errors.New("access denied")
 		debug.PrintStack()
 		return err, http.StatusInternalServerError

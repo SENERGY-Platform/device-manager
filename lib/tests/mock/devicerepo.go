@@ -1,0 +1,88 @@
+package mock
+
+import (
+	"encoding/json"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/device-manager/lib/publisher"
+	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
+)
+
+type DeviceRepo struct {
+	dt map[string]model.DeviceType
+	ts *httptest.Server
+}
+
+func NewDeviceRepo(producer interface {
+	Subscribe(topic string, f func(msg []byte))
+}) *DeviceRepo {
+	repo := &DeviceRepo{dt: map[string]model.DeviceType{}}
+	producer.Subscribe(DtTopic, func(msg []byte) {
+		cmd := publisher.DeviceTypeCommand{}
+		json.Unmarshal(msg, &cmd)
+		if cmd.Command == "PUT" {
+			cmd.DeviceType.DeviceClass = model.DeviceClass{}
+			for i, service := range cmd.DeviceType.Services {
+				service.Aspects = nil
+				service.Functions = nil
+				cmd.DeviceType.Services[i] = service
+			}
+			repo.dt[cmd.Id] = cmd.DeviceType
+		} else if cmd.Command == "DELETE" {
+			delete(repo.dt, cmd.Id)
+		}
+	})
+
+	router := jwt_http_router.New(jwt_http_router.JwtConfig{ForceAuth: true, ForceUser: true})
+
+	router.GET("/device-types/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("id")
+		dt, ok := repo.dt[id]
+		if ok {
+			json.NewEncoder(writer).Encode(dt)
+		} else {
+			http.Error(writer, "404", 404)
+		}
+	})
+
+	router.PUT("/device-types", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		dt := model.DeviceType{}
+		err = json.NewDecoder(request.Body).Decode(&dt)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if dt.Id == "" {
+			http.Error(writer, "missing device id", http.StatusBadRequest)
+			return
+		}
+		if len(dt.Services) == 0 {
+			http.Error(writer, "expect at least one service", http.StatusBadRequest)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
+	repo.ts = httptest.NewServer(router)
+
+	return repo
+}
+
+func (this *DeviceRepo) Stop() {
+	this.ts.Close()
+}
+
+func (this *DeviceRepo) Url() string {
+	return this.ts.URL
+}

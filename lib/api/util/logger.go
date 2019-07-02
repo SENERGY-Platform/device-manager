@@ -18,6 +18,8 @@ package util
 
 import (
 	"bytes"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -50,13 +52,18 @@ func (this *LoggerMiddleWare) log(request *http.Request) {
 		}
 
 		if this.logLevel == "DEBUG" {
-			buf := new(bytes.Buffer)
-			buf.ReadFrom(request.Body)
-			body := buf.String()
+			//read on request.Body would empty it -> create new ReadCloser for request.Body while reading
+			var buf bytes.Buffer
+			temp := io.TeeReader(request.Body, &buf)
+			b, err := ioutil.ReadAll(temp)
+			if err != nil {
+				log.Println("ERROR: read error in debuglog:", err)
+			}
+			request.Body = ioutil.NopCloser(bytes.NewReader(buf.Bytes()))
 
 			client := request.RemoteAddr
+			log.Printf("%v [%v] %v %v", client, method, path, string(b))
 
-			log.Printf("%v [%v] %v\n%v\n", client, method, path, body)
 		}
 
 	}

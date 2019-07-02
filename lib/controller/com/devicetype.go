@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/SmartEnergyPlatform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 	"net/url"
@@ -16,7 +16,7 @@ func (this *Com) GetTechnicalDeviceType(jwt jwt_http_router.Jwt, id string) (dt 
 }
 
 func (this *Com) GetSemanticDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {
-	return this.getDeviceFromService(this.config.SemanticDeviceRepoUrl, jwt, id)
+	return this.getDeviceFromService(this.config.SemanticRepoUrl, jwt, id)
 }
 
 func (this *Com) getDeviceFromService(service string, jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {

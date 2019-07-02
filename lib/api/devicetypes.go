@@ -18,8 +18,8 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SmartEnergyPlatform/device-manager/lib/config"
-	"github.com/SmartEnergyPlatform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SmartEnergyPlatform/jwt-http-router"
 	"log"
 	"net/http"

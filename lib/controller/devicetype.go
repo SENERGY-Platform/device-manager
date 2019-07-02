@@ -2,7 +2,7 @@ package controller
 
 import (
 	"errors"
-	"github.com/SmartEnergyPlatform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 )
@@ -16,7 +16,7 @@ func (this *Controller) ReadDeviceType(jwt jwt_http_router.Jwt, id string) (dt m
 	if err != nil {
 		return tdt, err, code
 	}
-	tdt.DeviceClass = tdt.DeviceClass
+	tdt.DeviceClass = sdt.DeviceClass
 	index := map[string]model.Service{}
 	for _, service := range sdt.Services {
 		index[service.Id] = service

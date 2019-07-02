@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"github.com/SmartEnergyPlatform/device-manager/lib/config"
-	"github.com/SmartEnergyPlatform/device-manager/lib/controller/com"
-	"github.com/SmartEnergyPlatform/device-manager/lib/model"
-	"github.com/SmartEnergyPlatform/device-manager/lib/publisher"
+	"github.com/SENERGY-Platform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/device-manager/lib/publisher"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
@@ -19,6 +19,10 @@ func New(conf config.Config) (*Controller, error) {
 		return &Controller{}, err
 	}
 	return &Controller{com: com.New(conf), publisher: publ}, nil
+}
+
+func NewWithPublisher(conf config.Config, publisher Publisher) (*Controller, error) {
+	return &Controller{com: com.New(conf), publisher: publisher}, nil
 }
 
 type Publisher interface {

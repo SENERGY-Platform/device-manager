@@ -1,4 +1,4 @@
-module github.com/SmartEnergyPlatform/device-manager
+module github.com/SENERGY-Platform/device-manager
 
 go 1.12
 

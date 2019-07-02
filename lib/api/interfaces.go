@@ -17,7 +17,7 @@
 package api
 
 import (
-	"github.com/SmartEnergyPlatform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
