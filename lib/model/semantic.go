@@ -22,9 +22,11 @@ type DeviceClass struct {
 }
 
 type Function struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-	Type string `json:"type"`
+	Id      string     `json:"id"`
+	Name    string     `json:"name"`
+	Type    string     `json:"type"`
+	Inputs  []Variable `json:"inputs"`
+	Outputs []Variable `json:"outputs"`
 }
 
 type Aspect struct {

@@ -70,4 +70,13 @@ type Variable struct {
 	Name         string       `json:"name"`
 	Type         VariableType `json:"type"`
 	SubVariables []Variable   `json:"sub_variables"`
+	Property     Property     `json:"property"`
+}
+
+type Property struct {
+	Id       string      `json:"id"`
+	Unit     string      `json:"unit"`
+	Value    interface{} `json:"value"`
+	MinValue float64     `json:"min_value"`
+	MaxValue float64     `json:"max_value"`
 }
