@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 InfAI (CC SES)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package tests
 
 import (
@@ -63,20 +79,20 @@ func testDeviceType(t *testing.T, port string) {
 	}
 
 	resp, err = jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
-		Name:"foo",
-		DeviceClass:model.DeviceClass{
-			Id:"dc1",
+		Name: "foo",
+		DeviceClass: model.DeviceClass{
+			Id: "dc1",
 		},
-		Services:[]model.Service{
+		Services: []model.Service{
 			{
-				Name:"s1name",
+				Name: "s1name",
 				Functions: []model.Function{
-					{Id:"f1"},
+					{Id: "f1"},
 				},
 				Aspects: []model.Aspect{
-					{Id:"a1"},
+					{Id: "a1"},
 				},
-				ProtocolId:"p1",
+				ProtocolId: "p1",
 			},
 		},
 	})
@@ -106,8 +122,7 @@ func testDeviceType(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	if
-		result.Name != "foo" ||
+	if result.Name != "foo" ||
 		result.DeviceClass.Id != "dc1" ||
 		len(result.Services) != 1 ||
 		result.Services[0].Name != "s1name" ||
@@ -115,9 +130,9 @@ func testDeviceType(t *testing.T, port string) {
 		len(result.Services[0].Aspects) != 1 ||
 		result.Services[0].Aspects[0].Id != "a1" ||
 		len(result.Services[0].Functions) != 1 ||
-		result.Services[0].Functions[0].Id != "f1"{
+		result.Services[0].Functions[0].Id != "f1" {
 
-			t.Fatal(result)
+		t.Fatal(result)
 	}
 
 	resp, err = jwtdelete(userjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
