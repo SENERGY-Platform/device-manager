@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package mock
+package servicemocks
 
 import (
 	"encoding/json"

@@ -78,11 +78,11 @@ func (this *Controller) PublishDeviceTypeUpdate(jwt jwt_http_router.Jwt, id stri
 }
 
 func (this *Controller) PublishDeviceTypeDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	err, code := this.com.PermissionCheckForDeviceType(jwt, id, "w")
+	err, code := this.com.PermissionCheckForDeviceType(jwt, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishDeviceDelete(id, jwt.UserId)
+	err = this.publisher.PublishDeviceTypeDelete(id, jwt.UserId)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

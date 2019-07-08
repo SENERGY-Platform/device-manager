@@ -30,34 +30,20 @@ type DeviceTypeCommand struct {
 	Command    string           `json:"command"`
 	Id         string           `json:"id"`
 	Owner      string           `json:"owner"`
-	DeviceType model.DeviceType `json:"device"`
+	DeviceType model.DeviceType `json:"device_type"`
 }
 
 func (this *Publisher) PublishDeviceType(device model.DeviceType, userId string) (err error) {
 	cmd := DeviceTypeCommand{Command: "PUT", Id: device.Id, DeviceType: device, Owner: userId}
-	if this.config.LogLevel == "DEBUG" {
-		log.Println("DEBUG: produce", cmd)
-	}
-	message, err := json.Marshal(cmd)
-	if err != nil {
-		return err
-	}
-	err = this.devicetypes.WriteMessages(
-		context.Background(),
-		kafka.Message{
-			Key:   []byte(device.Id),
-			Value: message,
-			Time:  time.Now(),
-		},
-	)
-	if err != nil {
-		debug.PrintStack()
-	}
-	return err
+	return this.PublishDeviceTypeCommand(cmd)
 }
 
-func (this *Publisher) PublishDeviceDelete(id string, userId string) error {
+func (this *Publisher) PublishDeviceTypeDelete(id string, userId string) error {
 	cmd := DeviceTypeCommand{Command: "DELETE", Id: id, Owner: userId}
+	return this.PublishDeviceTypeCommand(cmd)
+}
+
+func (this *Publisher) PublishDeviceTypeCommand(cmd DeviceTypeCommand) error {
 	if this.config.LogLevel == "DEBUG" {
 		log.Println("DEBUG: produce", cmd)
 	}
@@ -69,7 +55,7 @@ func (this *Publisher) PublishDeviceDelete(id string, userId string) error {
 	err = this.devicetypes.WriteMessages(
 		context.Background(),
 		kafka.Message{
-			Key:   []byte(id),
+			Key:   []byte(cmd.Id),
 			Value: message,
 			Time:  time.Now(),
 		},

@@ -43,7 +43,7 @@ func NewWithPublisher(conf config.Config, publisher Publisher) (*Controller, err
 
 type Publisher interface {
 	PublishDeviceType(device model.DeviceType, userID string) (err error)
-	PublishDeviceDelete(id string, userID string) error
+	PublishDeviceTypeDelete(id string, userID string) error
 }
 
 type Com interface {

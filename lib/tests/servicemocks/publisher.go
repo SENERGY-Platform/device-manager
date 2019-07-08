@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package mock
+package servicemocks
 
 import (
 	"encoding/json"
@@ -22,7 +22,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/publisher"
 )
 
-const DtTopic = "device-type"
+var DtTopic = "devicetype"
 
 type Publisher struct {
 	listener map[string][]func(msg []byte)
@@ -41,7 +41,7 @@ func (this *Publisher) PublishDeviceType(device model.DeviceType, userId string)
 	return this.send(DtTopic, message)
 }
 
-func (this *Publisher) PublishDeviceDelete(id string, userId string) error {
+func (this *Publisher) PublishDeviceTypeDelete(id string, userId string) error {
 	cmd := publisher.DeviceTypeCommand{Command: "DELETE", Id: id, Owner: userId}
 	message, err := json.Marshal(cmd)
 	if err != nil {
