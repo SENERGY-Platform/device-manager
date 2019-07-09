@@ -38,7 +38,7 @@ type ProtocolSegment struct {
 type Content struct {
 	Id                   string                `json:"id"`
 	Variable             Variable              `json:"variable"`
-	SerializationId      string                `json:"serialization_id"`
+	Serialization        string                `json:"serialization"`
 	SerializationOptions []SerializationOption `json:"serialization_options"`
 	ProtocolSegmentId    string                `json:"protocol_segment_id"`
 }
@@ -47,9 +47,4 @@ type SerializationOption struct {
 	Id         string `json:"id"`
 	Option     string `json:"option"`
 	VariableId string `json:"variable_id"`
-}
-
-type Serialization struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
 }
