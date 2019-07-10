@@ -28,6 +28,9 @@ func (this *Controller) ReadProtocol(jwt jwt_http_router.Jwt, id string) (protoc
 }
 
 func (this *Controller) PublishProtocolCreate(jwt jwt_http_router.Jwt, protocol model.Protocol) (model.Protocol, error, int) {
+	if !IsAdmin(jwt) {
+		return protocol, errors.New("access denied"), http.StatusForbidden
+	}
 	protocol.GenerateId()
 	err, code := this.com.ValidateProtocol(jwt, protocol)
 	if err != nil {
