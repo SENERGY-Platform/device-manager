@@ -62,6 +62,11 @@ func (this *Controller) PublishDeviceTypeUpdate(jwt jwt_http_router.Jwt, id stri
 	if dt.Id != id {
 		return dt, errors.New("device id in body unequal to device id in request endpoint"), http.StatusBadRequest
 	}
+
+	//replace sub ids and create new ones for new sub elements
+	dt.GenerateId()
+	dt.Id = id
+
 	err, code := this.com.PermissionCheckForDeviceType(jwt, id, "w")
 	if err != nil {
 		return dt, err, code

@@ -23,16 +23,42 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
+	"net/url"
 	"runtime/debug"
 )
 
-func (this *Com) ValidateDeviceType(jwt jwt_http_router.Jwt, dt model.DeviceType) (err error, code int) {
+func (this *Com) GetProtocol(jwt jwt_http_router.Jwt, id string) (protocol model.Protocol, err error, code int) {
+	req, err := http.NewRequest("GET", this.config.DeviceRepoUrl+"/device-types/"+url.PathEscape(id), nil)
+	if err != nil {
+		debug.PrintStack()
+		return protocol, err, http.StatusInternalServerError
+	}
+	req.Header.Set("Authorization", string(jwt.Impersonate))
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		debug.PrintStack()
+		return protocol, err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		return protocol, errors.New(buf.String()), resp.StatusCode
+	}
+	err = json.NewDecoder(resp.Body).Decode(&protocol)
+	if err != nil {
+		debug.PrintStack()
+		return protocol, err, http.StatusInternalServerError
+	}
+	return protocol, nil, http.StatusOK
+}
+
+func (this *Com) ValidateProtocol(jwt jwt_http_router.Jwt, protocol model.Protocol) (err error, code int) {
 	for _, endpoint := range []string{
-		this.config.SemanticRepoUrl + "/device-types?dry-run=true",
-		this.config.DeviceRepoUrl + "/device-types?dry-run=true",
+		this.config.DeviceRepoUrl + "/protocols?dry-run=true",
 	} {
 		b := new(bytes.Buffer)
-		err = json.NewEncoder(b).Encode(dt)
+		err = json.NewEncoder(b).Encode(protocol)
 		if err != nil {
 			debug.PrintStack()
 			return err, http.StatusInternalServerError

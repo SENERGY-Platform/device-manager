@@ -16,6 +16,8 @@
 
 package model
 
+import "github.com/google/uuid"
+
 type Hub struct {
 	Id             string   `json:"id"`
 	Name           string   `json:"name"`
@@ -30,9 +32,21 @@ type Protocol struct {
 	ProtocolSegments []ProtocolSegment `json:"protocol_segments"`
 }
 
+func (protocol *Protocol) GenerateId() {
+	protocol.Id = "urn:infai:ses:protocol:" + uuid.New().String()
+	for i, segment := range protocol.ProtocolSegments {
+		segment.GenerateId()
+		protocol.ProtocolSegments[i] = segment
+	}
+}
+
 type ProtocolSegment struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
+}
+
+func (segment *ProtocolSegment) GenerateId() {
+	segment.Id = "urn:infai:ses:segment:" + uuid.New().String()
 }
 
 type Content struct {
@@ -43,8 +57,21 @@ type Content struct {
 	ProtocolSegmentId    string                `json:"protocol_segment_id"`
 }
 
+func (content *Content) GenerateId() {
+	content.Id = "urn:infai:ses:content:" + uuid.New().String()
+	for i, option := range content.SerializationOptions {
+		option.GenerateId()
+		content.SerializationOptions[i] = option
+	}
+	content.Variable.GenerateId()
+}
+
 type SerializationOption struct {
 	Id         string `json:"id"`
 	Option     string `json:"option"`
 	VariableId string `json:"variable_id"`
+}
+
+func (option *SerializationOption) GenerateId() {
+	option.Id = "urn:infai:ses:option:" + uuid.New().String()
 }

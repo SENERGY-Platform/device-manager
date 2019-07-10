@@ -40,6 +40,13 @@ type DeviceType struct {
 
 func (deviceType *DeviceType) GenerateId() {
 	deviceType.Id = "urn:infai:ses:device-type:" + uuid.New().String()
+	for i, service := range deviceType.Services {
+		service.GenerateId()
+		deviceType.Services[i] = service
+	}
+	if deviceType.DeviceClass.Id == "" {
+		deviceType.DeviceClass.GenerateId()
+	}
 }
 
 type Service struct {
@@ -52,6 +59,30 @@ type Service struct {
 	Inputs      []Content  `json:"inputs"`
 	Outputs     []Content  `json:"outputs"`
 	Functions   []Function `json:"functions"`
+}
+
+func (service *Service) GenerateId() {
+	service.Id = "urn:infai:ses:service:" + uuid.New().String()
+	for i, function := range service.Functions {
+		if function.Id == "" {
+			function.GenerateId()
+			service.Functions[i] = function
+		}
+	}
+	for i, aspect := range service.Aspects {
+		if aspect.Id == "" {
+			aspect.GenerateId()
+			service.Aspects[i] = aspect
+		}
+	}
+	for i, content := range service.Inputs {
+		content.GenerateId()
+		service.Inputs[i] = content
+	}
+	for i, content := range service.Outputs {
+		content.GenerateId()
+		service.Outputs[i] = content
+	}
 }
 
 type VariableType string
@@ -73,10 +104,23 @@ type Variable struct {
 	Property     Property     `json:"property"`
 }
 
+func (variable *Variable) GenerateId() {
+	variable.Id = "urn:infai:ses:variable:" + uuid.New().String()
+	for i, v := range variable.SubVariables {
+		v.GenerateId()
+		variable.SubVariables[i] = v
+	}
+	variable.Property.GenerateId()
+}
+
 type Property struct {
 	Id       string      `json:"id"`
 	Unit     string      `json:"unit"`
 	Value    interface{} `json:"value"`
 	MinValue float64     `json:"min_value"`
 	MaxValue float64     `json:"max_value"`
+}
+
+func (property *Property) GenerateId() {
+	property.Id = "urn:infai:ses:property:" + uuid.New().String()
 }

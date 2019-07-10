@@ -16,9 +16,15 @@
 
 package model
 
+import "github.com/google/uuid"
+
 type DeviceClass struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
+}
+
+func (class *DeviceClass) GenerateId() {
+	class.Id = "urn:infai:ses:device-class:" + uuid.New().String()
 }
 
 type Function struct {
@@ -29,7 +35,17 @@ type Function struct {
 	Output Variable `json:"output"`
 }
 
+func (function *Function) GenerateId() {
+	function.Id = "urn:infai:ses:function:" + uuid.New().String()
+	function.Input.GenerateId()
+	function.Output.GenerateId()
+}
+
 type Aspect struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
+}
+
+func (aspect *Aspect) GenerateId() {
+	aspect.Id = "urn:infai:ses:aspect:" + uuid.New().String()
 }
