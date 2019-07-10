@@ -23,6 +23,7 @@ import (
 )
 
 var DtTopic = "devicetype"
+var ProtocolTopic = "protocol"
 
 type Publisher struct {
 	listener map[string][]func(msg []byte)
@@ -30,6 +31,17 @@ type Publisher struct {
 
 func NewPublisher() *Publisher {
 	return &Publisher{listener: map[string][]func(msg []byte){}}
+}
+
+func (this *Publisher) send(topic string, msg []byte) error {
+	for _, listener := range this.listener[topic] {
+		go listener(msg)
+	}
+	return nil
+}
+
+func (this *Publisher) Subscribe(topic string, f func(msg []byte)) {
+	this.listener[topic] = append(this.listener[topic], f)
 }
 
 func (this *Publisher) PublishDeviceType(device model.DeviceType, userId string) (err error) {
@@ -50,13 +62,20 @@ func (this *Publisher) PublishDeviceTypeDelete(id string, userId string) error {
 	return this.send(DtTopic, message)
 }
 
-func (this *Publisher) send(topic string, msg []byte) error {
-	for _, listener := range this.listener[topic] {
-		go listener(msg)
+func (this *Publisher) PublishProtocol(protocol model.Protocol, userId string) (err error) {
+	cmd := publisher.ProtocolCommand{Command: "PUT", Id: protocol.Id, Protocol: protocol, Owner: userId}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
 	}
-	return nil
+	return this.send(ProtocolTopic, message)
 }
 
-func (this *Publisher) Subscribe(topic string, f func(msg []byte)) {
-	this.listener[topic] = append(this.listener[topic], f)
+func (this *Publisher) PublishProtocolDelete(id string, userId string) error {
+	cmd := publisher.ProtocolCommand{Command: "DELETE", Id: id, Owner: userId}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(ProtocolTopic, message)
 }

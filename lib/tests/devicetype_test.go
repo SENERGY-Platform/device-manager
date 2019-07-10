@@ -45,8 +45,9 @@ func TestDeviceTypeWithMock(t *testing.T) {
 		t.Fatal("ERROR: unable to load config", err)
 	}
 	servicemocks.DtTopic = conf.DeviceTypeTopic
-	publ, conf, close := servicemocks.New(conf)
-	defer close()
+	servicemocks.ProtocolTopic = conf.ProtocolTopic
+	publ, conf, stop := servicemocks.New(conf)
+	defer stop()
 
 	port, err := helper.GetFreePort()
 	if err != nil {
@@ -78,11 +79,12 @@ func TestDeviceType(t *testing.T) {
 		t.Fatal("ERROR: unable to load config", err)
 	}
 	servicemocks.DtTopic = conf.DeviceTypeTopic
-	publ, conf, close, err := services.New(conf)
+	servicemocks.ProtocolTopic = conf.ProtocolTopic
+	publ, conf, stop, err := services.New(conf)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer close()
+	defer stop()
 
 	port, err := helper.GetFreePort()
 	if err != nil {

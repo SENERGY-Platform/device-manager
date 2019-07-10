@@ -28,6 +28,7 @@ import (
 type Publisher struct {
 	config      config.Config
 	devicetypes *kafka.Writer
+	protocols   *kafka.Writer
 }
 
 func New(conf config.Config) (*Publisher, error) {
@@ -42,7 +43,11 @@ func New(conf config.Config) (*Publisher, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Publisher{config: conf, devicetypes: devicetypes}, nil
+	protocol, err := getProducer(broker, conf.ProtocolTopic, conf.LogLevel == "DEBUG")
+	if err != nil {
+		return nil, err
+	}
+	return &Publisher{config: conf, devicetypes: devicetypes, protocols: protocol}, nil
 }
 
 func getProducer(broker []string, topic string, debug bool) (writer *kafka.Writer, err error) {

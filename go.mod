@@ -9,6 +9,7 @@ require (
 	github.com/containerd/continuity v0.0.0-20190426062206-aaeac12a7ffc // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
+	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
@@ -19,4 +20,6 @@ require (
 	github.com/segmentio/kafka-go v0.2.5
 	github.com/sirupsen/logrus v1.4.2 // indirect
 	github.com/wvanbergen/kazoo-go v0.0.0-20180202103751-f72d8611297a
+	go.mongodb.org/mongo-driver v1.0.3
+	golang.org/x/sync v0.0.0-20190423024810-112230192c58 // indirect
 )

@@ -99,6 +99,25 @@ func New(cin config.Config) (publ *servicemocks.Publisher, cout config.Config, s
 	}
 	cout.PermissionsUrl = "http://" + permIp + ":8080"
 
+	closerMongo, _, mongoIp, err := MongoTestServer(pool)
+	listMux.Lock()
+	closerList = append(closerList, closerMongo)
+	listMux.Unlock()
+	if err != nil {
+		globalError = err
+		return
+	}
+
+	closerDeviceRepo, _, repoIp, err := DeviceRepo(pool, mongoIp, cout.ZookeeperUrl, permIp)
+	listMux.Lock()
+	closerList = append(closerList, closerDeviceRepo)
+	listMux.Unlock()
+	if err != nil {
+		globalError = err
+		return
+	}
+	cout.DeviceRepoUrl = "http://" + repoIp + ":8080"
+
 	kafkapubl, err := publisher.New(cout)
 	if err != nil {
 		close(closerList)
@@ -111,15 +130,16 @@ func New(cin config.Config) (publ *servicemocks.Publisher, cout config.Config, s
 		json.Unmarshal(msg, &cmd)
 		kafkapubl.PublishDeviceTypeCommand(cmd)
 	})
-
-	repo := servicemocks.NewDeviceRepo(publ)
-	cout.DeviceRepoUrl = repo.Url()
+	publ.Subscribe(servicemocks.ProtocolTopic, func(msg []byte) {
+		cmd := publisher.ProtocolCommand{}
+		json.Unmarshal(msg, &cmd)
+		kafkapubl.PublishProtocolCommand(cmd)
+	})
 
 	semantic := servicemocks.NewSemanticRepo(publ)
 	cout.SemanticRepoUrl = semantic.Url()
 
 	return publ, cout, func() {
-		repo.Stop()
 		semantic.Stop()
 		close(closerList)
 	}, nil
