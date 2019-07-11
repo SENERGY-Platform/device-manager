@@ -45,7 +45,7 @@ func (this *Publisher) PublishDeviceTypeDelete(id string, userId string) error {
 
 func (this *Publisher) PublishDeviceTypeCommand(cmd DeviceTypeCommand) error {
 	if this.config.LogLevel == "DEBUG" {
-		log.Println("DEBUG: produce", cmd)
+		log.Println("DEBUG: produce devicetype", cmd)
 	}
 	message, err := json.Marshal(cmd)
 	if err != nil {

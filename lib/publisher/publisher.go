@@ -39,6 +39,7 @@ func New(conf config.Config) (*Publisher, error) {
 	if len(broker) == 0 {
 		return nil, errors.New("missing kafka broker")
 	}
+	log.Println("Produce to ", conf.DeviceTypeTopic, conf.ProtocolTopic)
 	devicetypes, err := getProducer(broker, conf.DeviceTypeTopic, conf.LogLevel == "DEBUG")
 	if err != nil {
 		return nil, err

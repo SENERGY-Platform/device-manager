@@ -90,6 +90,29 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
+	router.PUT("/protocols", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		protocol := model.Protocol{}
+		err = json.NewDecoder(request.Body).Decode(&protocol)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if protocol.Id == "" {
+			http.Error(writer, "missing device id", http.StatusBadRequest)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
 	repo.ts = httptest.NewServer(router)
 
 	return repo

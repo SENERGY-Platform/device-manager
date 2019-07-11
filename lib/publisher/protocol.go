@@ -45,7 +45,7 @@ func (this *Publisher) PublishProtocolDelete(id string, userId string) error {
 
 func (this *Publisher) PublishProtocolCommand(cmd ProtocolCommand) error {
 	if this.config.LogLevel == "DEBUG" {
-		log.Println("DEBUG: produce", cmd)
+		log.Println("DEBUG: produce protocol", cmd)
 	}
 	message, err := json.Marshal(cmd)
 	if err != nil {
