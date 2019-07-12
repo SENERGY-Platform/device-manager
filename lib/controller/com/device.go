@@ -21,19 +21,14 @@ import (
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
-func (this *Com) GetTechnicalDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {
-	err, code = getResourceFromService(jwt, this.config.DeviceRepoUrl+"/device-types", id, &dt)
+//expects previous permission check and use own admin jwt to access device
+func (this *Com) GetDevice(jwt jwt_http_router.Jwt, id string) (device model.Device, err error, code int) {
+	err, code = getResourceFromService(jwt, this.config.DeviceRepoUrl+"/devices", id, &device)
 	return
 }
 
-func (this *Com) GetSemanticDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {
-	err, code = getResourceFromService(jwt, this.config.SemanticRepoUrl+"/device-types", id, &dt)
-	return
-}
-
-func (this *Com) ValidateDeviceType(jwt jwt_http_router.Jwt, dt model.DeviceType) (err error, code int) {
+func (this *Com) ValidateDevice(jwt jwt_http_router.Jwt, device model.Device) (err error, code int) {
 	return validateResource(jwt, []string{
-		this.config.SemanticRepoUrl + "/device-types?dry-run=true",
-		this.config.DeviceRepoUrl + "/device-types?dry-run=true",
-	}, dt)
+		this.config.DeviceRepoUrl + "/devices?dry-run=true",
+	}, device)
 }

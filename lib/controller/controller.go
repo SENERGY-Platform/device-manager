@@ -42,6 +42,8 @@ func NewWithPublisher(conf config.Config, publisher Publisher) (*Controller, err
 }
 
 type Publisher interface {
+	PublishDevice(device model.Device, userID string) (err error)
+	PublishDeviceDelete(id string, userID string) error
 	PublishDeviceType(device model.DeviceType, userID string) (err error)
 	PublishDeviceTypeDelete(id string, userID string) error
 	PublishProtocol(device model.Protocol, userID string) (err error)
@@ -51,8 +53,11 @@ type Publisher interface {
 type Com interface {
 	ValidateDeviceType(jwt jwt_http_router.Jwt, dt model.DeviceType) (err error, code int)
 	PermissionCheckForDeviceType(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	PermissionCheckForDevice(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int)     //permission = "w" | "r" | "x" | "a"
 	GetTechnicalDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int)
 	GetSemanticDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int)
 	GetProtocol(jwt jwt_http_router.Jwt, id string) (model.Protocol, error, int)
 	ValidateProtocol(jwt jwt_http_router.Jwt, protocol model.Protocol) (err error, code int)
+	GetDevice(jwt jwt_http_router.Jwt, id string) (model.Device, error, int) //uses internal admin jwt
+	ValidateDevice(jwt jwt_http_router.Jwt, device model.Device) (err error, code int)
 }

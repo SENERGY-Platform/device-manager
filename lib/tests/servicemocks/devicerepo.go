@@ -27,14 +27,14 @@ import (
 )
 
 type DeviceRepo struct {
-	dt map[string]model.DeviceType
+	db map[string]interface{}
 	ts *httptest.Server
 }
 
 func NewDeviceRepo(producer interface {
 	Subscribe(topic string, f func(msg []byte))
 }) *DeviceRepo {
-	repo := &DeviceRepo{dt: map[string]model.DeviceType{}}
+	repo := &DeviceRepo{db: map[string]interface{}{}}
 	producer.Subscribe(DtTopic, func(msg []byte) {
 		cmd := publisher.DeviceTypeCommand{}
 		json.Unmarshal(msg, &cmd)
@@ -45,9 +45,27 @@ func NewDeviceRepo(producer interface {
 				service.Functions = nil
 				cmd.DeviceType.Services[i] = service
 			}
-			repo.dt[cmd.Id] = cmd.DeviceType
+			repo.db[cmd.Id] = cmd.DeviceType
 		} else if cmd.Command == "DELETE" {
-			delete(repo.dt, cmd.Id)
+			delete(repo.db, cmd.Id)
+		}
+	})
+	producer.Subscribe(DeviceTopic, func(msg []byte) {
+		cmd := publisher.DeviceCommand{}
+		json.Unmarshal(msg, &cmd)
+		if cmd.Command == "PUT" {
+			repo.db[cmd.Id] = cmd.Device
+		} else if cmd.Command == "DELETE" {
+			delete(repo.db, cmd.Id)
+		}
+	})
+	producer.Subscribe(ProtocolTopic, func(msg []byte) {
+		cmd := publisher.ProtocolCommand{}
+		json.Unmarshal(msg, &cmd)
+		if cmd.Command == "PUT" {
+			repo.db[cmd.Id] = cmd.Protocol
+		} else if cmd.Command == "DELETE" {
+			delete(repo.db, cmd.Id)
 		}
 	})
 
@@ -55,7 +73,7 @@ func NewDeviceRepo(producer interface {
 
 	router.GET("/device-types/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
 		id := params.ByName("id")
-		dt, ok := repo.dt[id]
+		dt, ok := repo.db[id]
 		if ok {
 			json.NewEncoder(writer).Encode(dt)
 		} else {
@@ -85,6 +103,47 @@ func NewDeviceRepo(producer interface {
 		}
 		if len(dt.Services) == 0 {
 			http.Error(writer, "expect at least one service", http.StatusBadRequest)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
+	router.GET("/devices/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("id")
+		dt, ok := repo.db[id]
+		if ok {
+			json.NewEncoder(writer).Encode(dt)
+		} else {
+			http.Error(writer, "404", 404)
+		}
+	})
+
+	router.PUT("/devices", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		device := model.Device{}
+		err = json.NewDecoder(request.Body).Decode(&device)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if device.Id == "" {
+			http.Error(writer, "missing device id", http.StatusBadRequest)
+			return
+		}
+		if device.LocalId == "" {
+			http.Error(writer, "missing local id", http.StatusBadRequest)
+			return
+		}
+		if device.DeviceTypeId == "" {
+			http.Error(writer, "missing device-type id", http.StatusBadRequest)
 			return
 		}
 		writer.WriteHeader(http.StatusOK)

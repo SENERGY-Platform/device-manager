@@ -29,6 +29,7 @@ type Publisher struct {
 	config      config.Config
 	devicetypes *kafka.Writer
 	protocols   *kafka.Writer
+	devices     *kafka.Writer
 }
 
 func New(conf config.Config) (*Publisher, error) {
@@ -39,8 +40,12 @@ func New(conf config.Config) (*Publisher, error) {
 	if len(broker) == 0 {
 		return nil, errors.New("missing kafka broker")
 	}
-	log.Println("Produce to ", conf.DeviceTypeTopic, conf.ProtocolTopic)
+	log.Println("Produce to ", conf.DeviceTypeTopic, conf.ProtocolTopic, conf.DeviceTopic)
 	devicetypes, err := getProducer(broker, conf.DeviceTypeTopic, conf.LogLevel == "DEBUG")
+	if err != nil {
+		return nil, err
+	}
+	devices, err := getProducer(broker, conf.DeviceTopic, conf.LogLevel == "DEBUG")
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +53,7 @@ func New(conf config.Config) (*Publisher, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Publisher{config: conf, devicetypes: devicetypes, protocols: protocol}, nil
+	return &Publisher{config: conf, devicetypes: devicetypes, protocols: protocol, devices: devices}, nil
 }
 
 func getProducer(broker []string, topic string, debug bool) (writer *kafka.Writer, err error) {

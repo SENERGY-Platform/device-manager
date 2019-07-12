@@ -18,6 +18,7 @@ package controller
 
 import (
 	"errors"
+	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
@@ -28,7 +29,7 @@ func (this *Controller) ReadProtocol(jwt jwt_http_router.Jwt, id string) (protoc
 }
 
 func (this *Controller) PublishProtocolCreate(jwt jwt_http_router.Jwt, protocol model.Protocol) (model.Protocol, error, int) {
-	if !IsAdmin(jwt) {
+	if !com.IsAdmin(jwt) {
 		return protocol, errors.New("access denied"), http.StatusForbidden
 	}
 	protocol.GenerateId()
@@ -44,7 +45,7 @@ func (this *Controller) PublishProtocolCreate(jwt jwt_http_router.Jwt, protocol 
 }
 
 func (this *Controller) PublishProtocolUpdate(jwt jwt_http_router.Jwt, id string, protocol model.Protocol) (model.Protocol, error, int) {
-	if !IsAdmin(jwt) {
+	if !com.IsAdmin(jwt) {
 		return protocol, errors.New("access denied"), http.StatusForbidden
 	}
 	if protocol.Id != id {
@@ -67,7 +68,7 @@ func (this *Controller) PublishProtocolUpdate(jwt jwt_http_router.Jwt, id string
 }
 
 func (this *Controller) PublishProtocolDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	if !IsAdmin(jwt) {
+	if !com.IsAdmin(jwt) {
 		return errors.New("access denied"), http.StatusForbidden
 	}
 	err := this.publisher.PublishProtocolDelete(id, jwt.UserId)

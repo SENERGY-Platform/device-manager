@@ -16,7 +16,9 @@
 
 package com
 
-import "github.com/SENERGY-Platform/device-manager/lib/config"
+import (
+	"github.com/SENERGY-Platform/device-manager/lib/config"
+)
 
 type Com struct {
 	config config.Config

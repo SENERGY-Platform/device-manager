@@ -27,7 +27,30 @@ import (
 	"runtime/debug"
 )
 
+func IsAdmin(jwt jwt_http_router.Jwt) bool {
+	return contains(jwt.RealmAccess.Roles, "admin")
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *Com) PermissionCheckForDevice(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
+	if IsAdmin(jwt) {
+		return nil, http.StatusOK
+	}
+	return this.PermissionCheck(jwt, id, permission, this.config.DeviceTopic)
+}
+
 func (this *Com) PermissionCheckForDeviceType(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
+	if IsAdmin(jwt) {
+		return nil, http.StatusOK
+	}
 	return this.PermissionCheck(jwt, id, permission, this.config.DeviceTypeTopic)
 }
 

@@ -17,69 +17,17 @@
 package com
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
-	"net/http"
-	"net/url"
-	"runtime/debug"
 )
 
 func (this *Com) GetProtocol(jwt jwt_http_router.Jwt, id string) (protocol model.Protocol, err error, code int) {
-	req, err := http.NewRequest("GET", this.config.DeviceRepoUrl+"/device-types/"+url.PathEscape(id), nil)
-	if err != nil {
-		debug.PrintStack()
-		return protocol, err, http.StatusInternalServerError
-	}
-	req.Header.Set("Authorization", string(jwt.Impersonate))
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		debug.PrintStack()
-		return protocol, err, http.StatusInternalServerError
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(resp.Body)
-		return protocol, errors.New(buf.String()), resp.StatusCode
-	}
-	err = json.NewDecoder(resp.Body).Decode(&protocol)
-	if err != nil {
-		debug.PrintStack()
-		return protocol, err, http.StatusInternalServerError
-	}
-	return protocol, nil, http.StatusOK
+	err, code = getResourceFromService(jwt, this.config.DeviceRepoUrl+"/protocols", id, &protocol)
+	return
 }
 
 func (this *Com) ValidateProtocol(jwt jwt_http_router.Jwt, protocol model.Protocol) (err error, code int) {
-	for _, endpoint := range []string{
+	return validateResource(jwt, []string{
 		this.config.DeviceRepoUrl + "/protocols?dry-run=true",
-	} {
-		b := new(bytes.Buffer)
-		err = json.NewEncoder(b).Encode(protocol)
-		if err != nil {
-			debug.PrintStack()
-			return err, http.StatusInternalServerError
-		}
-		req, err := http.NewRequest("PUT", endpoint, b)
-		if err != nil {
-			debug.PrintStack()
-			return err, http.StatusInternalServerError
-		}
-		req.Header.Set("Authorization", string(jwt.Impersonate))
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			debug.PrintStack()
-			return err, http.StatusInternalServerError
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode >= 300 {
-			buf := new(bytes.Buffer)
-			buf.ReadFrom(resp.Body)
-			return errors.New(buf.String()), resp.StatusCode
-		}
-	}
-	return nil, http.StatusOK
+	}, protocol)
 }
