@@ -47,6 +47,13 @@ func (this *Com) PermissionCheckForDevice(jwt jwt_http_router.Jwt, id string, pe
 	return this.PermissionCheck(jwt, id, permission, this.config.DeviceTopic)
 }
 
+func (this *Com) PermissionCheckForHub(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
+	if IsAdmin(jwt) {
+		return nil, http.StatusOK
+	}
+	return this.PermissionCheck(jwt, id, permission, this.config.HubTopic)
+}
+
 func (this *Com) PermissionCheckForDeviceType(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
 	if IsAdmin(jwt) {
 		return nil, http.StatusOK

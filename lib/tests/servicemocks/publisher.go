@@ -25,6 +25,7 @@ import (
 var DtTopic = "devicetype"
 var ProtocolTopic = "protocol"
 var DeviceTopic = "device"
+var HubTopic = "hub"
 
 type Publisher struct {
 	listener map[string][]func(msg []byte)
@@ -61,6 +62,24 @@ func (this *Publisher) PublishDeviceDelete(id string, userId string) error {
 		return err
 	}
 	return this.send(DeviceTopic, message)
+}
+
+func (this *Publisher) PublishHub(hub model.Hub, userId string) (err error) {
+	cmd := publisher.HubCommand{Command: "PUT", Id: hub.Id, Hub: hub, Owner: userId}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(HubTopic, message)
+}
+
+func (this *Publisher) PublishHubDelete(id string, userId string) error {
+	cmd := publisher.HubCommand{Command: "DELETE", Id: id, Owner: userId}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(HubTopic, message)
 }
 
 func (this *Publisher) PublishDeviceType(device model.DeviceType, userId string) (err error) {

@@ -40,28 +40,28 @@ func (this *Controller) PublishDeviceCreate(jwt jwt_http_router.Jwt, device mode
 	return device, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceUpdate(jwt jwt_http_router.Jwt, id string, dt model.Device) (model.Device, error, int) {
-	if dt.Id != id {
-		return dt, errors.New("device id in body unequal to device id in request endpoint"), http.StatusBadRequest
+func (this *Controller) PublishDeviceUpdate(jwt jwt_http_router.Jwt, id string, device model.Device) (model.Device, error, int) {
+	if device.Id != id {
+		return device, errors.New("device id in body unequal to device id in request endpoint"), http.StatusBadRequest
 	}
 
 	//replace sub ids and create new ones for new sub elements
-	dt.GenerateId()
-	dt.Id = id
+	device.GenerateId()
+	device.Id = id
 
 	err, code := this.com.PermissionCheckForDevice(jwt, id, "w")
 	if err != nil {
-		return dt, err, code
+		return device, err, code
 	}
-	err, code = this.com.ValidateDevice(jwt, dt)
+	err, code = this.com.ValidateDevice(jwt, device)
 	if err != nil {
-		return dt, err, code
+		return device, err, code
 	}
-	err = this.publisher.PublishDevice(dt, jwt.UserId)
+	err = this.publisher.PublishDevice(device, jwt.UserId)
 	if err != nil {
-		return dt, err, http.StatusInternalServerError
+		return device, err, http.StatusInternalServerError
 	}
-	return dt, nil, http.StatusOK
+	return device, nil, http.StatusOK
 }
 
 func (this *Controller) PublishDeviceDelete(jwt jwt_http_router.Jwt, id string) (error, int) {

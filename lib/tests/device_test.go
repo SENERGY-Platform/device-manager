@@ -28,7 +28,7 @@ import (
 )
 
 func testDevice(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/protocols", model.Protocol{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", model.Protocol{
 		Name:             "p2",
 		Handler:          "ph1",
 		ProtocolSegments: []model.ProtocolSegment{{Name: "ps2"}},
@@ -175,6 +175,21 @@ func testDevice(t *testing.T, port string) {
 
 	if result.Name != "d1" || result.LocalId != "lid1" || result.DeviceTypeId != dt.Id {
 		t.Fatal(result)
+	}
+
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+		Name:         "reused_local_id",
+		DeviceTypeId: dt.Id,
+		LocalId:      "lid1",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	//expect validation error
+	if resp.StatusCode == http.StatusOK {
+		t.Fatal("device.local_id should be validated for global uniqueness: ", resp.Status, resp.StatusCode)
 	}
 
 	resp, err = helper.Jwtdelete(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id))

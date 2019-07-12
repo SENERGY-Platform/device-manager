@@ -23,26 +23,16 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"reflect"
 	"testing"
 	"time"
 )
 
-func testDeviceType(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	//expect validation error
-	if resp.StatusCode == http.StatusOK {
-		t.Fatal(resp.Status, resp.StatusCode)
-	}
-
-	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", model.Protocol{
-		Name:             "pname1",
+func testHub(t *testing.T, port string) {
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", model.Protocol{
+		Name:             "p2",
 		Handler:          "ph1",
-		ProtocolSegments: []model.ProtocolSegment{{Name: "ps1"}},
+		ProtocolSegments: []model.ProtocolSegment{{Name: "ps2"}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -113,8 +103,84 @@ func testDeviceType(t *testing.T, port string) {
 
 	time.Sleep(10 * time.Second)
 
-	result := model.DeviceType{}
-	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+		Name:         "d2",
+		DeviceTypeId: dt.Id,
+		LocalId:      "lid2",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal(resp.Status, resp.StatusCode)
+	}
+
+	device := model.Device{}
+	err = json.NewDecoder(resp.Body).Decode(&device)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if device.Id == "" {
+		t.Fatal(device)
+	}
+
+	time.Sleep(10 * time.Second)
+
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.Hub{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	//expect validation error
+	if resp.StatusCode == http.StatusOK {
+		t.Fatal(resp.Status, resp.StatusCode)
+	}
+
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.Hub{
+		Name:           "h1",
+		DeviceLocalIds: []string{"unknown"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	//expect validation error
+	if resp.StatusCode == http.StatusOK {
+		t.Fatal(resp.Status, resp.StatusCode)
+	}
+
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.Hub{
+		Name:           "h1",
+		Hash:           "foobar",
+		DeviceLocalIds: []string{device.LocalId},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatal(resp.Status, resp.StatusCode)
+	}
+
+	hub := model.Hub{}
+	err = json.NewDecoder(resp.Body).Decode(&hub)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if hub.Id == "" {
+		t.Fatal(hub)
+	}
+
+	time.Sleep(10 * time.Second)
+
+	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,45 +188,40 @@ func testDeviceType(t *testing.T, port string) {
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := ioutil.ReadAll(resp.Body)
-		t.Log("http://localhost:" + port + "/device-types/" + url.PathEscape(dt.Id))
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	result = model.DeviceType{}
+	result := model.Hub{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if result.Name != "foo" ||
-		result.DeviceClass.Id != "dc1" ||
-		len(result.Services) != 1 ||
-		result.Services[0].Name != "s1name" ||
-		result.Services[0].ProtocolId != protocol.Id ||
-		len(result.Services[0].Aspects) != 1 ||
-		result.Services[0].Aspects[0].Id != "a1" ||
-		len(result.Services[0].Functions) != 1 ||
-		result.Services[0].Functions[0].Id != "f1" {
-
+	if result.Name != "h1" || result.Hash != "foobar" || !reflect.DeepEqual(result.DeviceLocalIds, []string{device.LocalId}) {
 		t.Fatal(result)
 	}
 
-	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
+	resp, err = helper.Jwtdelete(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusOK {
 		b, _ := ioutil.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
+	time.Sleep(5 * time.Second)
+
+	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
+
+	//expect 404 error
+	if resp.StatusCode != http.StatusNotFound {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 }

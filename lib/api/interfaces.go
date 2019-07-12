@@ -32,6 +32,11 @@ type Controller interface {
 	PublishDeviceUpdate(jwt jwt_http_router.Jwt, id string, device model.Device) (result model.Device, err error, code int)
 	PublishDeviceDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
 
+	ReadHub(jwt jwt_http_router.Jwt, id string) (hub model.Hub, err error, code int)
+	PublishHubCreate(jwt jwt_http_router.Jwt, dt model.Hub) (result model.Hub, err error, code int)
+	PublishHubUpdate(jwt jwt_http_router.Jwt, id string, hub model.Hub) (result model.Hub, err error, code int)
+	PublishHubDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
+
 	ReadProtocol(jwt jwt_http_router.Jwt, id string) (device model.Protocol, err error, code int)
 	PublishProtocolCreate(jwt jwt_http_router.Jwt, dt model.Protocol) (result model.Protocol, err error, code int)
 	PublishProtocolUpdate(jwt jwt_http_router.Jwt, id string, device model.Protocol) (result model.Protocol, err error, code int)

@@ -25,6 +25,10 @@ type Hub struct {
 	DeviceLocalIds []string `json:"device_local_ids"`
 }
 
+func (hub *Hub) GenerateId() {
+	hub.Id = "urn:infai:ses:hub:" + uuid.New().String()
+}
+
 type Protocol struct {
 	Id               string            `json:"id"`
 	Name             string            `json:"name"`

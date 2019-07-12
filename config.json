@@ -5,6 +5,7 @@
   "server_port": "8080",
   "permissions_url": "http://perm:8080",
   "device_topic": "devices",
+  "hub_topic": "hubs",
   "device_type_topic": "device-types",
   "protocol_topic": "protocols",
   "device_repo_url": "http://device-repo:8080",

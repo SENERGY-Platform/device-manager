@@ -135,6 +135,11 @@ func New(cin config.Config) (publ *servicemocks.Publisher, cout config.Config, s
 		json.Unmarshal(msg, &cmd)
 		kafkapubl.PublishDeviceCommand(cmd)
 	})
+	publ.Subscribe(servicemocks.HubTopic, func(msg []byte) {
+		cmd := publisher.HubCommand{}
+		json.Unmarshal(msg, &cmd)
+		kafkapubl.PublishHubCommand(cmd)
+	})
 	publ.Subscribe(servicemocks.ProtocolTopic, func(msg []byte) {
 		cmd := publisher.ProtocolCommand{}
 		json.Unmarshal(msg, &cmd)

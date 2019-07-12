@@ -30,6 +30,7 @@ type Publisher struct {
 	devicetypes *kafka.Writer
 	protocols   *kafka.Writer
 	devices     *kafka.Writer
+	hubs        *kafka.Writer
 }
 
 func New(conf config.Config) (*Publisher, error) {
@@ -49,11 +50,15 @@ func New(conf config.Config) (*Publisher, error) {
 	if err != nil {
 		return nil, err
 	}
+	hubs, err := getProducer(broker, conf.HubTopic, conf.LogLevel == "DEBUG")
+	if err != nil {
+		return nil, err
+	}
 	protocol, err := getProducer(broker, conf.ProtocolTopic, conf.LogLevel == "DEBUG")
 	if err != nil {
 		return nil, err
 	}
-	return &Publisher{config: conf, devicetypes: devicetypes, protocols: protocol, devices: devices}, nil
+	return &Publisher{config: conf, devicetypes: devicetypes, protocols: protocol, devices: devices, hubs: hubs}, nil
 }
 
 func getProducer(broker []string, topic string, debug bool) (writer *kafka.Writer, err error) {
