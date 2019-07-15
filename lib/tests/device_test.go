@@ -49,7 +49,7 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
 		Name: "foo",
@@ -141,7 +141,8 @@ func testDevice(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		t.Fatal(resp.Status, resp.StatusCode)
+		b, _ := ioutil.ReadAll(resp.Body)
+		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
 	device := model.Device{}

@@ -123,4 +123,7 @@ func TestWithDocker(t *testing.T) {
 	t.Run("testHub", func(t *testing.T) {
 		testHub(t, conf.ServerPort)
 	})
+	t.Run("testHubAssertions", func(t *testing.T) {
+		testHubAssertions(t, conf.ServerPort)
+	})
 }
