@@ -75,9 +75,9 @@ func testDeviceType(t *testing.T, port string) {
 					{
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
-						Variable: model.Variable{
+						ContentVariable: model.ContentVariable{
 							Name: "v1name",
-							Type: "string",
+							Type: model.String,
 						},
 					},
 				},

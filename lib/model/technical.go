@@ -16,17 +16,11 @@
 
 package model
 
-import "github.com/google/uuid"
-
 type Hub struct {
 	Id             string   `json:"id"`
 	Name           string   `json:"name"`
 	Hash           string   `json:"hash"`
 	DeviceLocalIds []string `json:"device_local_ids"`
-}
-
-func (hub *Hub) GenerateId() {
-	hub.Id = "urn:infai:ses:hub:" + uuid.New().String()
 }
 
 type Protocol struct {
@@ -36,46 +30,42 @@ type Protocol struct {
 	ProtocolSegments []ProtocolSegment `json:"protocol_segments"`
 }
 
-func (protocol *Protocol) GenerateId() {
-	protocol.Id = "urn:infai:ses:protocol:" + uuid.New().String()
-	for i, segment := range protocol.ProtocolSegments {
-		segment.GenerateId()
-		protocol.ProtocolSegments[i] = segment
-	}
-}
-
 type ProtocolSegment struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
 }
 
-func (segment *ProtocolSegment) GenerateId() {
-	segment.Id = "urn:infai:ses:segment:" + uuid.New().String()
-}
-
 type Content struct {
 	Id                   string                `json:"id"`
-	Variable             Variable              `json:"variable"`
+	ContentVariable      ContentVariable       `json:"content_variable"`
 	Serialization        string                `json:"serialization"`
 	SerializationOptions []SerializationOption `json:"serialization_options"`
 	ProtocolSegmentId    string                `json:"protocol_segment_id"`
 }
 
-func (content *Content) GenerateId() {
-	content.Id = "urn:infai:ses:content:" + uuid.New().String()
-	for i, option := range content.SerializationOptions {
-		option.GenerateId()
-		content.SerializationOptions[i] = option
-	}
-	content.Variable.GenerateId()
-}
-
 type SerializationOption struct {
-	Id         string `json:"id"`
-	Option     string `json:"option"`
-	VariableId string `json:"variable_id"`
+	Id                string `json:"id"`
+	Option            string `json:"option"`
+	ContentVariableId string `json:"content_variable_id"`
 }
 
-func (option *SerializationOption) GenerateId() {
-	option.Id = "urn:infai:ses:option:" + uuid.New().String()
+type VariableType string
+
+const (
+	String  VariableType = "string"
+	Integer VariableType = "int"
+	Float   VariableType = "float"
+	Boolean VariableType = "bool"
+
+	List      VariableType = "list"
+	Structure VariableType = "structure"
+)
+
+type ContentVariable struct {
+	Id                  string            `json:"id"`
+	Name                string            `json:"name"`
+	Type                VariableType      `json:"type"`
+	SubContentVariables []ContentVariable `json:"sub_content_variables"`
+	ExactMatch          string            `json:"exact_match"`
+	Value               interface{}       `json:"value"`
 }
