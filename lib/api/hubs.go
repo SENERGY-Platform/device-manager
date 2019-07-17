@@ -39,6 +39,7 @@ func HubsEndpoints(config config.Config, control Controller, router *jwt_http_ro
 			http.Error(writer, err.Error(), errCode)
 			return
 		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(result)
 		if err != nil {
 			log.Println("ERROR: unable to encode response", err)
@@ -58,6 +59,7 @@ func HubsEndpoints(config config.Config, control Controller, router *jwt_http_ro
 			http.Error(writer, err.Error(), errCode)
 			return
 		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(result)
 		if err != nil {
 			log.Println("ERROR: unable to encode response", err)
@@ -78,6 +80,7 @@ func HubsEndpoints(config config.Config, control Controller, router *jwt_http_ro
 			http.Error(writer, err.Error(), errCode)
 			return
 		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(result)
 		if err != nil {
 			log.Println("ERROR: unable to encode response", err)
@@ -92,6 +95,7 @@ func HubsEndpoints(config config.Config, control Controller, router *jwt_http_ro
 			http.Error(writer, err.Error(), errCode)
 			return
 		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(true)
 		if err != nil {
 			log.Println("ERROR: unable to encode response", err)
