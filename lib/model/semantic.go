@@ -42,7 +42,7 @@ type Concept struct {
 type Characteristic struct {
 	Id                 string           `json:"id"`
 	Name               string           `json:"name"`
-	Type               ValueType        `json:"type"`
+	ValueType          ValueType        `json:"value_type"`
 	MinValue           float64          `json:"min_value"`
 	MaxValue           float64          `json:"max_value"`
 	Value              interface{}      `json:"value"`
