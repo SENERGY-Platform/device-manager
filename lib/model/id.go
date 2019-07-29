@@ -87,15 +87,7 @@ func (segment *ProtocolSegment) GenerateId() {
 
 func (content *Content) GenerateId() {
 	content.Id = "urn:infai:ses:content:" + uuid.New().String()
-	for i, option := range content.SerializationOptions {
-		option.GenerateId()
-		content.SerializationOptions[i] = option
-	}
 	content.ContentVariable.GenerateId()
-}
-
-func (option *SerializationOption) GenerateId() {
-	option.Id = "urn:infai:ses:option:" + uuid.New().String()
 }
 
 func (variable *ContentVariable) GenerateId() {
