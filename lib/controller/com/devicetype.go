@@ -23,6 +23,9 @@ import (
 )
 
 func (this *Com) GetTechnicalDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {
+	if this.config.DeviceRepoUrl == "" || this.config.DeviceRepoUrl == "-" {
+		return model.DeviceType{}, nil, http.StatusOK
+	}
 	err, code = getResourceFromService(jwt, this.config.DeviceRepoUrl+"/device-types", id, &dt)
 	return
 }
@@ -36,8 +39,9 @@ func (this *Com) GetSemanticDeviceType(jwt jwt_http_router.Jwt, id string) (dt m
 }
 
 func (this *Com) ValidateDeviceType(jwt jwt_http_router.Jwt, dt model.DeviceType) (err error, code int) {
-	list := []string{
-		this.config.DeviceRepoUrl + "/device-types?dry-run=true",
+	list := []string{}
+	if this.config.DeviceRepoUrl != "" && this.config.DeviceRepoUrl != "-" {
+		list = append(list, this.config.DeviceRepoUrl+"/device-types?dry-run=true")
 	}
 	if this.config.SemanticRepoUrl != "" && this.config.SemanticRepoUrl != "-" {
 		list = append(list, this.config.SemanticRepoUrl+"/device-types?dry-run=true")

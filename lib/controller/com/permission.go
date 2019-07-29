@@ -62,6 +62,9 @@ func (this *Com) PermissionCheckForDeviceType(jwt jwt_http_router.Jwt, id string
 }
 
 func (this *Com) PermissionCheck(jwt jwt_http_router.Jwt, id string, permission string, resource string) (err error, code int) {
+	if this.config.PermissionsUrl == "" || this.config.PermissionsUrl == "-" {
+		return nil, 200
+	}
 	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/jwt/check/"+url.QueryEscape(resource)+"/"+url.QueryEscape(id)+"/"+permission+"/bool", nil)
 	if err != nil {
 		debug.PrintStack()
