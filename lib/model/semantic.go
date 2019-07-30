@@ -24,17 +24,13 @@ type DeviceClass struct {
 type Function struct {
 	Id         string   `json:"id"`
 	Name       string   `json:"name"`
-	ConceptIds []ConceptId `json:"concept_ids"`
+	ConceptIds []string `json:"concept_ids"`
 	Type       string   `json:"type"`
 }
 
 type Aspect struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
-}
-
-type ConceptId struct {
-	Id         string   `json:"id"`
 }
 
 type Concept struct {
