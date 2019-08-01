@@ -19,8 +19,9 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
+	"runtime/debug"
 )
 
 func (this *Controller) ReadDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {
@@ -69,14 +70,17 @@ func (this *Controller) PublishDeviceTypeUpdate(jwt jwt_http_router.Jwt, id stri
 
 	err, code := this.com.PermissionCheckForDeviceType(jwt, id, "w")
 	if err != nil {
+		debug.PrintStack()
 		return dt, err, code
 	}
 	err, code = this.com.ValidateDeviceType(jwt, dt)
 	if err != nil {
+		debug.PrintStack()
 		return dt, err, code
 	}
 	err = this.publisher.PublishDeviceType(dt, jwt.UserId)
 	if err != nil {
+		debug.PrintStack()
 		return dt, err, http.StatusInternalServerError
 	}
 	return dt, nil, http.StatusOK
