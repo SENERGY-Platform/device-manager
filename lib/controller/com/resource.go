@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"log"
 	"net/http"
 	"net/url"
 	"runtime/debug"
@@ -26,6 +27,8 @@ func getResourceFromService(jwt jwt_http_router.Jwt, endpoint string, id string,
 	if resp.StatusCode >= 300 {
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)
+		log.Println("ERROR: unable to get ressource", endpoint, err)
+		debug.PrintStack()
 		return errors.New(buf.String()), resp.StatusCode
 	}
 	err = json.NewDecoder(resp.Body).Decode(result)
@@ -59,6 +62,8 @@ func validateResource(jwt jwt_http_router.Jwt, endpoints []string, resource inte
 		if resp.StatusCode >= 300 {
 			buf := new(bytes.Buffer)
 			buf.ReadFrom(resp.Body)
+			log.Println("ERROR: unable to validate ressource", endpoint, resource, err)
+			debug.PrintStack()
 			return errors.New(buf.String()), resp.StatusCode
 		}
 	}
