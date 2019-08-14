@@ -44,8 +44,10 @@ func (device *Device) GenerateId() {
 func (deviceType *DeviceType) GenerateId() {
 	deviceType.Id = URN_PREFIX + "device-type:" + uuid.New().String()
 	for i, service := range deviceType.Services {
-		service.GenerateId()
-		deviceType.Services[i] = service
+		if service.Id == "" {
+			service.GenerateId()
+			deviceType.Services[i] = service
+		}
 	}
 	if deviceType.DeviceClass.Id == "" {
 		deviceType.DeviceClass.GenerateId()
