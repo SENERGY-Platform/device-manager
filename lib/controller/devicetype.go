@@ -22,6 +22,7 @@ import (
 	"github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 	"runtime/debug"
+	"sort"
 )
 
 func (this *Controller) ReadDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {
@@ -43,6 +44,11 @@ func (this *Controller) ReadDeviceType(jwt jwt_http_router.Jwt, id string) (dt m
 		service.Aspects = index[service.Id].Aspects
 		tdt.Services[i] = service
 	}
+
+	sort.Slice(tdt.Services, func(i, j int) bool {
+		return tdt.Services[i].Name < tdt.Services[j].Name
+	})
+
 	return tdt, nil, http.StatusOK
 }
 
