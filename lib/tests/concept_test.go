@@ -56,15 +56,29 @@ func testConcepts(t *testing.T, conf config.Config) {
 		t.Fatal(err)
 	}
 
-	t.Run("ids are set", func(t *testing.T) {
+	t.Run("create: ids are set", func(t *testing.T) {
 		conceptWithIds(t, concept)
 	})
 
-	t.Run("concept preserved structure", func(t *testing.T) {
+	t.Run("create: concept preserved structure", func(t *testing.T) {
 		conceptHasStructure(t, concept, createConcept)
 	})
 
-	resp, err = helper.Jwtget(userjwt, conf.SemanticRepoUrl+"/concepts/"+url.PathEscape(concept.Id))
+	t.Run("create: concept exists at semantic repo", func(t *testing.T) {
+		checkConcept(t, conf, concept.Id, createConcept)
+	})
+
+	updateConcept := model.Concept{
+		Id:   concept.Id,
+		Name: "c2",
+		Characteristics: []model.Characteristic{{
+			Name: "ch2",
+			SubCharacteristics: []model.Characteristic{{
+				Name: "ch2b",
+			}},
+		}},
+	}
+	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/"+url.PathEscape(concept.Id), updateConcept)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,24 +86,76 @@ func testConcepts(t *testing.T, conf config.Config) {
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := ioutil.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b), conf.SemanticRepoUrl+"/concepts/"+url.PathEscape(concept.Id))
+		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	conceptGet := model.Concept{}
-	err = json.NewDecoder(resp.Body).Decode(&conceptGet)
+	concept2 := model.Concept{}
+	err = json.NewDecoder(resp.Body).Decode(&concept2)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	expected := createConcept
-
-	t.Run("concept preserved structure", func(t *testing.T) {
-		conceptHasStructure(t, conceptGet, expected)
+	t.Run("update: ids are set", func(t *testing.T) {
+		conceptWithIds(t, concept2)
 	})
 
+	t.Run("update: concept preserved structure", func(t *testing.T) {
+		conceptHasStructure(t, concept2, updateConcept)
+	})
+
+	t.Run("update: concept exists at semantic repo", func(t *testing.T) {
+		checkConcept(t, conf, concept2.Id, updateConcept)
+	})
+
+	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/"+url.PathEscape(concept.Id))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	t.Run("delete: concept removed at semantic repo", func(t *testing.T) {
+		checkConceptDelete(t, conf, concept2.Id)
+	})
+}
+
+func checkConceptDelete(t *testing.T, conf config.Config, id string) {
+	resp, err := helper.Jwtget(userjwt, conf.SemanticRepoUrl+"/concepts/"+url.PathEscape(id))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNotFound {
+		b, _ := ioutil.ReadAll(resp.Body)
+		t.Fatal(resp.Status, resp.StatusCode, string(b))
+	}
+}
+
+func checkConcept(t *testing.T, conf config.Config, id string, expected model.Concept) {
+	resp, err := helper.Jwtget(userjwt, conf.SemanticRepoUrl+"/concepts/"+url.PathEscape(id))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		b, _ := ioutil.ReadAll(resp.Body)
+		t.Fatal(resp.Status, resp.StatusCode, string(b))
+	}
+
+	concept := model.Concept{}
+	err = json.NewDecoder(resp.Body).Decode(&concept)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("concept preserved structure", func(t *testing.T) {
+		conceptHasStructure(t, concept, expected)
+	})
 }
 
 func conceptHasStructure(t *testing.T, concept model.Concept, expected model.Concept) {
+	expected = removeIdsFromConcept(expected)
 	concept = removeIdsFromConcept(concept)
 	if !reflect.DeepEqual(concept, expected) {
 		t.Fatal(concept, expected)
