@@ -29,11 +29,15 @@ func (aspect *Aspect) GenerateId() {
 	aspect.Id = URN_PREFIX + "aspect:" + uuid.New().String()
 }
 
-func (category *Concept) GenerateId() {
-	category.Id = URN_PREFIX + "concept:" + uuid.New().String()
-	for i, v := range category.Characteristics {
-		v.GenerateId()
-		category.Characteristics[i] = v
+func (concept *Concept) GenerateId() {
+	if concept.Id == "" {
+		concept.Id = URN_PREFIX + "concept:" + uuid.New().String()
+	}
+	for i, characteristic := range concept.Characteristics {
+		if characteristic.Id == "" {
+			characteristic.GenerateId()
+			concept.Characteristics[i] = characteristic
+		}
 	}
 }
 

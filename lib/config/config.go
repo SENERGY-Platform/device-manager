@@ -39,6 +39,7 @@ type Config struct {
 	DeviceTypeTopic string `json:"device_type_topic"`
 	ProtocolTopic   string `json:"protocol_topic"`
 	HubTopic        string `json:"hub_topic"`
+	ConceptTopic    string `json:"concept_topic"`
 	DeviceRepoUrl   string `json:"device_repo_url"`
 	SemanticRepoUrl string `json:"semantic_repo_url"`
 	ZookeeperUrl    string `json:"zookeeper_url"`

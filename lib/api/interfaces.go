@@ -41,4 +41,8 @@ type Controller interface {
 	PublishProtocolCreate(jwt jwt_http_router.Jwt, dt model.Protocol) (result model.Protocol, err error, code int)
 	PublishProtocolUpdate(jwt jwt_http_router.Jwt, id string, device model.Protocol) (result model.Protocol, err error, code int)
 	PublishProtocolDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
+
+	PublishConceptCreate(jwt jwt_http_router.Jwt, concept model.Concept) (result model.Concept, err error, code int)
+	PublishConceptUpdate(jwt jwt_http_router.Jwt, id string, concept model.Concept) (result model.Concept, err error, code int)
+	PublishConceptDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
 }
