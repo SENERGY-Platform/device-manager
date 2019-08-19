@@ -27,14 +27,15 @@ import (
 )
 
 type SemanticRepo struct {
-	dt map[string]model.DeviceType
-	ts *httptest.Server
+	dt       map[string]model.DeviceType
+	concepts map[string]model.Concept
+	ts       *httptest.Server
 }
 
 func NewSemanticRepo(producer interface {
 	Subscribe(topic string, f func(msg []byte))
 }) *SemanticRepo {
-	repo := &SemanticRepo{dt: map[string]model.DeviceType{}}
+	repo := &SemanticRepo{dt: map[string]model.DeviceType{}, concepts: map[string]model.Concept{}}
 	producer.Subscribe(DtTopic, func(msg []byte) {
 		cmd := publisher.DeviceTypeCommand{}
 		json.Unmarshal(msg, &cmd)
@@ -46,6 +47,15 @@ func NewSemanticRepo(producer interface {
 			repo.dt[cmd.Id] = cmd.DeviceType
 		} else if cmd.Command == "DELETE" {
 			delete(repo.dt, cmd.Id)
+		}
+	})
+	producer.Subscribe(ConceptTopic, func(msg []byte) {
+		cmd := publisher.ConceptCommand{}
+		json.Unmarshal(msg, &cmd)
+		if cmd.Command == "PUT" {
+			repo.concepts[cmd.Id] = cmd.Concept
+		} else if cmd.Command == "DELETE" {
+			delete(repo.concepts, cmd.Id)
 		}
 	})
 
@@ -79,6 +89,39 @@ func NewSemanticRepo(producer interface {
 		}
 		if dt.Id == "" {
 			http.Error(writer, "missing device id", http.StatusBadRequest)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
+	router.GET("/concepts/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("id")
+		concept, ok := repo.concepts[id]
+		if ok {
+			json.NewEncoder(writer).Encode(concept)
+		} else {
+			http.Error(writer, "404", 404)
+		}
+	})
+
+	router.PUT("/concepts", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		concept := model.Concept{}
+		err = json.NewDecoder(request.Body).Decode(&concept)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if concept.Id == "" {
+			http.Error(writer, "missing concept id", http.StatusBadRequest)
 			return
 		}
 		writer.WriteHeader(http.StatusOK)

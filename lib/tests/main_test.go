@@ -79,6 +79,10 @@ func TestWithMock(t *testing.T) {
 	t.Run("testHub", func(t *testing.T) {
 		testHub(t, conf.ServerPort)
 	})
+
+	t.Run("testConcepts", func(t *testing.T) {
+		testConcepts(t, conf)
+	})
 }
 
 func TestWithDocker(t *testing.T) {

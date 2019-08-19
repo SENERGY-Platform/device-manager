@@ -120,7 +120,12 @@ func (this *Publisher) PublishProtocolDelete(id string, userId string) error {
 }
 
 func (this *Publisher) PublishConcept(concept model.Concept, userID string) (err error) {
-	panic("implement me")
+	cmd := publisher.ConceptCommand{Command: "PUT", Id: concept.Id, Concept: concept, Owner: userID}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(ConceptTopic, message)
 }
 
 func (this *Publisher) PublishConceptDelete(id string, userID string) error {
