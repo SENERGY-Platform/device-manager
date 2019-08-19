@@ -27,10 +27,10 @@ import (
 )
 
 type ConceptCommand struct {
-	Command    string           `json:"command"`
-	Id         string           `json:"id"`
-	Owner      string           `json:"owner"`
-	Concept    model.Concept    `json:"concept"`
+	Command string        `json:"command"`
+	Id      string        `json:"id"`
+	Owner   string        `json:"owner"`
+	Concept model.Concept `json:"concept"`
 }
 
 func (this *Publisher) PublishConcept(concept model.Concept, userId string) (err error) {
@@ -43,7 +43,6 @@ func (this *Publisher) PublishConceptDelete(id string, userId string) error {
 	return this.PublishConceptCommand(cmd)
 }
 
-
 func (this *Publisher) PublishConceptCommand(cmd ConceptCommand) error {
 	if this.config.LogLevel == "DEBUG" {
 		log.Println("DEBUG: produce devicetype", cmd)
@@ -53,7 +52,7 @@ func (this *Publisher) PublishConceptCommand(cmd ConceptCommand) error {
 		debug.PrintStack()
 		return err
 	}
-	err = this.devicetypes.WriteMessages(
+	err = this.concepts.WriteMessages(
 		context.Background(),
 		kafka.Message{
 			Key:   []byte(cmd.Id),

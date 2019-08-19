@@ -44,6 +44,7 @@ func TestWithMock(t *testing.T) {
 	servicemocks.DtTopic = conf.DeviceTypeTopic
 	servicemocks.ProtocolTopic = conf.ProtocolTopic
 	servicemocks.DeviceTopic = conf.DeviceTopic
+	servicemocks.ConceptTopic = conf.ConceptTopic
 
 	publ, conf, stop := servicemocks.New(conf)
 	defer stop()

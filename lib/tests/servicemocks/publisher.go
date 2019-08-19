@@ -26,6 +26,7 @@ var DtTopic = "devicetype"
 var ProtocolTopic = "protocol"
 var DeviceTopic = "device"
 var HubTopic = "hub"
+var ConceptTopic = "concepts"
 
 type Publisher struct {
 	listener map[string][]func(msg []byte)
@@ -116,4 +117,17 @@ func (this *Publisher) PublishProtocolDelete(id string, userId string) error {
 		return err
 	}
 	return this.send(ProtocolTopic, message)
+}
+
+func (this *Publisher) PublishConcept(concept model.Concept, userID string) (err error) {
+	panic("implement me")
+}
+
+func (this *Publisher) PublishConceptDelete(id string, userID string) error {
+	cmd := publisher.ProtocolCommand{Command: "DELETE", Id: id, Owner: userID}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(ConceptTopic, message)
 }
