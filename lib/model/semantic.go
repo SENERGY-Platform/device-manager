@@ -25,7 +25,7 @@ type DeviceClass struct {
 type Function struct {
 	Id         string   `json:"id"`
 	Name       string   `json:"name"`
-	ConceptIds []string `json:"concept_ids"`
+	ConceptId  string   `json:"concept_id"`
 	RdfType    string   `json:"rdf_type"`
 }
 
