@@ -32,12 +32,7 @@ import (
 func testConcepts(t *testing.T, conf config.Config) {
 	createConcept := model.Concept{
 		Name: "c1",
-		Characteristics: []model.Characteristic{{
-			Name: "ch1",
-			SubCharacteristics: []model.Characteristic{{
-				Name: "ch1b",
-			}},
-		}},
+		CharacteristicIds: []string{"urn:infai:ses:characteristic:4711a"},
 	}
 	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts", createConcept)
 	if err != nil {
@@ -71,12 +66,7 @@ func testConcepts(t *testing.T, conf config.Config) {
 	updateConcept := model.Concept{
 		Id:   concept.Id,
 		Name: "c2",
-		Characteristics: []model.Characteristic{{
-			Name: "ch2",
-			SubCharacteristics: []model.Characteristic{{
-				Name: "ch2b",
-			}},
-		}},
+		CharacteristicIds: []string{"urn:infai:ses:characteristic:4712322a"},
 	}
 	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/"+url.PathEscape(concept.Id), updateConcept)
 	if err != nil {
@@ -166,34 +156,31 @@ func conceptWithIds(t *testing.T, concept model.Concept) {
 	if concept.Id == "" {
 		t.Fatal(concept)
 	}
-	for i, characteristic := range concept.Characteristics {
+	for i, characteristic := range concept.CharacteristicIds {
 		t.Run("concept characteristics "+strconv.Itoa(i), func(t *testing.T) {
 			characteristicWithId(t, characteristic)
 		})
 	}
 }
 
-func characteristicWithId(t *testing.T, characteristic model.Characteristic) {
-	if characteristic.Id == "" {
-		t.Fatal(characteristic)
-	}
-	for _, sub := range characteristic.SubCharacteristics {
-		characteristicWithId(t, sub)
+func characteristicWithId(t *testing.T, characteristicId string) {
+	if characteristicId == "" {
+		t.Fatal(characteristicId)
 	}
 }
 
 func removeIdsFromConcept(concept model.Concept) model.Concept {
 	concept.Id = ""
-	for i, ch := range concept.Characteristics {
-		concept.Characteristics[i] = removeIdsCharacteristic(ch)
-	}
+	//for i, ch := range concept.Characteristics {
+	//	concept.Characteristics[i] = removeIdsCharacteristic(ch)
+	//}
 	return concept
 }
 
-func removeIdsCharacteristic(characteristic model.Characteristic) model.Characteristic {
-	characteristic.Id = ""
-	for i, ch := range characteristic.SubCharacteristics {
-		characteristic.SubCharacteristics[i] = removeIdsCharacteristic(ch)
-	}
-	return characteristic
-}
+//func removeIdsCharacteristic(characteristic model.Characteristic) model.Characteristic {
+//	characteristic.Id = ""
+//	for i, ch := range characteristic.SubCharacteristics {
+//		characteristic.SubCharacteristics[i] = removeIdsCharacteristic(ch)
+//	}
+//	return characteristic
+//}
