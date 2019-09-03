@@ -27,6 +27,7 @@ var ProtocolTopic = "protocol"
 var DeviceTopic = "device"
 var HubTopic = "hub"
 var ConceptTopic = "concepts"
+var CharacteristicTopic = "characteristics"
 
 type Publisher struct {
 	listener map[string][]func(msg []byte)
@@ -135,4 +136,22 @@ func (this *Publisher) PublishConceptDelete(id string, userID string) error {
 		return err
 	}
 	return this.send(ConceptTopic, message)
+}
+
+func (this *Publisher) PublishCharacteristic(conceptId string, characteristic model.Characteristic, userID string) (err error) {
+	cmd := publisher.CharacteristicCommand{Command: "PUT", ConceptId: conceptId, Id: characteristic.Id, Characteristic: characteristic, Owner: userID}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(CharacteristicTopic, message)
+}
+
+func (this *Publisher) PublishCharacteristicDelete(id string, userID string) error {
+	cmd := publisher.CharacteristicCommand{Command: "DELETE", Id: id, Owner: userID}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(CharacteristicTopic, message)
 }

@@ -171,16 +171,7 @@ func characteristicWithId(t *testing.T, characteristicId string) {
 
 func removeIdsFromConcept(concept model.Concept) model.Concept {
 	concept.Id = ""
-	//for i, ch := range concept.Characteristics {
-	//	concept.Characteristics[i] = removeIdsCharacteristic(ch)
-	//}
+
 	return concept
 }
 
-//func removeIdsCharacteristic(characteristic model.Characteristic) model.Characteristic {
-//	characteristic.Id = ""
-//	for i, ch := range characteristic.SubCharacteristics {
-//		characteristic.SubCharacteristics[i] = removeIdsCharacteristic(ch)
-//	}
-//	return characteristic
-//}

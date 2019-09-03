@@ -34,15 +34,16 @@ type Config struct {
 	LogLevel   string `json:"log_level"` //DEBUG | CALL | NONE
 	ServerPort string `json:"server_port"`
 
-	PermissionsUrl  string `json:"permissions_url"`
-	DeviceTopic     string `json:"device_topic"`
-	DeviceTypeTopic string `json:"device_type_topic"`
-	ProtocolTopic   string `json:"protocol_topic"`
-	HubTopic        string `json:"hub_topic"`
-	ConceptTopic    string `json:"concept_topic"`
-	DeviceRepoUrl   string `json:"device_repo_url"`
-	SemanticRepoUrl string `json:"semantic_repo_url"`
-	ZookeeperUrl    string `json:"zookeeper_url"`
+	PermissionsUrl  		string `json:"permissions_url"`
+	DeviceTopic     		string `json:"device_topic"`
+	DeviceTypeTopic 		string `json:"device_type_topic"`
+	ProtocolTopic   		string `json:"protocol_topic"`
+	HubTopic        		string `json:"hub_topic"`
+	ConceptTopic    		string `json:"concept_topic"`
+	CharacteristicTopic    	string `json:"characteristic_topic"`
+	DeviceRepoUrl   		string `json:"device_repo_url"`
+	SemanticRepoUrl 		string `json:"semantic_repo_url"`
+	ZookeeperUrl    		string `json:"zookeeper_url"`
 }
 
 //loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)

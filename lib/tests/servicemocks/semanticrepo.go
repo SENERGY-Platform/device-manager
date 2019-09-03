@@ -29,13 +29,15 @@ import (
 type SemanticRepo struct {
 	dt       map[string]model.DeviceType
 	concepts map[string]model.Concept
+	characteristics map[string]model.Characteristic
 	ts       *httptest.Server
 }
 
 func NewSemanticRepo(producer interface {
 	Subscribe(topic string, f func(msg []byte))
 }) *SemanticRepo {
-	repo := &SemanticRepo{dt: map[string]model.DeviceType{}, concepts: map[string]model.Concept{}}
+	repo := &SemanticRepo{dt: map[string]model.DeviceType{},
+	concepts: map[string]model.Concept{}, characteristics: map[string]model.Characteristic{}}
 	producer.Subscribe(DtTopic, func(msg []byte) {
 		cmd := publisher.DeviceTypeCommand{}
 		json.Unmarshal(msg, &cmd)
@@ -56,6 +58,15 @@ func NewSemanticRepo(producer interface {
 			repo.concepts[cmd.Id] = cmd.Concept
 		} else if cmd.Command == "DELETE" {
 			delete(repo.concepts, cmd.Id)
+		}
+	})
+	producer.Subscribe(CharacteristicTopic, func(msg []byte) {
+		cmd := publisher.CharacteristicCommand{}
+		json.Unmarshal(msg, &cmd)
+		if cmd.Command == "PUT" {
+			repo.characteristics[cmd.Id] = cmd.Characteristic
+		} else if cmd.Command == "DELETE" {
+			delete(repo.characteristics, cmd.Id)
 		}
 	})
 
@@ -125,6 +136,39 @@ func NewSemanticRepo(producer interface {
 			return
 		}
 		writer.WriteHeader(http.StatusOK)
+	})
+
+	router.PUT("/characteristics", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		characteristic := model.Characteristic{}
+		err = json.NewDecoder(request.Body).Decode(&characteristic)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if characteristic.Id == "" {
+			http.Error(writer, "missing characteristic id", http.StatusBadRequest)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
+	router.GET("/characteristics/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("id")
+		concept, ok := repo.characteristics[id]
+		if ok {
+			json.NewEncoder(writer).Encode(concept)
+		} else {
+			http.Error(writer, "404", 404)
+		}
 	})
 
 	repo.ts = httptest.NewServer(router)

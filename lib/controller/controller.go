@@ -57,6 +57,9 @@ type Publisher interface {
 	PublishConcept(concept model.Concept, userID string) (err error)
 	PublishConceptDelete(id string, userID string) error
 
+	PublishCharacteristic(conceptId string, concept model.Characteristic, userID string) (err error)
+	PublishCharacteristicDelete(id string, userID string) error
+
 }
 
 type Com interface {
@@ -78,4 +81,6 @@ type Com interface {
 
 	ValidateConcept(jwt jwt_http_router.Jwt, concept model.Concept) (err error, code int)
 	PermissionCheckForConcept(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+
+	ValidateCharacteristic(jwt jwt_http_router.Jwt, concept model.Characteristic) (err error, code int)
 }

@@ -45,6 +45,7 @@ func TestWithMock(t *testing.T) {
 	servicemocks.ProtocolTopic = conf.ProtocolTopic
 	servicemocks.DeviceTopic = conf.DeviceTopic
 	servicemocks.ConceptTopic = conf.ConceptTopic
+	servicemocks.CharacteristicTopic = conf.ConceptTopic
 
 	publ, conf, stop := servicemocks.New(conf)
 	defer stop()
@@ -82,6 +83,10 @@ func TestWithMock(t *testing.T) {
 
 	t.Run("testConcepts", func(t *testing.T) {
 		testConcepts(t, conf)
+	})
+
+	t.Run("testCharacteristics", func(t *testing.T) {
+		testCharacteristics(t, conf)
 	})
 }
 
