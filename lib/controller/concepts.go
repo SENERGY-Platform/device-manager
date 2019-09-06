@@ -42,10 +42,9 @@ func (this *Controller) PublishConceptUpdate(jwt jwt_http_router.Jwt, id string,
 		return concept, errors.New("concept id in body unequal to concept id in request endpoint"), http.StatusBadRequest
 	}
 
-	//replace sub ids and create new ones for new sub elements
 	concept.GenerateId()
 
-	err, code := this.com.PermissionCheckForDeviceType(jwt, id, "w")
+	err, code := this.com.PermissionCheckForConcept(jwt, id, "w")
 	if err != nil {
 		debug.PrintStack()
 		return concept, err, code
