@@ -33,7 +33,7 @@ func (this *Com) GetDeviceTypeFromDescriptions(jwt jwt_http_router.Jwt, descript
 		debug.PrintStack()
 		return result, err, http.StatusInternalServerError
 	}
-	req, err := http.NewRequest("GET", this.config.SemanticRepoUrl+"/device-type-options", bytes.NewBuffer(msg))
+	req, err := http.NewRequest("GET", this.config.SemanticRepoUrl+"/device-type-options?filter="+url.QueryEscape(string(msg)), nil)
 	if err != nil {
 		debug.PrintStack()
 		return result, err, http.StatusInternalServerError

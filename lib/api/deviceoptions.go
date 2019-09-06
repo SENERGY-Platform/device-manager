@@ -32,9 +32,14 @@ func init() {
 func DevicesOptionsEndpoints(config config.Config, control Controller, router *jwt_http_router.Router) {
 	resource := "/device-options"
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET(resource, func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
 		desc := []model.DeviceDescription{}
-		err := json.NewDecoder(request.Body).Decode(&desc)
+		payload := params.ByName("filter")
+		if payload == "" {
+			http.Error(writer, "expect filter query parameter", http.StatusBadRequest)
+			return
+		}
+		err := json.Unmarshal([]byte(payload), &desc)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
