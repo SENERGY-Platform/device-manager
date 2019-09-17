@@ -75,8 +75,8 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 		return
 	})
 
-	router.DELETE(resource + "/:chareristicsId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
-		id := params.ByName("chareristicsId")
+	router.DELETE(resource + "/:characteristicsId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("characteristicId")
 		err, errCode := control.PublishCharacteristicDelete(jwt, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
