@@ -37,38 +37,37 @@ func (this *Controller) PublishCharacteristicCreate(jwt jwt_http_router.Jwt, con
 	return characteristic, nil, http.StatusOK
 }
 
-func (this *Controller) PublishCharacteristicUpdate(jwt jwt_http_router.Jwt, id string, concept model.Concept) (model.Concept, error, int) {
-	if concept.Id != id {
-		return concept, errors.New("concept id in body unequal to concept id in request endpoint"), http.StatusBadRequest
+func (this *Controller) PublishCharacteristicUpdate(jwt jwt_http_router.Jwt, conceptId string, characteristicId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
+	if characteristic.Id != characteristicId {
+		return characteristic, errors.New("characteristic id in body unequal to characteristic id in request endpoint"), http.StatusBadRequest
 	}
 
-	//replace sub ids and create new ones for new sub elements
-	concept.GenerateId()
+	characteristic.GenerateId()
 
-	err, code := this.com.PermissionCheckForDeviceType(jwt, id, "w")
+	err, code := this.com.PermissionCheckForCharacteristic(jwt, characteristicId, "w")
 	if err != nil {
 		debug.PrintStack()
-		return concept, err, code
+		return characteristic, err, code
 	}
-	err, code = this.com.ValidateConcept(jwt, concept)
+	err, code = this.com.ValidateCharacteristic(jwt, characteristic)
 	if err != nil {
 		debug.PrintStack()
-		return concept, err, code
+		return characteristic, err, code
 	}
-	err = this.publisher.PublishConcept(concept, jwt.UserId)
+	err = this.publisher.PublishCharacteristic(conceptId, characteristic, jwt.UserId)
 	if err != nil {
 		debug.PrintStack()
-		return concept, err, http.StatusInternalServerError
+		return characteristic, err, http.StatusInternalServerError
 	}
-	return concept, nil, http.StatusOK
+	return characteristic, nil, http.StatusOK
 }
 
 func (this *Controller) PublishCharacteristicDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	err, code := this.com.PermissionCheckForConcept(jwt, id, "a")
+	err, code := this.com.PermissionCheckForCharacteristic(jwt, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishConceptDelete(id, jwt.UserId)
+	err = this.publisher.PublishCharacteristicDelete(id, jwt.UserId)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

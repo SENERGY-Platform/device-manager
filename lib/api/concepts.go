@@ -52,8 +52,8 @@ func ConceptsEndpoints(config config.Config, control Controller, router *jwt_htt
 		return
 	})
 
-	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
-		id := params.ByName("id")
+	router.PUT(resource+"/:conceptId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("conceptId")
 		concept := model.Concept{}
 		err := json.NewDecoder(request.Body).Decode(&concept)
 		if err != nil {
@@ -73,8 +73,8 @@ func ConceptsEndpoints(config config.Config, control Controller, router *jwt_htt
 		return
 	})
 
-	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
-		id := params.ByName("id")
+	router.DELETE(resource+"/:conceptId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("conceptId")
 		err, errCode := control.PublishConceptDelete(jwt, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)

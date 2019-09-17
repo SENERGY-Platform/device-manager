@@ -2,11 +2,13 @@ package model
 
 import "github.com/google/uuid"
 
-func (variable *Characteristic) GenerateId() {
-	variable.Id = URN_PREFIX + "characteristic:" + uuid.New().String()
-	for i, v := range variable.SubCharacteristics {
+func (characteristic *Characteristic) GenerateId() {
+	if characteristic.Id == "" {
+		characteristic.Id = URN_PREFIX + "characteristic:" + uuid.New().String()
+	}
+	for i, v := range characteristic.SubCharacteristics {
 		v.GenerateId()
-		variable.SubCharacteristics[i] = v
+		characteristic.SubCharacteristics[i] = v
 	}
 }
 

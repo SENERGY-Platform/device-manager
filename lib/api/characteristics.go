@@ -30,9 +30,9 @@ func init() {
 }
 
 func CharacteristicsEndpoints(config config.Config, control Controller, router *jwt_http_router.Router) {
-	resource := "/concepts"
+	resource := "/concepts/:conceptId/characteristics"
 
-	router.POST(resource + "/:conceptId/characteristics", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
 		conceptId := params.ByName("conceptId")
 		characteristic := model.Characteristic{}
 		err := json.NewDecoder(request.Body).Decode(&characteristic)
@@ -53,39 +53,40 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 		return
 	})
 
-	//router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
-	//	id := params.ByName("id")
-	//	concept := model.Concept{}
-	//	err := json.NewDecoder(request.Body).Decode(&concept)
-	//	if err != nil {
-	//		http.Error(writer, err.Error(), http.StatusBadRequest)
-	//		return
-	//	}
-	//	result, err, errCode := control.PublishConceptUpdate(jwt, id, concept)
-	//	if err != nil {
-	//		http.Error(writer, err.Error(), errCode)
-	//		return
-	//	}
-	//	writer.Header().Set("Content-Type", "application/json; charset=utf-8")
-	//	err = json.NewEncoder(writer).Encode(result)
-	//	if err != nil {
-	//		log.Println("ERROR: unable to encode response", err)
-	//	}
-	//	return
-	//})
+	router.PUT(resource + "/:chareristicsId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		conceptId := params.ByName("conceptId")
+		chareristicsId := params.ByName("chareristicsId")
+		characteristic := model.Characteristic{}
+		err := json.NewDecoder(request.Body).Decode(&characteristic)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishCharacteristicUpdate(jwt, conceptId, chareristicsId, characteristic)
+		if err != nil {
+			http.Error(writer, err.Error(), errCode)
+			return
+		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(writer).Encode(result)
+		if err != nil {
+			log.Println("ERROR: unable to encode response", err)
+		}
+		return
+	})
 
-	//router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
-	//	id := params.ByName("id")
-	//	err, errCode := control.PublishConceptDelete(jwt, id)
-	//	if err != nil {
-	//		http.Error(writer, err.Error(), errCode)
-	//		return
-	//	}
-	//	writer.Header().Set("Content-Type", "application/json; charset=utf-8")
-	//	err = json.NewEncoder(writer).Encode(true)
-	//	if err != nil {
-	//		log.Println("ERROR: unable to encode response", err)
-	//	}
-	//	return
-	//})
+	router.DELETE(resource + "/:chareristicsId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("chareristicsId")
+		err, errCode := control.PublishCharacteristicDelete(jwt, id)
+		if err != nil {
+			http.Error(writer, err.Error(), errCode)
+			return
+		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(writer).Encode(true)
+		if err != nil {
+			log.Println("ERROR: unable to encode response", err)
+		}
+		return
+	})
 }

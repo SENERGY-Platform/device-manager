@@ -68,6 +68,13 @@ func (this *Com) PermissionCheckForConcept(jwt jwt_http_router.Jwt, id string, p
 	return this.PermissionCheck(jwt, id, permission, this.config.ConceptTopic)
 }
 
+func (this *Com) PermissionCheckForCharacteristic(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
+	if IsAdmin(jwt) {
+		return nil, http.StatusOK
+	}
+	return this.PermissionCheck(jwt, id, permission, this.config.CharacteristicTopic)
+}
+
 func (this *Com) PermissionCheck(jwt jwt_http_router.Jwt, id string, permission string, resource string) (err error, code int) {
 	if this.config.PermissionsUrl == "" || this.config.PermissionsUrl == "-" {
 		return nil, 200

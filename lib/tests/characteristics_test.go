@@ -68,64 +68,69 @@ func testCharacteristics(t *testing.T, conf config.Config) {
 	t.Run("create: Characteristic exists at semantic repo", func(t *testing.T) {
 		checkCharacteristic(t, conf, characteristic.Id, createCharacteristic)
 	})
-	//
-	//updateConcept := model.Concept{
-	//	Id:   concept.Id,
-	//	Name: "c2",
-	//	CharacteristicIds: []string{"urn:infai:ses:characteristic:4712322a"},
-	//}
-	//resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/"+url.PathEscape(concept.Id), updateConcept)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//defer resp.Body.Close()
-	//
-	//if resp.StatusCode != http.StatusOK {
-	//	b, _ := ioutil.ReadAll(resp.Body)
-	//	t.Fatal(resp.Status, resp.StatusCode, string(b))
-	//}
-	//
-	//concept2 := model.Concept{}
-	//err = json.NewDecoder(resp.Body).Decode(&concept2)
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//
-	//t.Run("update: ids are set", func(t *testing.T) {
-	//	conceptWithIds(t, concept2)
-	//})
-	//
-	//t.Run("update: concept preserved structure", func(t *testing.T) {
-	//	conceptHasStructure(t, concept2, updateConcept)
-	//})
-	//
-	//t.Run("update: concept exists at semantic repo", func(t *testing.T) {
-	//	checkConcept(t, conf, concept2.Id, updateConcept)
-	//})
-	//
-	//resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/"+url.PathEscape(concept.Id))
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-	//defer resp.Body.Close()
-	//
-	//t.Run("delete: concept removed at semantic repo", func(t *testing.T) {
-	//	checkConceptDelete(t, conf, concept2.Id)
-	//})
+
+	updateCharacteristic := model.Characteristic{
+		Id: characteristic.Id,
+		Name: "char3",
+		Type: model.Structure,
+		SubCharacteristics: []model.Characteristic{{
+			Id: "",
+			Name: "char4",
+			Type: model.Float,
+			SubCharacteristics: nil,
+		}},
+	}
+	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/4711/characteristics/"+url.PathEscape(characteristic.Id), updateCharacteristic)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		b, _ := ioutil.ReadAll(resp.Body)
+		t.Fatal(resp.Status, resp.StatusCode, string(b))
+	}
+
+	characteristic2 := model.Characteristic{}
+	err = json.NewDecoder(resp.Body).Decode(&characteristic2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Run("update: ids are set", func(t *testing.T) {
+		characteristicWithIds(t, characteristic2)
+	})
+
+	t.Run("update: Characteristic preserved structure", func(t *testing.T) {
+		characteristicHasStructure(t, characteristic2, updateCharacteristic)
+	})
+
+	t.Run("update: Characteristic exists at semantic repo", func(t *testing.T) {
+		checkCharacteristic(t, conf, characteristic2.Id, updateCharacteristic)
+	})
+
+	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/4711/characteristics/"+url.PathEscape(characteristic2.Id))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	t.Run("delete: Characteristic removed at semantic repo", func(t *testing.T) {
+		checkCharacteristicDelete(t, conf, characteristic2.Id)
+	})
 }
 
-//func checkConceptDelete(t *testing.T, conf config.Config, id string) {
-//	resp, err := helper.Jwtget(userjwt, conf.SemanticRepoUrl+"/concepts/"+url.PathEscape(id))
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//	defer resp.Body.Close()
-//
-//	if resp.StatusCode != http.StatusNotFound {
-//		b, _ := ioutil.ReadAll(resp.Body)
-//		t.Fatal(resp.Status, resp.StatusCode, string(b))
-//	}
-//}
+func checkCharacteristicDelete(t *testing.T, conf config.Config, id string) {
+	resp, err := helper.Jwtget(userjwt, conf.SemanticRepoUrl+"/concepts/4711/characteristics/"+url.PathEscape(id))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNotFound {
+		b, _ := ioutil.ReadAll(resp.Body)
+		t.Fatal(resp.Status, resp.StatusCode, string(b))
+	}
+}
 
 func checkCharacteristic(t *testing.T, conf config.Config, id string, expected model.Characteristic) {
 	resp, err := helper.Jwtget(userjwt, conf.SemanticRepoUrl+"/characteristics/"+url.PathEscape(id))
@@ -150,11 +155,11 @@ func checkCharacteristic(t *testing.T, conf config.Config, id string, expected m
 	})
 }
 
-func characteristicHasStructure(t *testing.T, concept model.Characteristic, expected model.Characteristic) {
+func characteristicHasStructure(t *testing.T, characteristic model.Characteristic, expected model.Characteristic) {
 	expected = removeIdsCharacteristic(expected)
-	concept = removeIdsCharacteristic(concept)
-	if !reflect.DeepEqual(concept, expected) {
-		t.Fatal(concept, expected)
+	characteristic = removeIdsCharacteristic(characteristic)
+	if !reflect.DeepEqual(characteristic, expected) {
+		t.Fatal(characteristic, expected)
 	}
 }
 
