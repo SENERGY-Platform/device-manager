@@ -53,7 +53,7 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 		return
 	})
 
-	router.PUT(resource + "/:characteristicsId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT(resource + "/:characteristicId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
 		conceptId := params.ByName("conceptId")
 		characteristicId := params.ByName("characteristicId")
 		characteristic := model.Characteristic{}
@@ -75,7 +75,7 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 		return
 	})
 
-	router.DELETE(resource + "/:characteristicsId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.DELETE(resource + "/:characteristicId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
 		id := params.ByName("characteristicId")
 		err, errCode := control.PublishCharacteristicDelete(jwt, id)
 		if err != nil {
