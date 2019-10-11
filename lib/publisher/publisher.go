@@ -26,16 +26,21 @@ import (
 )
 
 type Publisher struct {
-	config      config.Config
-	devicetypes *kafka.Writer
-	protocols   *kafka.Writer
-	devices     *kafka.Writer
-	hubs        *kafka.Writer
-	concepts    *kafka.Writer
-	characteristics    *kafka.Writer
+	config          config.Config
+	devicetypes     *kafka.Writer
+	protocols       *kafka.Writer
+	devices         *kafka.Writer
+	hubs            *kafka.Writer
+	concepts        *kafka.Writer
+	characteristics *kafka.Writer
 }
 
 func New(conf config.Config) (*Publisher, error) {
+	log.Println("ensure kafka topics")
+	err := InitTopicWithConfig(conf.ZookeeperUrl, 1, 1, conf.DeviceTypeTopic, conf.ProtocolTopic, conf.DeviceTopic, conf.HubTopic, conf.ConceptTopic, conf.CharacteristicTopic)
+	if err != nil {
+		return nil, err
+	}
 	broker, err := GetBroker(conf.ZookeeperUrl)
 	if err != nil {
 		return nil, err
@@ -43,7 +48,7 @@ func New(conf config.Config) (*Publisher, error) {
 	if len(broker) == 0 {
 		return nil, errors.New("missing kafka broker")
 	}
-	log.Println("Produce to ", conf.DeviceTypeTopic, conf.ProtocolTopic, conf.DeviceTopic)
+	log.Println("Produce to ", conf.DeviceTypeTopic, conf.ProtocolTopic, conf.DeviceTopic, conf.HubTopic, conf.ConceptTopic, conf.CharacteristicTopic)
 	devicetypes, err := getProducer(broker, conf.DeviceTypeTopic, conf.LogLevel == "DEBUG")
 	if err != nil {
 		return nil, err
