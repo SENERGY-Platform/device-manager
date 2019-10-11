@@ -38,6 +38,9 @@ func main() {
 	}
 
 	ctrl, err := controller.New(conf)
+	if err != nil {
+		log.Fatal("ERROR: unable to start controller", err)
+	}
 
 	srv, err := api.Start(conf, ctrl)
 	if err != nil {
