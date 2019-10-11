@@ -27,9 +27,10 @@ func getResourceFromService(jwt jwt_http_router.Jwt, endpoint string, id string,
 	if resp.StatusCode >= 300 {
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)
+		err = errors.New(buf.String())
 		log.Println("ERROR: unable to get ressource", endpoint, err)
 		debug.PrintStack()
-		return errors.New(buf.String()), resp.StatusCode
+		return err, resp.StatusCode
 	}
 	err = json.NewDecoder(resp.Body).Decode(result)
 	if err != nil {
