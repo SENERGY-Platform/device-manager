@@ -59,7 +59,6 @@ type Publisher interface {
 
 	PublishCharacteristic(conceptId string, concept model.Characteristic, userID string) (err error)
 	PublishCharacteristicDelete(id string, userID string) error
-
 }
 
 type Com interface {
@@ -84,4 +83,6 @@ type Com interface {
 
 	ValidateCharacteristic(jwt jwt_http_router.Jwt, concept model.Characteristic) (err error, code int)
 	PermissionCheckForCharacteristic(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+
+	DevicesOfTypeExist(jwt jwt_http_router.Jwt, deviceTypeId string) (result bool, err error, code int)
 }

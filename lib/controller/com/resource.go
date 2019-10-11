@@ -62,9 +62,10 @@ func validateResource(jwt jwt_http_router.Jwt, endpoints []string, resource inte
 		if resp.StatusCode >= 300 {
 			buf := new(bytes.Buffer)
 			buf.ReadFrom(resp.Body)
-			log.Println("ERROR: unable to validate ressource", endpoint, resource, err)
+			err = errors.New(buf.String())
+			log.Println("ERROR: unable to validate ressource", endpoint, resource, resp.StatusCode, err)
 			debug.PrintStack()
-			return errors.New(buf.String()), resp.StatusCode
+			return err, resp.StatusCode
 		}
 	}
 	return nil, http.StatusOK

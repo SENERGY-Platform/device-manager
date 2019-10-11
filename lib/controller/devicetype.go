@@ -93,7 +93,14 @@ func (this *Controller) PublishDeviceTypeUpdate(jwt jwt_http_router.Jwt, id stri
 }
 
 func (this *Controller) PublishDeviceTypeDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	err, code := this.com.PermissionCheckForDeviceType(jwt, id, "a")
+	exists, err, code := this.com.DevicesOfTypeExist(jwt, id)
+	if err != nil {
+		return err, code
+	}
+	if exists {
+		return errors.New("expect no dependent devices"), http.StatusBadRequest
+	}
+	err, code = this.com.PermissionCheckForDeviceType(jwt, id, "a")
 	if err != nil {
 		return err, code
 	}

@@ -113,3 +113,37 @@ func (this *Com) PermissionCheck(jwt jwt_http_router.Jwt, id string, permission 
 	}
 	return
 }
+
+func (this *Com) DevicesOfTypeExist(jwt jwt_http_router.Jwt, deviceTypeId string) (result bool, err error, code int) {
+	if !IsAdmin(jwt) {
+		return false, errors.New("only for admins allowed"), http.StatusForbidden
+	}
+	if this.config.PermissionsUrl == "" || this.config.PermissionsUrl == "-" {
+		return false, nil, 200
+	}
+	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/jwt/select/devices/device_type_id/"+url.PathEscape(deviceTypeId)+"/x", nil)
+	if err != nil {
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
+	req.Header.Set("Authorization", string(jwt.Impersonate))
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		debug.PrintStack()
+		return result, errors.New(buf.String()), resp.StatusCode
+	}
+	temp := []interface{}{}
+	err = json.NewDecoder(resp.Body).Decode(&temp)
+	if err != nil {
+		debug.PrintStack()
+		return result, err, http.StatusInternalServerError
+	}
+	return len(temp) > 0, nil, http.StatusOK
+}

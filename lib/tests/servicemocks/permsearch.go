@@ -36,6 +36,10 @@ func NewPermSearch() *PermSearch {
 		json.NewEncoder(writer).Encode(true)
 	})
 
+	router.GET("/jwt/select/devices/device_type_id/:id/x", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		json.NewEncoder(writer).Encode([]interface{}{})
+	})
+
 	repo.ts = httptest.NewServer(router)
 
 	return repo
