@@ -49,4 +49,6 @@ type Controller interface {
 	PublishCharacteristicCreate(jwt jwt_http_router.Jwt, conceptId string, characteristic model.Characteristic) (result model.Characteristic, err error, code int)
 	PublishCharacteristicUpdate(jwt jwt_http_router.Jwt, conceptId string, characteristicId string, characteristic model.Characteristic) (result model.Characteristic, err error, code int)
 	PublishCharacteristicDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
+
+	DeviceLocalIdToId(jwt jwt_http_router.Jwt, localId string) (id string, err error, errCode int)
 }

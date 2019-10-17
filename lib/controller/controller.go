@@ -85,4 +85,6 @@ type Com interface {
 	PermissionCheckForCharacteristic(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
 	DevicesOfTypeExist(jwt jwt_http_router.Jwt, deviceTypeId string) (result bool, err error, code int)
+
+	DeviceLocalIdToId(jwt jwt_http_router.Jwt, localId string) (id string, err error, code int)
 }

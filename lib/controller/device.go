@@ -23,6 +23,10 @@ import (
 	"net/http"
 )
 
+func (this *Controller) DeviceLocalIdToId(jwt jwt_http_router.Jwt, localId string) (id string, err error, errCode int) {
+	return this.com.DeviceLocalIdToId(jwt, localId)
+}
+
 func (this *Controller) ReadDevice(jwt jwt_http_router.Jwt, id string) (device model.Device, err error, code int) {
 	return this.com.GetDevice(jwt, id)
 }

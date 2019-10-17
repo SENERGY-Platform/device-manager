@@ -147,3 +147,46 @@ func (this *Com) DevicesOfTypeExist(jwt jwt_http_router.Jwt, deviceTypeId string
 	}
 	return len(temp) > 0, nil, http.StatusOK
 }
+
+func (this *Com) DeviceLocalIdToId(jwt jwt_http_router.Jwt, localId string) (id string, err error, code int) {
+	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/jwt/select/devices/local_id/"+url.PathEscape(localId)+"/x", nil)
+	if err != nil {
+		debug.PrintStack()
+		return "", err, http.StatusInternalServerError
+	}
+	req.Header.Set("Authorization", string(jwt.Impersonate))
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		debug.PrintStack()
+		return "", err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		debug.PrintStack()
+		return "", errors.New(buf.String()), resp.StatusCode
+	}
+	temp := []map[string]interface{}{}
+	err = json.NewDecoder(resp.Body).Decode(&temp)
+	if err != nil {
+		debug.PrintStack()
+		return "", err, http.StatusInternalServerError
+	}
+	if len(temp) == 0 {
+		return "", errors.New("not found"), http.StatusNotFound
+	}
+	if idinterface, ok := temp[0]["id"]; !ok {
+		err = errors.New("id field not found")
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return "", err, http.StatusInternalServerError
+	} else if id, ok = idinterface.(string); !ok {
+		err = errors.New("id field is not string")
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return "", err, http.StatusInternalServerError
+	} else {
+		return id, nil, http.StatusOK
+	}
+}

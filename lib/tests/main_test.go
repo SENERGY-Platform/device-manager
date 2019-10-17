@@ -76,6 +76,10 @@ func TestWithMock(t *testing.T) {
 	t.Run("testDevice", func(t *testing.T) {
 		testDevice(t, conf.ServerPort)
 	})
+	t.Run("testLocalDevice", func(t *testing.T) {
+		t.Skip("missing endpoint in permissions search mock")
+		testLocalDevice(t, conf.ServerPort)
+	})
 
 	t.Run("testHub", func(t *testing.T) {
 		testHub(t, conf.ServerPort)
@@ -129,6 +133,9 @@ func TestWithDocker(t *testing.T) {
 	})
 	t.Run("testDevice", func(t *testing.T) {
 		testDevice(t, conf.ServerPort)
+	})
+	t.Run("testLocalDevice", func(t *testing.T) {
+		testLocalDevice(t, conf.ServerPort)
 	})
 	t.Run("testHub", func(t *testing.T) {
 		testHub(t, conf.ServerPort)
