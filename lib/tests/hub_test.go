@@ -50,7 +50,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
 		Name: "foo",
@@ -101,7 +101,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(dt)
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
 		Name:         "d2",
@@ -127,7 +127,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(device)
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.Hub{})
 	if err != nil {
@@ -181,6 +181,19 @@ func testHub(t *testing.T, port string) {
 
 	time.Sleep(15 * time.Second)
 
+	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id)+"/name", "h1_changed")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		b, _ := ioutil.ReadAll(resp.Body)
+		t.Fatal(resp.Status, resp.StatusCode, string(b))
+	}
+
+	time.Sleep(15 * time.Second)
+
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {
 		t.Fatal(err)
@@ -198,7 +211,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	if result.Name != "h1" || result.Hash != "foobar" || !reflect.DeepEqual(result.DeviceLocalIds, []string{device.LocalId}) {
+	if result.Name != "h1_changed" || result.Hash != "foobar" || !reflect.DeepEqual(result.DeviceLocalIds, []string{device.LocalId}) {
 		t.Fatal(result)
 	}
 
@@ -213,7 +226,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {
@@ -249,7 +262,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
 		Name: "foo",

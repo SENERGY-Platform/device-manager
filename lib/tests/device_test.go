@@ -155,7 +155,7 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(device)
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id))
 	if err != nil {
@@ -204,7 +204,7 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id))
 	if err != nil {

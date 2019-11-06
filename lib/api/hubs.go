@@ -95,6 +95,33 @@ func HubsEndpoints(config config.Config, control Controller, router *jwt_http_ro
 		return
 	})
 
+	router.PUT(resource+"/:id/name", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("id")
+		name := ""
+		err := json.NewDecoder(request.Body).Decode(&name)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		hub, err, code := control.ReadHub(jwt, id)
+		if err != nil {
+			http.Error(writer, err.Error(), code)
+			return
+		}
+		hub.Name = name
+		result, err, errCode := control.PublishHubUpdate(jwt, id, hub)
+		if err != nil {
+			http.Error(writer, err.Error(), errCode)
+			return
+		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(writer).Encode(result)
+		if err != nil {
+			log.Println("ERROR: unable to encode response", err)
+		}
+		return
+	})
+
 	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
 		id := params.ByName("id")
 		err, errCode := control.PublishHubDelete(jwt, id)
