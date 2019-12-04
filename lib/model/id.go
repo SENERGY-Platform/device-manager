@@ -48,6 +48,18 @@ func (deviceType *DeviceType) GenerateId() {
 			service.GenerateId()
 			deviceType.Services[i] = service
 		}
+		for j, input := range service.Inputs {
+			if input.Id == "" {
+				input.GenerateId()
+				deviceType.Services[i].Inputs[j] = input
+			}
+		}
+		for k, output := range service.Outputs {
+			if output.Id == "" {
+				output.GenerateId()
+				deviceType.Services[i].Outputs[k] = output
+			}
+		}
 	}
 	if deviceType.DeviceClass.Id == "" {
 		deviceType.DeviceClass.GenerateId()
