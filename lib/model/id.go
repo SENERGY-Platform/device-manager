@@ -17,18 +17,22 @@ func (class *DeviceClass) GenerateId() {
 }
 
 func (function *Function) GenerateId() {
-	switch function.RdfType {
-	case SES_ONTOLOGY_CONTROLLING_FUNCTION:
-		function.Id = URN_PREFIX + "controlling-function:" + uuid.New().String()
-	case SES_ONTOLOGY_MEASURING_FUNCTION:
-		function.Id = URN_PREFIX + "measuring-function:" + uuid.New().String()
-	default:
-		function.Id = ""
+	if function.Id == "" {
+		switch function.RdfType {
+		case SES_ONTOLOGY_CONTROLLING_FUNCTION:
+			function.Id = URN_PREFIX + "controlling-function:" + uuid.New().String()
+		case SES_ONTOLOGY_MEASURING_FUNCTION:
+			function.Id = URN_PREFIX + "measuring-function:" + uuid.New().String()
+		default:
+			function.Id = ""
+		}
 	}
 }
 
 func (aspect *Aspect) GenerateId() {
-	aspect.Id = URN_PREFIX + "aspect:" + uuid.New().String()
+	if aspect.Id == "" {
+		aspect.Id = URN_PREFIX + "aspect:" + uuid.New().String()
+	}
 }
 
 func (concept *Concept) GenerateId() {
@@ -44,10 +48,8 @@ func (device *Device) GenerateId() {
 func (deviceType *DeviceType) GenerateId() {
 	deviceType.Id = URN_PREFIX + "device-type:" + uuid.New().String()
 	for i, service := range deviceType.Services {
-		if service.Id == "" {
-			service.GenerateId()
-			deviceType.Services[i] = service
-		}
+		service.GenerateId()
+		deviceType.Services[i] = service
 	}
 	if deviceType.DeviceClass.Id == "" {
 		deviceType.DeviceClass.GenerateId()
@@ -55,18 +57,16 @@ func (deviceType *DeviceType) GenerateId() {
 }
 
 func (service *Service) GenerateId() {
-	service.Id = URN_PREFIX + "service:" + uuid.New().String()
+	if service.Id == "" {
+		service.Id = URN_PREFIX + "service:" + uuid.New().String()
+	}
 	for i, function := range service.Functions {
-		if function.Id == "" {
-			function.GenerateId()
-			service.Functions[i] = function
-		}
+		function.GenerateId()
+		service.Functions[i] = function
 	}
 	for i, aspect := range service.Aspects {
-		if aspect.Id == "" {
-			aspect.GenerateId()
-			service.Aspects[i] = aspect
-		}
+		aspect.GenerateId()
+		service.Aspects[i] = aspect
 	}
 	for i, content := range service.Inputs {
 		content.GenerateId()
