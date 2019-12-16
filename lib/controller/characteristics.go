@@ -18,6 +18,7 @@ package controller
 
 import (
 	"errors"
+	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
@@ -44,12 +45,14 @@ func (this *Controller) PublishCharacteristicUpdate(jwt jwt_http_router.Jwt, con
 
 	characteristic.GenerateId()
 
-	err, code := this.com.PermissionCheckForCharacteristic(jwt, characteristicId, "w")
-	if err != nil {
-		debug.PrintStack()
-		return characteristic, err, code
+	if !com.IsAdmin(jwt){
+		err, code := this.com.PermissionCheckForCharacteristic(jwt, characteristicId, "w")
+		if err != nil {
+			debug.PrintStack()
+			return characteristic, err, code
+		}
 	}
-	err, code = this.com.ValidateCharacteristic(jwt, characteristic)
+	err, code := this.com.ValidateCharacteristic(jwt, characteristic)
 	if err != nil {
 		debug.PrintStack()
 		return characteristic, err, code

@@ -45,7 +45,7 @@ func (this *Publisher) PublishConceptDelete(id string, userId string) error {
 
 func (this *Publisher) PublishConceptCommand(cmd ConceptCommand) error {
 	if this.config.LogLevel == "DEBUG" {
-		log.Println("DEBUG: produce devicetype", cmd)
+		log.Println("DEBUG: produce concept", cmd)
 	}
 	message, err := json.Marshal(cmd)
 	if err != nil {

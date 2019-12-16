@@ -46,7 +46,9 @@ func (device *Device) GenerateId() {
 }
 
 func (deviceType *DeviceType) GenerateId() {
-	deviceType.Id = URN_PREFIX + "device-type:" + uuid.New().String()
+	if deviceType.Id == "" {
+		deviceType.Id = URN_PREFIX + "device-type:" + uuid.New().String()
+	}
 	for i, service := range deviceType.Services {
 		service.GenerateId()
 		deviceType.Services[i] = service
@@ -83,7 +85,9 @@ func (hub *Hub) GenerateId() {
 }
 
 func (protocol *Protocol) GenerateId() {
-	protocol.Id = URN_PREFIX + "protocol:" + uuid.New().String()
+	if protocol.Id == "" {
+		protocol.Id = URN_PREFIX + "protocol:" + uuid.New().String()
+	}
 	for i, segment := range protocol.ProtocolSegments {
 		segment.GenerateId()
 		protocol.ProtocolSegments[i] = segment
@@ -91,7 +95,9 @@ func (protocol *Protocol) GenerateId() {
 }
 
 func (segment *ProtocolSegment) GenerateId() {
-	segment.Id = URN_PREFIX + "protocol-segment:" + uuid.New().String()
+	if segment.Id == "" {
+		segment.Id = URN_PREFIX + "protocol-segment:" + uuid.New().String()
+	}
 }
 
 func (content *Content) GenerateId() {

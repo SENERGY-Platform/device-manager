@@ -18,6 +18,7 @@ package controller
 
 import (
 	"errors"
+	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
@@ -43,13 +44,15 @@ func (this *Controller) PublishConceptUpdate(jwt jwt_http_router.Jwt, id string,
 	}
 
 	concept.GenerateId()
-
-	err, code := this.com.PermissionCheckForConcept(jwt, id, "w")
-	if err != nil {
-		debug.PrintStack()
-		return concept, err, code
+	if !com.IsAdmin(jwt) {
+		err, code := this.com.PermissionCheckForConcept(jwt, id, "w")
+		if err != nil {
+			debug.PrintStack()
+			return concept, err, code
+		}
 	}
-	err, code = this.com.ValidateConcept(jwt, concept)
+
+	err, code := this.com.ValidateConcept(jwt, concept)
 	if err != nil {
 		debug.PrintStack()
 		return concept, err, code
