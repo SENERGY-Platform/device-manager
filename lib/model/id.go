@@ -13,7 +13,9 @@ func (characteristic *Characteristic) GenerateId() {
 }
 
 func (class *DeviceClass) GenerateId() {
-	class.Id = URN_PREFIX + "device-class:" + uuid.New().String()
+	if class.Id == "" {
+		class.Id = URN_PREFIX + "device-class:" + uuid.New().String()
+	}
 }
 
 func (function *Function) GenerateId() {
@@ -101,12 +103,16 @@ func (segment *ProtocolSegment) GenerateId() {
 }
 
 func (content *Content) GenerateId() {
-	content.Id = URN_PREFIX + "content:" + uuid.New().String()
+	if content.Id == "" {
+		content.Id = URN_PREFIX + "content:" + uuid.New().String()
+	}
 	content.ContentVariable.GenerateId()
 }
 
 func (variable *ContentVariable) GenerateId() {
-	variable.Id = URN_PREFIX + "content-variable:" + uuid.New().String()
+	if variable.Id == "" {
+		variable.Id = URN_PREFIX + "content-variable:" + uuid.New().String()
+	}
 	for i, v := range variable.SubContentVariables {
 		v.GenerateId()
 		variable.SubContentVariables[i] = v
