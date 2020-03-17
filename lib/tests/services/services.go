@@ -31,7 +31,7 @@ func New(cin config.Config) (publ *servicemocks.Publisher, cout config.Config, s
 
 	pool, err := dockertest.NewPool("")
 	if err != nil {
-		log.Println("Could not connect to docker: %s", err)
+		log.Println("Could not connect to docker:", err)
 		return publ, cout, func() {}, err
 	}
 
