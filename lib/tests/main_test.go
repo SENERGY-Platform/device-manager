@@ -23,7 +23,6 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/controller"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/servicemocks"
-	"github.com/SENERGY-Platform/device-manager/lib/tests/services"
 	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"log"
 	"strconv"
@@ -76,6 +75,7 @@ func TestWithMock(t *testing.T) {
 	t.Run("testDevice", func(t *testing.T) {
 		testDevice(t, conf.ServerPort)
 	})
+
 	t.Run("testLocalDevice", func(t *testing.T) {
 		t.Skip("missing endpoint in permissions search mock")
 		testLocalDevice(t, conf.ServerPort)
@@ -91,56 +91,5 @@ func TestWithMock(t *testing.T) {
 
 	t.Run("testCharacteristics", func(t *testing.T) {
 		testCharacteristics(t, conf)
-	})
-}
-
-func TestWithDocker(t *testing.T) {
-	conf, err := config.Load("./../../config.json")
-	if err != nil {
-		t.Fatal("ERROR: unable to load config", err)
-	}
-	servicemocks.DtTopic = conf.DeviceTypeTopic
-	servicemocks.ProtocolTopic = conf.ProtocolTopic
-	servicemocks.DeviceTopic = conf.DeviceTopic
-
-	publ, conf, stop, err := services.New(conf)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer stop()
-
-	port, err := helper.GetFreePort()
-	if err != nil {
-		t.Fatal(err)
-	}
-	conf.ServerPort = strconv.Itoa(port)
-
-	ctrl, err := controller.NewWithPublisher(conf, publ)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	srv, err := api.Start(conf, ctrl)
-	if err != nil {
-		log.Fatal("ERROR: unable to start api", err)
-	}
-	defer srv.Shutdown(context.Background())
-
-	time.Sleep(200 * time.Millisecond)
-
-	t.Run("testDeviceType", func(t *testing.T) {
-		testDeviceType(t, conf.ServerPort)
-	})
-	t.Run("testDevice", func(t *testing.T) {
-		testDevice(t, conf.ServerPort)
-	})
-	t.Run("testLocalDevice", func(t *testing.T) {
-		testLocalDevice(t, conf.ServerPort)
-	})
-	t.Run("testHub", func(t *testing.T) {
-		testHub(t, conf.ServerPort)
-	})
-	t.Run("testHubAssertions", func(t *testing.T) {
-		testHubAssertions(t, conf.ServerPort)
 	})
 }
