@@ -40,10 +40,9 @@ func NewDeviceRepo(producer interface {
 		cmd := publisher.DeviceTypeCommand{}
 		json.Unmarshal(msg, &cmd)
 		if cmd.Command == "PUT" {
-			cmd.DeviceType.DeviceClass = model.DeviceClass{}
 			for i, service := range cmd.DeviceType.Services {
-				service.Aspects = nil
-				service.Functions = nil
+				service.AspectIds = nil
+				service.FunctionIds = nil
 				cmd.DeviceType.Services[i] = service
 			}
 			repo.db[cmd.Id] = cmd.DeviceType

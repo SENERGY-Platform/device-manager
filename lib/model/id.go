@@ -55,22 +55,11 @@ func (deviceType *DeviceType) GenerateId() {
 		service.GenerateId()
 		deviceType.Services[i] = service
 	}
-	if deviceType.DeviceClass.Id == "" {
-		deviceType.DeviceClass.GenerateId()
-	}
 }
 
 func (service *Service) GenerateId() {
 	if service.Id == "" {
 		service.Id = URN_PREFIX + "service:" + uuid.New().String()
-	}
-	for i, function := range service.Functions {
-		function.GenerateId()
-		service.Functions[i] = function
-	}
-	for i, aspect := range service.Aspects {
-		aspect.GenerateId()
-		service.Aspects[i] = aspect
 	}
 	for i, content := range service.Inputs {
 		content.GenerateId()

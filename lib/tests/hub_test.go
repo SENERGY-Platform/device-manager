@@ -53,10 +53,8 @@ func testHub(t *testing.T, port string) {
 	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
-		Name: "foo",
-		DeviceClass: model.DeviceClass{
-			Id: "dc1",
-		},
+		Name:          "foo",
+		DeviceClassId: "dc1",
 		Services: []model.Service{
 			{
 				Name:    "s1name",
@@ -71,13 +69,9 @@ func testHub(t *testing.T, port string) {
 						},
 					},
 				},
-				Functions: []model.Function{
-					{Id: "f1"},
-				},
-				Aspects: []model.Aspect{
-					{Id: "a1"},
-				},
-				ProtocolId: protocol.Id,
+				FunctionIds: []string{"f1"},
+				AspectIds:   []string{"a1"},
+				ProtocolId:  protocol.Id,
 			},
 		},
 	})
@@ -265,10 +259,8 @@ func testHubAssertions(t *testing.T, port string) {
 	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
-		Name: "foo",
-		DeviceClass: model.DeviceClass{
-			Id: "dc1",
-		},
+		Name:          "foo",
+		DeviceClassId: "dc1",
 		Services: []model.Service{
 			{
 				Name:    "s1name",
@@ -283,13 +275,9 @@ func testHubAssertions(t *testing.T, port string) {
 						},
 					},
 				},
-				Functions: []model.Function{
-					{Id: "f1"},
-				},
-				Aspects: []model.Aspect{
-					{Id: "a1"},
-				},
-				ProtocolId: protocol.Id,
+				FunctionIds: []string{"f1"},
+				AspectIds:   []string{"a1"},
+				ProtocolId:  protocol.Id,
 			},
 		},
 	})

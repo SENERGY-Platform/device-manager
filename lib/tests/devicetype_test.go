@@ -63,10 +63,8 @@ func testDeviceType(t *testing.T, port string) {
 	time.Sleep(10 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
-		Name: "foo",
-		DeviceClass: model.DeviceClass{
-			Id: "dc1",
-		},
+		Name:          "foo",
+		DeviceClassId: "dc1",
 		Services: []model.Service{
 			{
 				Name:    "s1name",
@@ -81,13 +79,9 @@ func testDeviceType(t *testing.T, port string) {
 						},
 					},
 				},
-				Functions: []model.Function{
-					{Id: "f1"},
-				},
-				Aspects: []model.Aspect{
-					{Id: "a1"},
-				},
-				ProtocolId: protocol.Id,
+				FunctionIds: []string{"f1"},
+				AspectIds:   []string{"a1"},
+				ProtocolId:  protocol.Id,
 			},
 		},
 	})
@@ -133,14 +127,14 @@ func testDeviceType(t *testing.T, port string) {
 	}
 
 	if result.Name != "foo" ||
-		result.DeviceClass.Id != "dc1" ||
+		result.DeviceClassId != "dc1" ||
 		len(result.Services) != 1 ||
 		result.Services[0].Name != "s1name" ||
 		result.Services[0].ProtocolId != protocol.Id ||
-		len(result.Services[0].Aspects) != 1 ||
-		result.Services[0].Aspects[0].Id != "a1" ||
-		len(result.Services[0].Functions) != 1 ||
-		result.Services[0].Functions[0].Id != "f1" {
+		len(result.Services[0].AspectIds) != 1 ||
+		result.Services[0].AspectIds[0] != "a1" ||
+		len(result.Services[0].FunctionIds) != 1 ||
+		result.Services[0].FunctionIds[0] != "f1" {
 
 		t.Fatal(result)
 	}

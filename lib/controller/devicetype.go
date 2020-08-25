@@ -35,14 +35,14 @@ func (this *Controller) ReadDeviceType(jwt jwt_http_router.Jwt, id string) (dt m
 	if err != nil {
 		return tdt, err, code
 	}
-	tdt.DeviceClass = sdt.DeviceClass
+	tdt.DeviceClassId = sdt.DeviceClassId
 	index := map[string]model.Service{}
 	for _, service := range sdt.Services {
 		index[service.Id] = service
 	}
 	for i, service := range tdt.Services {
-		service.Functions = index[service.Id].Functions
-		service.Aspects = index[service.Id].Aspects
+		service.FunctionIds = index[service.Id].FunctionIds
+		service.AspectIds = index[service.Id].AspectIds
 		tdt.Services[i] = service
 	}
 

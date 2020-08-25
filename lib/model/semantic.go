@@ -19,20 +19,21 @@ package model
 type DeviceClass struct {
 	Id      string `json:"id"`
 	Name    string `json:"name"`
+	Image   string `json:"image"`
 	RdfType string `json:"rdf_type"`
 }
 
 type Function struct {
-	Id         string   `json:"id"`
-	Name       string   `json:"name"`
-	ConceptId  string   `json:"concept_id"`
-	RdfType    string   `json:"rdf_type"`
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	ConceptId string `json:"concept_id"`
+	RdfType   string `json:"rdf_type"`
 }
 
 type Aspect struct {
-	Id         string `json:"id"`
-	Name       string `json:"name"`
-	RdfType    string `json:"rdf_type"`
+	Id      string `json:"id"`
+	Name    string `json:"name"`
+	RdfType string `json:"rdf_type"`
 }
 
 type Concept struct {
