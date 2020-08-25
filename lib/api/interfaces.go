@@ -51,4 +51,19 @@ type Controller interface {
 	PublishCharacteristicDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
 
 	DeviceLocalIdToId(jwt jwt_http_router.Jwt, localId string) (id string, err error, errCode int)
+
+	ReadAspect(jwt jwt_http_router.Jwt, id string) (device model.Aspect, err error, code int)
+	PublishAspectCreate(jwt jwt_http_router.Jwt, dt model.Aspect) (result model.Aspect, err error, code int)
+	PublishAspectUpdate(jwt jwt_http_router.Jwt, id string, device model.Aspect) (result model.Aspect, err error, code int)
+	PublishAspectDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
+
+	ReadFunction(jwt jwt_http_router.Jwt, id string) (device model.Function, err error, code int)
+	PublishFunctionCreate(jwt jwt_http_router.Jwt, dt model.Function) (result model.Function, err error, code int)
+	PublishFunctionUpdate(jwt jwt_http_router.Jwt, id string, device model.Function) (result model.Function, err error, code int)
+	PublishFunctionDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
+
+	ReadDeviceClass(jwt jwt_http_router.Jwt, id string) (device model.DeviceClass, err error, code int)
+	PublishDeviceClassCreate(jwt jwt_http_router.Jwt, dt model.DeviceClass) (result model.DeviceClass, err error, code int)
+	PublishDeviceClassUpdate(jwt jwt_http_router.Jwt, id string, device model.DeviceClass) (result model.DeviceClass, err error, code int)
+	PublishDeviceClassDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
 }

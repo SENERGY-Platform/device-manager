@@ -28,6 +28,9 @@ var DeviceTopic = "device"
 var HubTopic = "hub"
 var ConceptTopic = "concepts"
 var CharacteristicTopic = "characteristics"
+var AspectTopic = "aspcet"
+var FunctionTopic = "function"
+var DeviceClassTopic = "function"
 
 type Publisher struct {
 	listener map[string][]func(msg []byte)
@@ -154,4 +157,58 @@ func (this *Publisher) PublishCharacteristicDelete(id string, userID string) err
 		return err
 	}
 	return this.send(CharacteristicTopic, message)
+}
+
+func (this *Publisher) PublishAspect(aspect model.Aspect, userID string) (err error) {
+	cmd := publisher.AspectCommand{Command: "PUT", Id: aspect.Id, Aspect: aspect, Owner: userID}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(AspectTopic, message)
+}
+
+func (this *Publisher) PublishAspectDelete(id string, userId string) error {
+	cmd := publisher.AspectCommand{Command: "DELETE", Id: id, Owner: userId}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(AspectTopic, message)
+}
+
+func (this *Publisher) PublishFunction(function model.Function, userID string) (err error) {
+	cmd := publisher.FunctionCommand{Command: "PUT", Id: function.Id, Function: function, Owner: userID}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(FunctionTopic, message)
+}
+
+func (this *Publisher) PublishFunctionDelete(id string, userId string) error {
+	cmd := publisher.FunctionCommand{Command: "DELETE", Id: id, Owner: userId}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(FunctionTopic, message)
+}
+
+func (this *Publisher) PublishDeviceClass(deviceClass model.DeviceClass, userID string) (err error) {
+	cmd := publisher.DeviceClassCommand{Command: "PUT", Id: deviceClass.Id, DeviceClass: deviceClass, Owner: userID}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(DeviceClassTopic, message)
+}
+
+func (this *Publisher) PublishDeviceClassDelete(id string, userId string) error {
+	cmd := publisher.DeviceClassCommand{Command: "DELETE", Id: id, Owner: userId}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(DeviceClassTopic, message)
 }

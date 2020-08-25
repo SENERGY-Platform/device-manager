@@ -59,6 +59,15 @@ type Publisher interface {
 
 	PublishCharacteristic(conceptId string, concept model.Characteristic, userID string) (err error)
 	PublishCharacteristicDelete(id string, userID string) error
+
+	PublishAspect(device model.Aspect, userID string) (err error)
+	PublishAspectDelete(id string, userID string) error
+
+	PublishFunction(device model.Function, userID string) (err error)
+	PublishFunctionDelete(id string, userID string) error
+
+	PublishDeviceClass(device model.DeviceClass, userID string) (err error)
+	PublishDeviceClassDelete(id string, userID string) error
 }
 
 type Com interface {
@@ -87,4 +96,13 @@ type Com interface {
 	DevicesOfTypeExist(jwt jwt_http_router.Jwt, deviceTypeId string) (result bool, err error, code int)
 
 	DeviceLocalIdToId(jwt jwt_http_router.Jwt, localId string) (id string, err error, code int)
+
+	GetAspect(jwt jwt_http_router.Jwt, id string) (model.Aspect, error, int)
+	ValidateAspect(jwt jwt_http_router.Jwt, aspect model.Aspect) (err error, code int)
+
+	GetFunction(jwt jwt_http_router.Jwt, id string) (model.Function, error, int)
+	ValidateFunction(jwt jwt_http_router.Jwt, function model.Function) (err error, code int)
+
+	GetDeviceClass(jwt jwt_http_router.Jwt, id string) (model.DeviceClass, error, int)
+	ValidateDeviceClass(jwt jwt_http_router.Jwt, deviceClass model.DeviceClass) (err error, code int)
 }

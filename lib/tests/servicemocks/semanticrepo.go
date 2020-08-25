@@ -27,17 +27,26 @@ import (
 )
 
 type SemanticRepo struct {
-	dt       map[string]model.DeviceType
-	concepts map[string]model.Concept
+	dt              map[string]model.DeviceType
+	concepts        map[string]model.Concept
 	characteristics map[string]model.Characteristic
-	ts       *httptest.Server
+	aspects         map[string]model.Aspect
+	functions       map[string]model.Function
+	deviceclasses   map[string]model.DeviceClass
+	ts              *httptest.Server
 }
 
 func NewSemanticRepo(producer interface {
 	Subscribe(topic string, f func(msg []byte))
 }) *SemanticRepo {
-	repo := &SemanticRepo{dt: map[string]model.DeviceType{},
-	concepts: map[string]model.Concept{}, characteristics: map[string]model.Characteristic{}}
+	repo := &SemanticRepo{
+		dt:              map[string]model.DeviceType{},
+		concepts:        map[string]model.Concept{},
+		characteristics: map[string]model.Characteristic{},
+		aspects:         map[string]model.Aspect{},
+		functions:       map[string]model.Function{},
+		deviceclasses:   map[string]model.DeviceClass{},
+	}
 	producer.Subscribe(DtTopic, func(msg []byte) {
 		cmd := publisher.DeviceTypeCommand{}
 		json.Unmarshal(msg, &cmd)
@@ -70,6 +79,36 @@ func NewSemanticRepo(producer interface {
 		}
 	})
 
+	producer.Subscribe(AspectTopic, func(msg []byte) {
+		cmd := publisher.AspectCommand{}
+		json.Unmarshal(msg, &cmd)
+		if cmd.Command == "PUT" {
+			repo.aspects[cmd.Id] = cmd.Aspect
+		} else if cmd.Command == "DELETE" {
+			delete(repo.aspects, cmd.Id)
+		}
+	})
+
+	producer.Subscribe(FunctionTopic, func(msg []byte) {
+		cmd := publisher.FunctionCommand{}
+		json.Unmarshal(msg, &cmd)
+		if cmd.Command == "PUT" {
+			repo.functions[cmd.Id] = cmd.Function
+		} else if cmd.Command == "DELETE" {
+			delete(repo.functions, cmd.Id)
+		}
+	})
+
+	producer.Subscribe(DeviceClassTopic, func(msg []byte) {
+		cmd := publisher.DeviceClassCommand{}
+		json.Unmarshal(msg, &cmd)
+		if cmd.Command == "PUT" {
+			repo.deviceclasses[cmd.Id] = cmd.DeviceClass
+		} else if cmd.Command == "DELETE" {
+			delete(repo.deviceclasses, cmd.Id)
+		}
+	})
+
 	router := jwt_http_router.New(jwt_http_router.JwtConfig{ForceAuth: true, ForceUser: true})
 
 	router.GET("/device-types/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
@@ -99,6 +138,105 @@ func NewSemanticRepo(producer interface {
 			return
 		}
 		if dt.Id == "" {
+			http.Error(writer, "missing device id", http.StatusBadRequest)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
+	router.GET("/aspects/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("id")
+		aspect, ok := repo.aspects[id]
+		if ok {
+			json.NewEncoder(writer).Encode(aspect)
+		} else {
+			http.Error(writer, "404", 404)
+		}
+	})
+
+	router.PUT("/aspects", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		aspect := model.Aspect{}
+		err = json.NewDecoder(request.Body).Decode(&aspect)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if aspect.Id == "" {
+			http.Error(writer, "missing device id", http.StatusBadRequest)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
+	router.GET("/functions/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("id")
+		function, ok := repo.functions[id]
+		if ok {
+			json.NewEncoder(writer).Encode(function)
+		} else {
+			http.Error(writer, "404", 404)
+		}
+	})
+
+	router.PUT("/functions", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		function := model.Function{}
+		err = json.NewDecoder(request.Body).Decode(&function)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if function.Id == "" {
+			http.Error(writer, "missing device id", http.StatusBadRequest)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
+	router.GET("/device-classes/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("id")
+		deviceclass, ok := repo.deviceclasses[id]
+		if ok {
+			json.NewEncoder(writer).Encode(deviceclass)
+		} else {
+			http.Error(writer, "404", 404)
+		}
+	})
+
+	router.PUT("/device-classes", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		deviceclass := model.DeviceClass{}
+		err = json.NewDecoder(request.Body).Decode(&deviceclass)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if deviceclass.Id == "" {
 			http.Error(writer, "missing device id", http.StatusBadRequest)
 			return
 		}

@@ -33,11 +33,26 @@ type Publisher struct {
 	hubs            *kafka.Writer
 	concepts        *kafka.Writer
 	characteristics *kafka.Writer
+	aspects         *kafka.Writer
+	functions       *kafka.Writer
+	deviceclasses   *kafka.Writer
 }
 
 func New(conf config.Config) (*Publisher, error) {
 	log.Println("ensure kafka topics")
-	err := InitTopicWithConfig(conf.ZookeeperUrl, 1, 1, conf.DeviceTypeTopic, conf.ProtocolTopic, conf.DeviceTopic, conf.HubTopic, conf.ConceptTopic, conf.CharacteristicTopic)
+	err := InitTopicWithConfig(
+		conf.ZookeeperUrl,
+		1,
+		1,
+		conf.DeviceTypeTopic,
+		conf.ProtocolTopic,
+		conf.DeviceTopic,
+		conf.HubTopic,
+		conf.ConceptTopic,
+		conf.CharacteristicTopic,
+		conf.AspectTopic,
+		conf.FunctionTopic,
+		conf.DeviceClassTopic)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +88,30 @@ func New(conf config.Config) (*Publisher, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Publisher{config: conf, devicetypes: devicetypes, protocols: protocol, devices: devices, hubs: hubs, concepts: concepts, characteristics: characteristics}, nil
+	aspect, err := getProducer(broker, conf.AspectTopic, conf.LogLevel == "DEBUG")
+	if err != nil {
+		return nil, err
+	}
+	function, err := getProducer(broker, conf.FunctionTopic, conf.LogLevel == "DEBUG")
+	if err != nil {
+		return nil, err
+	}
+	deviceclass, err := getProducer(broker, conf.DeviceClassTopic, conf.LogLevel == "DEBUG")
+	if err != nil {
+		return nil, err
+	}
+	return &Publisher{
+		config:          conf,
+		devicetypes:     devicetypes,
+		protocols:       protocol,
+		devices:         devices,
+		hubs:            hubs,
+		concepts:        concepts,
+		characteristics: characteristics,
+		aspects:         aspect,
+		functions:       function,
+		deviceclasses:   deviceclass,
+	}, nil
 }
 
 func getProducer(broker []string, topic string, debug bool) (writer *kafka.Writer, err error) {

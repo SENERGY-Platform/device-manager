@@ -45,6 +45,9 @@ func TestWithMock(t *testing.T) {
 	servicemocks.DeviceTopic = conf.DeviceTopic
 	servicemocks.ConceptTopic = conf.ConceptTopic
 	servicemocks.CharacteristicTopic = conf.ConceptTopic
+	servicemocks.AspectTopic = conf.AspectTopic
+	servicemocks.FunctionTopic = conf.FunctionTopic
+	servicemocks.DeviceClassTopic = conf.DeviceClassTopic
 
 	publ, conf, stop := servicemocks.New(conf)
 	defer stop()
@@ -67,6 +70,10 @@ func TestWithMock(t *testing.T) {
 	defer srv.Shutdown(context.Background())
 
 	time.Sleep(200 * time.Millisecond)
+
+	t.Run("aspects", testAspect(conf.ServerPort))
+	t.Run("functions", testFunction(conf.ServerPort))
+	t.Run("deviceclasses", testDeviceClass(conf.ServerPort))
 
 	t.Run("testDeviceType", func(t *testing.T) {
 		testDeviceType(t, conf.ServerPort)
