@@ -49,7 +49,7 @@ func (this *Controller) PublishProtocolUpdate(jwt jwt_http_router.Jwt, id string
 		return protocol, errors.New("access denied"), http.StatusForbidden
 	}
 	if protocol.Id != id {
-		return protocol, errors.New("device id in body unequal to device id in request endpoint"), http.StatusBadRequest
+		return protocol, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
 
 	//replace sub ids and create new ones for new sub elements

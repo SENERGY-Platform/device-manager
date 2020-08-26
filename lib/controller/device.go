@@ -46,7 +46,7 @@ func (this *Controller) PublishDeviceCreate(jwt jwt_http_router.Jwt, device mode
 
 func (this *Controller) PublishDeviceUpdate(jwt jwt_http_router.Jwt, id string, device model.Device) (model.Device, error, int) {
 	if device.Id != id {
-		return device, errors.New("device id in body unequal to device id in request endpoint"), http.StatusBadRequest
+		return device, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
 
 	//replace sub ids and create new ones for new sub elements

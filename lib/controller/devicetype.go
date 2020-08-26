@@ -68,7 +68,7 @@ func (this *Controller) PublishDeviceTypeCreate(jwt jwt_http_router.Jwt, dt mode
 
 func (this *Controller) PublishDeviceTypeUpdate(jwt jwt_http_router.Jwt, id string, dt model.DeviceType) (model.DeviceType, error, int) {
 	if dt.Id != id {
-		return dt, errors.New("device id in body unequal to device id in request endpoint"), http.StatusBadRequest
+		return dt, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
 
 	dt.GenerateId()

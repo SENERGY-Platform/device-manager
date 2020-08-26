@@ -49,7 +49,7 @@ func (this *Controller) PublishFunctionUpdate(jwt jwt_http_router.Jwt, id string
 		return function, errors.New("access denied"), http.StatusForbidden
 	}
 	if function.Id != id {
-		return function, errors.New("device id in body unequal to device id in request endpoint"), http.StatusBadRequest
+		return function, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
 
 	//replace sub ids and create new ones for new sub elements

@@ -49,7 +49,7 @@ func (this *Controller) PublishAspectUpdate(jwt jwt_http_router.Jwt, id string, 
 		return aspect, errors.New("access denied"), http.StatusForbidden
 	}
 	if aspect.Id != id {
-		return aspect, errors.New("device id in body unequal to device id in request endpoint"), http.StatusBadRequest
+		return aspect, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
 
 	//replace sub ids and create new ones for new sub elements
