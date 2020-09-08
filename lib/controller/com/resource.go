@@ -28,7 +28,7 @@ func getResourceFromService(jwt jwt_http_router.Jwt, endpoint string, id string,
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)
 		err = errors.New(buf.String())
-		log.Println("ERROR: unable to get ressource", endpoint, err)
+		log.Println("WARNING: unable to get resource", endpoint, id, resp.StatusCode, err)
 		debug.PrintStack()
 		return err, resp.StatusCode
 	}
@@ -64,7 +64,7 @@ func validateResource(jwt jwt_http_router.Jwt, endpoints []string, resource inte
 			buf := new(bytes.Buffer)
 			buf.ReadFrom(resp.Body)
 			err = errors.New(buf.String())
-			log.Println("ERROR: unable to validate ressource", endpoint, resource, resp.StatusCode, err)
+			log.Println("WARNING: validation error", endpoint, resource, resp.StatusCode, err)
 			debug.PrintStack()
 			return err, resp.StatusCode
 		}
