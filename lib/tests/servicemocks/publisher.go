@@ -105,6 +105,14 @@ func (this *Publisher) PublishDeviceTypeDelete(id string, userId string) error {
 	return this.send(DtTopic, message)
 }
 
+func (this *Publisher) PublishDeviceGroup(device model.DeviceGroup, userID string) (err error) {
+	panic("implement me")
+}
+
+func (this *Publisher) PublishDeviceGroupDelete(id string, userID string) error {
+	panic("implement me")
+}
+
 func (this *Publisher) PublishProtocol(protocol model.Protocol, userId string) (err error) {
 	cmd := publisher.ProtocolCommand{Command: "PUT", Id: protocol.Id, Protocol: protocol, Owner: userId}
 	message, err := json.Marshal(cmd)

@@ -22,6 +22,11 @@ import (
 )
 
 type Controller interface {
+	ReadDeviceGroup(jwt jwt_http_router.Jwt, id string) (device model.DeviceGroup, err error, code int)
+	PublishDeviceGroupCreate(jwt jwt_http_router.Jwt, dt model.DeviceGroup) (result model.DeviceGroup, err error, code int)
+	PublishDeviceGroupUpdate(jwt jwt_http_router.Jwt, id string, device model.DeviceGroup) (result model.DeviceGroup, err error, code int)
+	PublishDeviceGroupDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
+
 	ReadDeviceType(jwt jwt_http_router.Jwt, id string) (device model.DeviceType, err error, code int)
 	PublishDeviceTypeCreate(jwt jwt_http_router.Jwt, dt model.DeviceType) (result model.DeviceType, err error, code int)
 	PublishDeviceTypeUpdate(jwt jwt_http_router.Jwt, id string, device model.DeviceType) (result model.DeviceType, err error, code int)

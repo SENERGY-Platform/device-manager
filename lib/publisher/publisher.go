@@ -28,6 +28,7 @@ import (
 type Publisher struct {
 	config          config.Config
 	devicetypes     *kafka.Writer
+	devicegroups    *kafka.Writer
 	protocols       *kafka.Writer
 	devices         *kafka.Writer
 	hubs            *kafka.Writer
@@ -45,6 +46,7 @@ func New(conf config.Config) (*Publisher, error) {
 		1,
 		1,
 		conf.DeviceTypeTopic,
+		conf.DeviceGroupTopic,
 		conf.ProtocolTopic,
 		conf.DeviceTopic,
 		conf.HubTopic,
@@ -65,6 +67,10 @@ func New(conf config.Config) (*Publisher, error) {
 	}
 	log.Println("Produce to ", conf.DeviceTypeTopic, conf.ProtocolTopic, conf.DeviceTopic, conf.HubTopic, conf.ConceptTopic, conf.CharacteristicTopic)
 	devicetypes, err := getProducer(broker, conf.DeviceTypeTopic, conf.LogLevel == "DEBUG")
+	if err != nil {
+		return nil, err
+	}
+	devicegroups, err := getProducer(broker, conf.DeviceGroupTopic, conf.LogLevel == "DEBUG")
 	if err != nil {
 		return nil, err
 	}
@@ -103,6 +109,7 @@ func New(conf config.Config) (*Publisher, error) {
 	return &Publisher{
 		config:          conf,
 		devicetypes:     devicetypes,
+		devicegroups:    devicegroups,
 		protocols:       protocol,
 		devices:         devices,
 		hubs:            hubs,

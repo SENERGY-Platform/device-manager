@@ -99,4 +99,6 @@ func TestWithMock(t *testing.T) {
 	t.Run("testCharacteristics", func(t *testing.T) {
 		testCharacteristics(t, conf)
 	})
+
+	t.Run("testDeviceGroup", testDeviceGroup())
 }

@@ -57,6 +57,12 @@ func (deviceType *DeviceType) GenerateId() {
 	}
 }
 
+func (deviceGroup *DeviceGroup) GenerateId() {
+	if deviceGroup.Id == "" {
+		deviceGroup.Id = URN_PREFIX + "device-group:" + uuid.New().String()
+	}
+}
+
 func (service *Service) GenerateId() {
 	if service.Id == "" {
 		service.Id = URN_PREFIX + "service:" + uuid.New().String()

@@ -48,6 +48,9 @@ type Publisher interface {
 	PublishDeviceType(device model.DeviceType, userID string) (err error)
 	PublishDeviceTypeDelete(id string, userID string) error
 
+	PublishDeviceGroup(device model.DeviceGroup, userID string) (err error)
+	PublishDeviceGroupDelete(id string, userID string) error
+
 	PublishProtocol(device model.Protocol, userID string) (err error)
 	PublishProtocolDelete(id string, userID string) error
 
@@ -71,6 +74,10 @@ type Publisher interface {
 }
 
 type Com interface {
+	GetTechnicalDeviceGroup(jwt jwt_http_router.Jwt, id string) (dt model.DeviceGroup, err error, code int)
+	ValidateDeviceGroup(jwt jwt_http_router.Jwt, dt model.DeviceGroup) (err error, code int)
+	PermissionCheckForDeviceGroup(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+
 	GetTechnicalDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int)
 	GetSemanticDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int)
 	ValidateDeviceType(jwt jwt_http_router.Jwt, dt model.DeviceType) (err error, code int)

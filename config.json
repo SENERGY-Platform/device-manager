@@ -7,6 +7,7 @@
   "device_topic": "devices",
   "hub_topic": "hubs",
   "device_type_topic": "device-types",
+  "device_group_topic": "device-groups",
   "concept_topic": "concepts",
   "characteristic_topic": "characteristics",
   "protocol_topic": "protocols",
