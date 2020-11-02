@@ -70,14 +70,7 @@ func (this *Controller) PublishDeviceGroupUpdate(jwt jwt_http_router.Jwt, id str
 }
 
 func (this *Controller) PublishDeviceGroupDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	exists, err, code := this.com.DevicesOfTypeExist(jwt, id)
-	if err != nil {
-		return err, code
-	}
-	if exists {
-		return errors.New("expect no dependent devices"), http.StatusBadRequest
-	}
-	err, code = this.com.PermissionCheckForDeviceGroup(jwt, id, "a")
+	err, code := this.com.PermissionCheckForDeviceGroup(jwt, id, "a")
 	if err != nil {
 		return err, code
 	}
