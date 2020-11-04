@@ -48,6 +48,7 @@ func TestWithMock(t *testing.T) {
 	servicemocks.AspectTopic = conf.AspectTopic
 	servicemocks.FunctionTopic = conf.FunctionTopic
 	servicemocks.DeviceClassTopic = conf.DeviceClassTopic
+	servicemocks.DeviceGroupTopic = conf.DeviceGroupTopic
 
 	publ, conf, stop := servicemocks.New(conf)
 	defer stop()
@@ -100,5 +101,5 @@ func TestWithMock(t *testing.T) {
 		testCharacteristics(t, conf)
 	})
 
-	t.Run("testDeviceGroup", testDeviceGroup())
+	t.Run("testDeviceGroup", testDeviceGroup(conf.ServerPort))
 }

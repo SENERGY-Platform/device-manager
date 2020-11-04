@@ -25,7 +25,6 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
-	"time"
 )
 
 func testHub(t *testing.T, port string) {
@@ -49,8 +48,6 @@ func testHub(t *testing.T, port string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
 		Name:          "foo",
@@ -95,8 +92,6 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(dt)
 	}
 
-	time.Sleep(15 * time.Second)
-
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
 		Name:         "d2",
 		DeviceTypeId: dt.Id,
@@ -120,8 +115,6 @@ func testHub(t *testing.T, port string) {
 	if device.Id == "" {
 		t.Fatal(device)
 	}
-
-	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.Hub{})
 	if err != nil {
@@ -173,8 +166,6 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(hub)
 	}
 
-	time.Sleep(15 * time.Second)
-
 	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id)+"/name", "h1_changed")
 	if err != nil {
 		t.Fatal(err)
@@ -185,8 +176,6 @@ func testHub(t *testing.T, port string) {
 		b, _ := ioutil.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
-
-	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {
@@ -219,8 +208,6 @@ func testHub(t *testing.T, port string) {
 		b, _ := ioutil.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
-
-	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {
@@ -255,8 +242,6 @@ func testHubAssertions(t *testing.T, port string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
 		Name:          "foo",
@@ -300,8 +285,6 @@ func testHubAssertions(t *testing.T, port string) {
 	if dt.Id == "" {
 		t.Fatal(dt)
 	}
-
-	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
 		Name:         "d3",
@@ -357,8 +340,6 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	time.Sleep(15 * time.Second)
-
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.Hub{
 		Name:           "h2",
 		Hash:           "foobar",
@@ -383,8 +364,6 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(hub)
 	}
 
-	time.Sleep(15 * time.Second)
-
 	// update hub on device local id change
 
 	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(d3.Id), model.Device{
@@ -402,7 +381,6 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	time.Sleep(15 * time.Second)
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {
 		t.Fatal(err)
@@ -436,7 +414,6 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	time.Sleep(15 * time.Second)
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {
 		t.Fatal(err)
@@ -483,8 +460,6 @@ func testHubAssertions(t *testing.T, port string) {
 	if newHub.Id == "" {
 		t.Fatal(newHub)
 	}
-
-	time.Sleep(20 * time.Second)
 
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {

@@ -24,7 +24,6 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 )
 
 func testAspect(port string) func(t *testing.T) {
@@ -51,8 +50,6 @@ func testAspect(port string) func(t *testing.T) {
 		if aspect.Id == "" {
 			t.Fatal(aspect)
 		}
-
-		time.Sleep(10 * time.Second)
 
 		result := model.Aspect{}
 		resp, err = helper.Jwtget(adminjwt, "http://localhost:"+port+"/aspects/"+url.PathEscape(aspect.Id))

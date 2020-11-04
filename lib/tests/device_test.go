@@ -24,7 +24,6 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 )
 
 func testDevice(t *testing.T, port string) {
@@ -48,8 +47,6 @@ func testDevice(t *testing.T, port string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	time.Sleep(10 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
 		Name:          "foo",
@@ -93,8 +90,6 @@ func testDevice(t *testing.T, port string) {
 	if dt.Id == "" {
 		t.Fatal(dt)
 	}
-
-	time.Sleep(10 * time.Second)
 
 	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
 		Name:    "d1",
@@ -149,8 +144,6 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(device)
 	}
 
-	time.Sleep(15 * time.Second)
-
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id))
 	if err != nil {
 		t.Fatal(err)
@@ -197,8 +190,6 @@ func testDevice(t *testing.T, port string) {
 		b, _ := ioutil.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
-
-	time.Sleep(15 * time.Second)
 
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id))
 	if err != nil {

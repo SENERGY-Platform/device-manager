@@ -16,11 +16,119 @@
 
 package tests
 
-import "testing"
+import (
+	"encoding/json"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"testing"
+)
 
-func testDeviceGroup() func(t *testing.T) {
+func testDeviceGroup(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		t.Error("not implemented")
-		return
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-groups", model.DeviceGroup{
+			Name:               "dg1",
+			BlockedInteraction: "foo",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		//expect validation error
+		if resp.StatusCode == http.StatusOK {
+			t.Fatal(resp.Status, resp.StatusCode)
+		}
+
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-groups", model.DeviceGroup{
+			Name: "dg1",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			b, _ := ioutil.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+
+		deviceGroup := model.DeviceGroup{}
+		err = json.NewDecoder(resp.Body).Decode(&deviceGroup)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if deviceGroup.Id == "" {
+			t.Fatal(deviceGroup)
+		}
+
+		resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			b, _ := ioutil.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+
+		result := model.DeviceGroup{}
+		err = json.NewDecoder(resp.Body).Decode(&result)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if result.Name != "dg1" {
+			t.Fatal(result)
+		}
+
+		resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id), model.DeviceGroup{
+			Id:   deviceGroup.Id,
+			Name: "dg2",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			b, _ := ioutil.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+
+		deviceGroup = model.DeviceGroup{}
+		err = json.NewDecoder(resp.Body).Decode(&deviceGroup)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if deviceGroup.Id == "" {
+			t.Fatal(deviceGroup)
+		}
+
+		resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			b, _ := ioutil.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+
+		result = model.DeviceGroup{}
+		err = json.NewDecoder(resp.Body).Decode(&result)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if result.Name != "dg2" {
+			t.Fatal(result)
+		}
 	}
 }

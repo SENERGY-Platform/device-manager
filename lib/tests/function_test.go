@@ -24,7 +24,6 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 )
 
 func testFunction(port string) func(t *testing.T) {
@@ -52,8 +51,6 @@ func testFunction(port string) func(t *testing.T) {
 		if function.Id == "" {
 			t.Fatal(function)
 		}
-
-		time.Sleep(10 * time.Second)
 
 		result := model.Function{}
 		resp, err = helper.Jwtget(adminjwt, "http://localhost:"+port+"/functions/"+url.PathEscape(function.Id))

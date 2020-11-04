@@ -25,6 +25,7 @@ import (
 var DtTopic = "devicetype"
 var ProtocolTopic = "protocol"
 var DeviceTopic = "device"
+var DeviceGroupTopic = "devicegroups"
 var HubTopic = "hub"
 var ConceptTopic = "concepts"
 var CharacteristicTopic = "characteristics"
@@ -105,12 +106,22 @@ func (this *Publisher) PublishDeviceTypeDelete(id string, userId string) error {
 	return this.send(DtTopic, message)
 }
 
-func (this *Publisher) PublishDeviceGroup(device model.DeviceGroup, userID string) (err error) {
-	panic("implement me")
+func (this *Publisher) PublishDeviceGroup(group model.DeviceGroup, userID string) (err error) {
+	cmd := publisher.DeviceGroupCommand{Command: "PUT", Id: group.Id, DeviceGroup: group, Owner: userID}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(DeviceGroupTopic, message)
 }
 
 func (this *Publisher) PublishDeviceGroupDelete(id string, userID string) error {
-	panic("implement me")
+	cmd := publisher.DeviceGroupCommand{Command: "DELETE", Id: id, Owner: userID}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(DeviceGroupTopic, message)
 }
 
 func (this *Publisher) PublishProtocol(protocol model.Protocol, userId string) (err error) {

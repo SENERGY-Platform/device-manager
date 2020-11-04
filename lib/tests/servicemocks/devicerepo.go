@@ -60,6 +60,17 @@ func NewDeviceRepo(producer interface {
 			delete(repo.db, cmd.Id)
 		}
 	})
+
+	producer.Subscribe(DeviceGroupTopic, func(msg []byte) {
+		cmd := publisher.DeviceGroupCommand{}
+		json.Unmarshal(msg, &cmd)
+		if cmd.Command == "PUT" {
+			repo.db[cmd.Id] = cmd.DeviceGroup
+		} else if cmd.Command == "DELETE" {
+			delete(repo.db, cmd.Id)
+		}
+	})
+
 	producer.Subscribe(HubTopic, func(msg []byte) {
 		cmd := publisher.HubCommand{}
 		json.Unmarshal(msg, &cmd)
@@ -80,6 +91,49 @@ func NewDeviceRepo(producer interface {
 	})
 
 	router := jwt_http_router.New(jwt_http_router.JwtConfig{ForceAuth: true, ForceUser: true})
+
+	router.GET("/device-groups/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("id")
+		dt, ok := repo.db[id]
+		if ok {
+			json.NewEncoder(writer).Encode(dt)
+		} else {
+			http.Error(writer, "404", 404)
+		}
+	})
+
+	router.PUT("/device-groups", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		group := model.DeviceGroup{}
+		err = json.NewDecoder(request.Body).Decode(&group)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if group.Id == "" {
+			http.Error(writer, "missing device id", http.StatusBadRequest)
+			return
+		}
+		switch group.BlockedInteraction {
+		case "":
+		case model.EVENT:
+		case model.REQUEST:
+		case model.EVENT_AND_REQUEST:
+		default:
+			http.Error(writer, "unknown interaction", http.StatusBadRequest)
+			return
+		}
+
+		writer.WriteHeader(http.StatusOK)
+	})
 
 	router.GET("/device-types/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
 		id := params.ByName("id")

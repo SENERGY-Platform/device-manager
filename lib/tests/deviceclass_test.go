@@ -24,7 +24,6 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
-	"time"
 )
 
 func testDeviceClass(port string) func(t *testing.T) {
@@ -51,8 +50,6 @@ func testDeviceClass(port string) func(t *testing.T) {
 		if deviceClass.Id == "" {
 			t.Fatal(deviceClass)
 		}
-
-		time.Sleep(10 * time.Second)
 
 		result := model.DeviceClass{}
 		resp, err = helper.Jwtget(adminjwt, "http://localhost:"+port+"/device-classes/"+url.PathEscape(deviceClass.Id))
