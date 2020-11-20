@@ -24,10 +24,11 @@ type DeviceClass struct {
 }
 
 type Function struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	ConceptId string `json:"concept_id"`
-	RdfType   string `json:"rdf_type"`
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	ConceptId   string `json:"concept_id"`
+	RdfType     string `json:"rdf_type"`
 }
 
 type Aspect struct {
