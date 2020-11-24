@@ -29,44 +29,47 @@ func (this *Controller) ReadDeviceGroup(jwt jwt_http_router.Jwt, id string) (dt 
 	return this.com.GetTechnicalDeviceGroup(jwt, id)
 }
 
-func (this *Controller) PublishDeviceGroupCreate(jwt jwt_http_router.Jwt, dt model.DeviceGroup) (model.DeviceGroup, error, int) {
-	dt.GenerateId()
-	err, code := this.com.ValidateDeviceGroup(jwt, dt)
+func (this *Controller) PublishDeviceGroupCreate(jwt jwt_http_router.Jwt, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
+	dg.GenerateId()
+	dg.SetShortCriteria()
+
+	err, code := this.com.ValidateDeviceGroup(jwt, dg)
 	if err != nil {
-		return dt, err, code
+		return dg, err, code
 	}
-	err = this.publisher.PublishDeviceGroup(dt, jwt.UserId)
+	err = this.publisher.PublishDeviceGroup(dg, jwt.UserId)
 	if err != nil {
-		return dt, err, http.StatusInternalServerError
+		return dg, err, http.StatusInternalServerError
 	}
-	return dt, nil, http.StatusOK
+	return dg, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceGroupUpdate(jwt jwt_http_router.Jwt, id string, dt model.DeviceGroup) (model.DeviceGroup, error, int) {
-	if dt.Id != id {
-		return dt, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
+func (this *Controller) PublishDeviceGroupUpdate(jwt jwt_http_router.Jwt, id string, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
+	if dg.Id != id {
+		return dg, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
 
-	dt.GenerateId()
+	dg.GenerateId()
+	dg.SetShortCriteria()
 
 	if !com.IsAdmin(jwt) {
 		err, code := this.com.PermissionCheckForDeviceGroup(jwt, id, "w")
 		if err != nil {
 			debug.PrintStack()
-			return dt, err, code
+			return dg, err, code
 		}
 	}
-	err, code := this.com.ValidateDeviceGroup(jwt, dt)
+	err, code := this.com.ValidateDeviceGroup(jwt, dg)
 	if err != nil {
 		debug.PrintStack()
-		return dt, err, code
+		return dg, err, code
 	}
-	err = this.publisher.PublishDeviceGroup(dt, jwt.UserId)
+	err = this.publisher.PublishDeviceGroup(dg, jwt.UserId)
 	if err != nil {
 		debug.PrintStack()
-		return dt, err, http.StatusInternalServerError
+		return dg, err, http.StatusInternalServerError
 	}
-	return dt, nil, http.StatusOK
+	return dg, nil, http.StatusOK
 }
 
 func (this *Controller) PublishDeviceGroupDelete(jwt jwt_http_router.Jwt, id string) (error, int) {

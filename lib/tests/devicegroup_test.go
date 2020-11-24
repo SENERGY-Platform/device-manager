@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"reflect"
 	"testing"
 )
 
@@ -130,5 +131,45 @@ func testDeviceGroup(port string) func(t *testing.T) {
 		if result.Name != "dg2" {
 			t.Fatal(result)
 		}
+	}
+}
+
+func TestDeviceGroupShortCriteria(t *testing.T) {
+	dg := model.DeviceGroup{Criteria: []model.FilterCriteria{
+		{
+			FunctionId: "f1",
+			AspectId:   "a1",
+		},
+		{
+			FunctionId: "f1",
+			AspectId:   "a2",
+		},
+		{
+			FunctionId:    "f2",
+			DeviceClassId: "dc1",
+		},
+	}}
+	dg.SetShortCriteria()
+
+	expected := model.DeviceGroup{
+		Criteria: []model.FilterCriteria{
+			{
+				FunctionId: "f1",
+				AspectId:   "a1",
+			},
+			{
+				FunctionId: "f1",
+				AspectId:   "a2",
+			},
+			{
+				FunctionId:    "f2",
+				DeviceClassId: "dc1",
+			},
+		},
+		CriteriaShort: []string{"f1_a1_", "f1_a2_", "f2__dc1"},
+	}
+
+	if !reflect.DeepEqual(dg, expected) {
+		t.Error(dg, expected)
 	}
 }
