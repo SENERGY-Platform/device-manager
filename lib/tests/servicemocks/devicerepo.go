@@ -122,15 +122,6 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "missing device id", http.StatusBadRequest)
 			return
 		}
-		switch group.BlockedInteraction {
-		case "":
-		case model.EVENT:
-		case model.REQUEST:
-		case model.EVENT_AND_REQUEST:
-		default:
-			http.Error(writer, "unknown interaction", http.StatusBadRequest)
-			return
-		}
 
 		writer.WriteHeader(http.StatusOK)
 	})

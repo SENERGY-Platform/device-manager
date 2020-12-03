@@ -30,20 +30,6 @@ import (
 func testDeviceGroup(port string) func(t *testing.T) {
 	return func(t *testing.T) {
 		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-groups", model.DeviceGroup{
-			Name:               "dg1",
-			BlockedInteraction: "foo",
-		})
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer resp.Body.Close()
-
-		//expect validation error
-		if resp.StatusCode == http.StatusOK {
-			t.Fatal(resp.Status, resp.StatusCode)
-		}
-
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-groups", model.DeviceGroup{
 			Name: "dg1",
 		})
 		if err != nil {
@@ -135,38 +121,44 @@ func testDeviceGroup(port string) func(t *testing.T) {
 }
 
 func TestDeviceGroupShortCriteria(t *testing.T) {
-	dg := model.DeviceGroup{Criteria: []model.FilterCriteria{
+	dg := model.DeviceGroup{Criteria: []model.DeviceGroupFilterCriteria{
 		{
-			FunctionId: "f1",
-			AspectId:   "a1",
+			FunctionId:  "f1",
+			AspectId:    "a1",
+			Interaction: model.EVENT,
 		},
 		{
-			FunctionId: "f1",
-			AspectId:   "a2",
+			FunctionId:  "f1",
+			AspectId:    "a2",
+			Interaction: model.EVENT,
 		},
 		{
 			FunctionId:    "f2",
 			DeviceClassId: "dc1",
+			Interaction:   model.REQUEST,
 		},
 	}}
 	dg.SetShortCriteria()
 
 	expected := model.DeviceGroup{
-		Criteria: []model.FilterCriteria{
+		Criteria: []model.DeviceGroupFilterCriteria{
 			{
-				FunctionId: "f1",
-				AspectId:   "a1",
+				FunctionId:  "f1",
+				AspectId:    "a1",
+				Interaction: model.EVENT,
 			},
 			{
-				FunctionId: "f1",
-				AspectId:   "a2",
+				FunctionId:  "f1",
+				AspectId:    "a2",
+				Interaction: model.EVENT,
 			},
 			{
 				FunctionId:    "f2",
 				DeviceClassId: "dc1",
+				Interaction:   model.REQUEST,
 			},
 		},
-		CriteriaShort: []string{"f1_a1_", "f1_a2_", "f2__dc1"},
+		CriteriaShort: []string{"f1_a1__event", "f1_a2__event", "f2__dc1_request"},
 	}
 
 	if !reflect.DeepEqual(dg, expected) {
