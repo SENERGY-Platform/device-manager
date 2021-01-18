@@ -32,6 +32,7 @@ var CharacteristicTopic = "characteristics"
 var AspectTopic = "aspcet"
 var FunctionTopic = "function"
 var DeviceClassTopic = "function"
+var LocationTopic = "locations"
 
 type Publisher struct {
 	listener map[string][]func(msg []byte)
@@ -230,4 +231,22 @@ func (this *Publisher) PublishDeviceClassDelete(id string, userId string) error 
 		return err
 	}
 	return this.send(DeviceClassTopic, message)
+}
+
+func (this *Publisher) PublishLocation(location model.Location, userId string) (err error) {
+	cmd := publisher.LocationCommand{Command: "PUT", Id: location.Id, Location: location, Owner: userId}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(LocationTopic, message)
+}
+
+func (this *Publisher) PublishLocationDelete(id string, userId string) error {
+	cmd := publisher.LocationCommand{Command: "DELETE", Id: id, Owner: userId}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(LocationTopic, message)
 }

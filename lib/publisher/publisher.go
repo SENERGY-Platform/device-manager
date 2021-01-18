@@ -37,6 +37,7 @@ type Publisher struct {
 	aspects         *kafka.Writer
 	functions       *kafka.Writer
 	deviceclasses   *kafka.Writer
+	locations       *kafka.Writer
 }
 
 func New(conf config.Config) (*Publisher, error) {
@@ -54,7 +55,8 @@ func New(conf config.Config) (*Publisher, error) {
 		conf.CharacteristicTopic,
 		conf.AspectTopic,
 		conf.FunctionTopic,
-		conf.DeviceClassTopic)
+		conf.DeviceClassTopic,
+		conf.LocationTopic)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +67,7 @@ func New(conf config.Config) (*Publisher, error) {
 	if len(broker) == 0 {
 		return nil, errors.New("missing kafka broker")
 	}
-	log.Println("Produce to ", conf.DeviceTypeTopic, conf.ProtocolTopic, conf.DeviceTopic, conf.HubTopic, conf.ConceptTopic, conf.CharacteristicTopic)
+	log.Println("Produce to ", conf.DeviceTypeTopic, conf.ProtocolTopic, conf.DeviceTopic, conf.HubTopic, conf.ConceptTopic, conf.CharacteristicTopic, conf.LocationTopic)
 	devicetypes, err := getProducer(broker, conf.DeviceTypeTopic, conf.LogLevel == "DEBUG")
 	if err != nil {
 		return nil, err
@@ -106,6 +108,10 @@ func New(conf config.Config) (*Publisher, error) {
 	if err != nil {
 		return nil, err
 	}
+	location, err := getProducer(broker, conf.LocationTopic, conf.LogLevel == "DEBUG")
+	if err != nil {
+		return nil, err
+	}
 	return &Publisher{
 		config:          conf,
 		devicetypes:     devicetypes,
@@ -118,6 +124,7 @@ func New(conf config.Config) (*Publisher, error) {
 		aspects:         aspect,
 		functions:       function,
 		deviceclasses:   deviceclass,
+		locations:       location,
 	}, nil
 }
 

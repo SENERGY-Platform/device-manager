@@ -48,6 +48,7 @@ type Config struct {
 	DeviceRepoUrl       string `json:"device_repo_url"`
 	SemanticRepoUrl     string `json:"semantic_repo_url"`
 	ZookeeperUrl        string `json:"zookeeper_url"`
+	LocationTopic       string `json:"location_topic"`
 }
 
 //loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)

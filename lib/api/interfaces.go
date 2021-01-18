@@ -71,4 +71,9 @@ type Controller interface {
 	PublishDeviceClassCreate(jwt jwt_http_router.Jwt, dt model.DeviceClass) (result model.DeviceClass, err error, code int)
 	PublishDeviceClassUpdate(jwt jwt_http_router.Jwt, id string, device model.DeviceClass) (result model.DeviceClass, err error, code int)
 	PublishDeviceClassDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
+
+	ReadLocation(jwt jwt_http_router.Jwt, id string) (device model.Location, err error, code int)
+	PublishLocationCreate(jwt jwt_http_router.Jwt, dt model.Location) (result model.Location, err error, code int)
+	PublishLocationUpdate(jwt jwt_http_router.Jwt, id string, device model.Location) (result model.Location, err error, code int)
+	PublishLocationDelete(jwt jwt_http_router.Jwt, id string) (err error, code int)
 }

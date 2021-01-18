@@ -71,6 +71,9 @@ type Publisher interface {
 
 	PublishDeviceClass(device model.DeviceClass, userID string) (err error)
 	PublishDeviceClassDelete(id string, userID string) error
+
+	PublishLocation(device model.Location, userID string) (err error)
+	PublishLocationDelete(id string, userID string) error
 }
 
 type Com interface {
@@ -112,4 +115,7 @@ type Com interface {
 
 	GetDeviceClass(jwt jwt_http_router.Jwt, id string) (model.DeviceClass, error, int)
 	ValidateDeviceClass(jwt jwt_http_router.Jwt, deviceClass model.DeviceClass) (err error, code int)
+
+	GetLocation(jwt jwt_http_router.Jwt, id string) (model.Location, error, int)
+	ValidateLocation(jwt jwt_http_router.Jwt, Location model.Location) (err error, code int)
 }

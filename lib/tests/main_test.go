@@ -49,6 +49,7 @@ func TestWithMock(t *testing.T) {
 	servicemocks.FunctionTopic = conf.FunctionTopic
 	servicemocks.DeviceClassTopic = conf.DeviceClassTopic
 	servicemocks.DeviceGroupTopic = conf.DeviceGroupTopic
+	servicemocks.LocationTopic = conf.LocationTopic
 
 	publ, conf, stop := servicemocks.New(conf)
 	defer stop()
@@ -75,6 +76,7 @@ func TestWithMock(t *testing.T) {
 	t.Run("aspects", testAspect(conf.ServerPort))
 	t.Run("functions", testFunction(conf.ServerPort))
 	t.Run("deviceclasses", testDeviceClass(conf.ServerPort))
+	t.Run("locations", testLocation(conf.ServerPort))
 
 	t.Run("testDeviceType", func(t *testing.T) {
 		testDeviceType(t, conf.ServerPort)

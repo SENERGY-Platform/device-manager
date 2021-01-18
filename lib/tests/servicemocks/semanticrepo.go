@@ -33,6 +33,7 @@ type SemanticRepo struct {
 	aspects         map[string]model.Aspect
 	functions       map[string]model.Function
 	deviceclasses   map[string]model.DeviceClass
+	locations       map[string]model.Location
 	ts              *httptest.Server
 }
 
@@ -46,6 +47,7 @@ func NewSemanticRepo(producer interface {
 		aspects:         map[string]model.Aspect{},
 		functions:       map[string]model.Function{},
 		deviceclasses:   map[string]model.DeviceClass{},
+		locations:       map[string]model.Location{},
 	}
 	producer.Subscribe(DtTopic, func(msg []byte) {
 		cmd := publisher.DeviceTypeCommand{}
@@ -106,6 +108,16 @@ func NewSemanticRepo(producer interface {
 			repo.deviceclasses[cmd.Id] = cmd.DeviceClass
 		} else if cmd.Command == "DELETE" {
 			delete(repo.deviceclasses, cmd.Id)
+		}
+	})
+
+	producer.Subscribe(LocationTopic, func(msg []byte) {
+		cmd := publisher.LocationCommand{}
+		json.Unmarshal(msg, &cmd)
+		if cmd.Command == "PUT" {
+			repo.locations[cmd.Id] = cmd.Location
+		} else if cmd.Command == "DELETE" {
+			delete(repo.locations, cmd.Id)
 		}
 	})
 
@@ -238,6 +250,39 @@ func NewSemanticRepo(producer interface {
 		}
 		if deviceclass.Id == "" {
 			http.Error(writer, "missing device id", http.StatusBadRequest)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
+	router.GET("/locations/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		id := params.ByName("id")
+		location, ok := repo.locations[id]
+		if ok {
+			json.NewEncoder(writer).Encode(location)
+		} else {
+			http.Error(writer, "404", 404)
+		}
+	})
+
+	router.PUT("/locations", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		location := model.Location{}
+		err = json.NewDecoder(request.Body).Decode(&location)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if location.Id == "" {
+			http.Error(writer, "missing location id", http.StatusBadRequest)
 			return
 		}
 		writer.WriteHeader(http.StatusOK)

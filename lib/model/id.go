@@ -18,6 +18,12 @@ func (class *DeviceClass) GenerateId() {
 	}
 }
 
+func (this *Location) GenerateId() {
+	if this.Id == "" {
+		this.Id = URN_PREFIX + "location:" + uuid.New().String()
+	}
+}
+
 func (function *Function) GenerateId() {
 	if function.Id == "" {
 		switch function.RdfType {

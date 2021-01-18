@@ -14,6 +14,7 @@
   "aspect_topic": "aspects",
   "function_topic": "functions",
   "device_class_topic": "device-classes",
+  "location_topic": "locations",
   "device_repo_url": "http://device-repo:8080",
   "semantic_repo_url": "http://semantic-repo:8080",
   "zookeeper_url": "zk:2181"
