@@ -118,4 +118,5 @@ type Com interface {
 
 	GetLocation(jwt jwt_http_router.Jwt, id string) (model.Location, error, int)
 	ValidateLocation(jwt jwt_http_router.Jwt, Location model.Location) (err error, code int)
+	PermissionCheckForLocation(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 }
