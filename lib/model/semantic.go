@@ -57,9 +57,11 @@ type Characteristic struct {
 }
 
 type Location struct {
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Image       string `json:"image"`
-	RdfType     string `json:"rdf_type"`
+	Id             string   `json:"id"`
+	Name           string   `json:"name"`
+	Description    string   `json:"description"`
+	Image          string   `json:"image"`
+	DeviceIds      []string `json:"device_ids"`
+	DeviceGroupIds []string `json:"device_group_ids"`
+	RdfType        string   `json:"rdf_type"`
 }
