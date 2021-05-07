@@ -17,5 +17,5 @@
   "location_topic": "locations",
   "device_repo_url": "http://device-repo:8080",
   "semantic_repo_url": "http://semantic-repo:8080",
-  "zookeeper_url": "zk:2181"
+  "kafka_url": "kafka_url:9092"
 }

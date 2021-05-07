@@ -47,11 +47,11 @@ type Config struct {
 	DeviceClassTopic    string `json:"device_class_topic"`
 	DeviceRepoUrl       string `json:"device_repo_url"`
 	SemanticRepoUrl     string `json:"semantic_repo_url"`
-	ZookeeperUrl        string `json:"zookeeper_url"`
+	KafkaUrl            string `json:"kafka_url"`
 	LocationTopic       string `json:"location_topic"`
 }
 
-//loads config from json in location and used environment variables (e.g ZookeeperUrl --> ZOOKEEPER_URL)
+//loads config from json in location and used environment variables (e.g KafkaUrl --> KAFKA_URL)
 func Load(location string) (config Config, err error) {
 	file, error := os.Open(location)
 	if error != nil {

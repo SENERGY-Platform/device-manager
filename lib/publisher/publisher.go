@@ -42,10 +42,8 @@ type Publisher struct {
 
 func New(conf config.Config) (*Publisher, error) {
 	log.Println("ensure kafka topics")
-	err := InitTopicWithConfig(
-		conf.ZookeeperUrl,
-		1,
-		1,
+	err := InitTopic(
+		conf.KafkaUrl,
 		conf.DeviceTypeTopic,
 		conf.DeviceGroupTopic,
 		conf.ProtocolTopic,
@@ -60,7 +58,7 @@ func New(conf config.Config) (*Publisher, error) {
 	if err != nil {
 		return nil, err
 	}
-	broker, err := GetBroker(conf.ZookeeperUrl)
+	broker, err := GetBroker(conf.KafkaUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -135,11 +133,11 @@ func getProducer(broker []string, topic string, debug bool) (writer *kafka.Write
 	} else {
 		logger = log.New(ioutil.Discard, "", 0)
 	}
-	writer = kafka.NewWriter(kafka.WriterConfig{
-		Brokers:     broker,
+	writer = &kafka.Writer{
+		Addr:        kafka.TCP(broker...),
 		Topic:       topic,
 		MaxAttempts: 10,
 		Logger:      logger,
-	})
+	}
 	return writer, err
 }
