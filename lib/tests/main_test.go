@@ -104,4 +104,6 @@ func TestWithMock(t *testing.T) {
 	})
 
 	t.Run("testDeviceGroup", testDeviceGroup(conf.ServerPort))
+
+	t.Run("testDeviceBatchDelete", testDeviceBatchDelete(conf.ServerPort))
 }

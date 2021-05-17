@@ -102,4 +102,26 @@ func DevicesEndpoints(config config.Config, control Controller, router *jwt_http
 		}
 		return
 	})
+
+	router.DELETE(resource, func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+		ids := []string{}
+		err := json.NewDecoder(request.Body).Decode(&ids)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		for _, id := range ids {
+			err, errCode := control.PublishDeviceDelete(jwt, id)
+			if err != nil {
+				http.Error(writer, err.Error(), errCode)
+				return
+			}
+		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(writer).Encode(true)
+		if err != nil {
+			log.Println("ERROR: unable to encode response", err)
+		}
+		return
+	})
 }

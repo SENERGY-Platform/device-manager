@@ -48,6 +48,21 @@ func Jwtdelete(jwt jwt_http_router.JwtImpersonate, url string) (resp *http.Respo
 	return
 }
 
+func JwtDeleteWithBody(jwt jwt_http_router.JwtImpersonate, url string, msg interface{}) (resp *http.Response, err error) {
+	body := new(bytes.Buffer)
+	err = json.NewEncoder(body).Encode(msg)
+	if err != nil {
+		return resp, err
+	}
+	req, err := http.NewRequest("DELETE", url, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", string(jwt))
+	resp, err = http.DefaultClient.Do(req)
+	return
+}
+
 func Jwtget(jwt jwt_http_router.JwtImpersonate, url string) (resp *http.Response, err error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
