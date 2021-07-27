@@ -20,32 +20,32 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+
 	"net/http"
 )
 
-func (this *Controller) ReadDeviceClass(jwt jwt_http_router.Jwt, id string) (deviceClass model.DeviceClass, err error, code int) {
-	return this.com.GetDeviceClass(jwt, id)
+func (this *Controller) ReadDeviceClass(token string, id string) (deviceClass model.DeviceClass, err error, code int) {
+	return this.com.GetDeviceClass(token, id)
 }
 
-func (this *Controller) PublishDeviceClassCreate(jwt jwt_http_router.Jwt, deviceClass model.DeviceClass) (model.DeviceClass, error, int) {
-	if !com.IsAdmin(jwt) {
+func (this *Controller) PublishDeviceClassCreate(token string, deviceClass model.DeviceClass) (model.DeviceClass, error, int) {
+	if !com.IsAdmin(token) {
 		return deviceClass, errors.New("access denied"), http.StatusForbidden
 	}
 	deviceClass.GenerateId()
-	err, code := this.com.ValidateDeviceClass(jwt, deviceClass)
+	err, code := this.com.ValidateDeviceClass(token, deviceClass)
 	if err != nil {
 		return deviceClass, err, code
 	}
-	err = this.publisher.PublishDeviceClass(deviceClass, jwt.UserId)
+	err = this.publisher.PublishDeviceClass(deviceClass, com.GetUserId(token))
 	if err != nil {
 		return deviceClass, err, http.StatusInternalServerError
 	}
 	return deviceClass, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceClassUpdate(jwt jwt_http_router.Jwt, id string, deviceClass model.DeviceClass) (model.DeviceClass, error, int) {
-	if !com.IsAdmin(jwt) {
+func (this *Controller) PublishDeviceClassUpdate(token string, id string, deviceClass model.DeviceClass) (model.DeviceClass, error, int) {
+	if !com.IsAdmin(token) {
 		return deviceClass, errors.New("access denied"), http.StatusForbidden
 	}
 	if deviceClass.Id != id {
@@ -56,22 +56,22 @@ func (this *Controller) PublishDeviceClassUpdate(jwt jwt_http_router.Jwt, id str
 	deviceClass.GenerateId()
 	deviceClass.Id = id
 
-	err, code := this.com.ValidateDeviceClass(jwt, deviceClass)
+	err, code := this.com.ValidateDeviceClass(token, deviceClass)
 	if err != nil {
 		return deviceClass, err, code
 	}
-	err = this.publisher.PublishDeviceClass(deviceClass, jwt.UserId)
+	err = this.publisher.PublishDeviceClass(deviceClass, com.GetUserId(token))
 	if err != nil {
 		return deviceClass, err, http.StatusInternalServerError
 	}
 	return deviceClass, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceClassDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	if !com.IsAdmin(jwt) {
+func (this *Controller) PublishDeviceClassDelete(token string, id string) (error, int) {
+	if !com.IsAdmin(token) {
 		return errors.New("access denied"), http.StatusForbidden
 	}
-	err := this.publisher.PublishDeviceClassDelete(id, jwt.UserId)
+	err := this.publisher.PublishDeviceClassDelete(id, com.GetUserId(token))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

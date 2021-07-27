@@ -20,31 +20,30 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	"github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Controller) ReadDeviceGroup(jwt jwt_http_router.Jwt, id string) (dt model.DeviceGroup, err error, code int) {
-	return this.com.GetTechnicalDeviceGroup(jwt, id)
+func (this *Controller) ReadDeviceGroup(token string, id string) (dt model.DeviceGroup, err error, code int) {
+	return this.com.GetTechnicalDeviceGroup(token, id)
 }
 
-func (this *Controller) PublishDeviceGroupCreate(jwt jwt_http_router.Jwt, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
+func (this *Controller) PublishDeviceGroupCreate(token string, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
 	dg.GenerateId()
 	dg.SetShortCriteria()
 
-	err, code := this.com.ValidateDeviceGroup(jwt, dg)
+	err, code := this.com.ValidateDeviceGroup(token, dg)
 	if err != nil {
 		return dg, err, code
 	}
-	err = this.publisher.PublishDeviceGroup(dg, jwt.UserId)
+	err = this.publisher.PublishDeviceGroup(dg, com.GetUserId(token))
 	if err != nil {
 		return dg, err, http.StatusInternalServerError
 	}
 	return dg, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceGroupUpdate(jwt jwt_http_router.Jwt, id string, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
+func (this *Controller) PublishDeviceGroupUpdate(token string, id string, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
 	if dg.Id != id {
 		return dg, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
@@ -52,19 +51,19 @@ func (this *Controller) PublishDeviceGroupUpdate(jwt jwt_http_router.Jwt, id str
 	dg.GenerateId()
 	dg.SetShortCriteria()
 
-	if !com.IsAdmin(jwt) {
-		err, code := this.com.PermissionCheckForDeviceGroup(jwt, id, "w")
+	if !com.IsAdmin(token) {
+		err, code := this.com.PermissionCheckForDeviceGroup(token, id, "w")
 		if err != nil {
 			debug.PrintStack()
 			return dg, err, code
 		}
 	}
-	err, code := this.com.ValidateDeviceGroup(jwt, dg)
+	err, code := this.com.ValidateDeviceGroup(token, dg)
 	if err != nil {
 		debug.PrintStack()
 		return dg, err, code
 	}
-	err = this.publisher.PublishDeviceGroup(dg, jwt.UserId)
+	err = this.publisher.PublishDeviceGroup(dg, com.GetUserId(token))
 	if err != nil {
 		debug.PrintStack()
 		return dg, err, http.StatusInternalServerError
@@ -72,12 +71,12 @@ func (this *Controller) PublishDeviceGroupUpdate(jwt jwt_http_router.Jwt, id str
 	return dg, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceGroupDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	err, code := this.com.PermissionCheckForDeviceGroup(jwt, id, "a")
+func (this *Controller) PublishDeviceGroupDelete(token string, id string) (error, int) {
+	err, code := this.com.PermissionCheckForDeviceGroup(token, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishDeviceGroupDelete(id, jwt.UserId)
+	err = this.publisher.PublishDeviceGroupDelete(id, com.GetUserId(token))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

@@ -18,29 +18,29 @@ package controller
 
 import (
 	"errors"
+	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 )
 
-func (this *Controller) ReadHub(jwt jwt_http_router.Jwt, id string) (hub model.Hub, err error, code int) {
-	return this.com.GetHub(jwt, id)
+func (this *Controller) ReadHub(token string, id string) (hub model.Hub, err error, code int) {
+	return this.com.GetHub(token, id)
 }
 
-func (this *Controller) PublishHubCreate(jwt jwt_http_router.Jwt, hub model.Hub) (model.Hub, error, int) {
+func (this *Controller) PublishHubCreate(token string, hub model.Hub) (model.Hub, error, int) {
 	hub.GenerateId()
-	err, code := this.com.ValidateHub(jwt, hub)
+	err, code := this.com.ValidateHub(token, hub)
 	if err != nil {
 		return hub, err, code
 	}
-	err = this.publisher.PublishHub(hub, jwt.UserId)
+	err = this.publisher.PublishHub(hub, com.GetUserId(token))
 	if err != nil {
 		return hub, err, http.StatusInternalServerError
 	}
 	return hub, nil, http.StatusOK
 }
 
-func (this *Controller) PublishHubUpdate(jwt jwt_http_router.Jwt, id string, hub model.Hub) (model.Hub, error, int) {
+func (this *Controller) PublishHubUpdate(token string, id string, hub model.Hub) (model.Hub, error, int) {
 	if hub.Id != id {
 		return hub, errors.New("hub id in body unequal to hub id in request endpoint"), http.StatusBadRequest
 	}
@@ -49,27 +49,27 @@ func (this *Controller) PublishHubUpdate(jwt jwt_http_router.Jwt, id string, hub
 	hub.GenerateId()
 	hub.Id = id
 
-	err, code := this.com.PermissionCheckForHub(jwt, id, "w")
+	err, code := this.com.PermissionCheckForHub(token, id, "w")
 	if err != nil {
 		return hub, err, code
 	}
-	err, code = this.com.ValidateHub(jwt, hub)
+	err, code = this.com.ValidateHub(token, hub)
 	if err != nil {
 		return hub, err, code
 	}
-	err = this.publisher.PublishHub(hub, jwt.UserId)
+	err = this.publisher.PublishHub(hub, com.GetUserId(token))
 	if err != nil {
 		return hub, err, http.StatusInternalServerError
 	}
 	return hub, nil, http.StatusOK
 }
 
-func (this *Controller) PublishHubDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	err, code := this.com.PermissionCheckForHub(jwt, id, "a")
+func (this *Controller) PublishHubDelete(token string, id string) (error, int) {
+	err, code := this.com.PermissionCheckForHub(token, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishHubDelete(id, jwt.UserId)
+	err = this.publisher.PublishHubDelete(id, com.GetUserId(token))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

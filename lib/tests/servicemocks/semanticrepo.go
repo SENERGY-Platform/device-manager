@@ -20,7 +20,8 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/publisher"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/julienschmidt/httprouter"
+
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -121,9 +122,9 @@ func NewSemanticRepo(producer interface {
 		}
 	})
 
-	router := jwt_http_router.New(jwt_http_router.JwtConfig{ForceAuth: true, ForceUser: true})
+	router := httprouter.New()
 
-	router.GET("/device-types/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/device-types/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		dt, ok := repo.dt[id]
 		if ok {
@@ -133,7 +134,7 @@ func NewSemanticRepo(producer interface {
 		}
 	})
 
-	router.PUT("/device-types", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/device-types", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -156,7 +157,7 @@ func NewSemanticRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/aspects/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/aspects/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		aspect, ok := repo.aspects[id]
 		if ok {
@@ -166,7 +167,7 @@ func NewSemanticRepo(producer interface {
 		}
 	})
 
-	router.PUT("/aspects", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/aspects", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -189,7 +190,7 @@ func NewSemanticRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/functions/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/functions/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		function, ok := repo.functions[id]
 		if ok {
@@ -199,7 +200,7 @@ func NewSemanticRepo(producer interface {
 		}
 	})
 
-	router.PUT("/functions", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/functions", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -222,7 +223,7 @@ func NewSemanticRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/device-classes/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/device-classes/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		deviceclass, ok := repo.deviceclasses[id]
 		if ok {
@@ -232,7 +233,7 @@ func NewSemanticRepo(producer interface {
 		}
 	})
 
-	router.PUT("/device-classes", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/device-classes", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -255,7 +256,7 @@ func NewSemanticRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/locations/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/locations/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		location, ok := repo.locations[id]
 		if ok {
@@ -265,7 +266,7 @@ func NewSemanticRepo(producer interface {
 		}
 	})
 
-	router.PUT("/locations", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/locations", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -288,7 +289,7 @@ func NewSemanticRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/concepts/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/concepts/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		concept, ok := repo.concepts[id]
 		if ok {
@@ -298,7 +299,7 @@ func NewSemanticRepo(producer interface {
 		}
 	})
 
-	router.PUT("/concepts", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/concepts", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -321,7 +322,7 @@ func NewSemanticRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.PUT("/characteristics", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/characteristics", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -344,7 +345,7 @@ func NewSemanticRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/characteristics/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/characteristics/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		concept, ok := repo.characteristics[id]
 		if ok {

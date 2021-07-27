@@ -4,20 +4,19 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"log"
 	"net/http"
 	"net/url"
 	"runtime/debug"
 )
 
-func getResourceFromService(jwt jwt_http_router.Jwt, endpoint string, id string, result interface{}) (err error, code int) {
+func getResourceFromService(token string, endpoint string, id string, result interface{}) (err error, code int) {
 	req, err := http.NewRequest("GET", endpoint+"/"+url.PathEscape(id), nil)
 	if err != nil {
 		debug.PrintStack()
 		return err, http.StatusInternalServerError
 	}
-	req.Header.Set("Authorization", string(jwt.Impersonate))
+	req.Header.Set("Authorization", token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		debug.PrintStack()
@@ -40,7 +39,7 @@ func getResourceFromService(jwt jwt_http_router.Jwt, endpoint string, id string,
 	return nil, http.StatusOK
 }
 
-func validateResource(jwt jwt_http_router.Jwt, endpoints []string, resource interface{}) (err error, code int) {
+func validateResource(token string, endpoints []string, resource interface{}) (err error, code int) {
 	for _, endpoint := range endpoints {
 		b := new(bytes.Buffer)
 		err = json.NewEncoder(b).Encode(resource)
@@ -53,7 +52,7 @@ func validateResource(jwt jwt_http_router.Jwt, endpoints []string, resource inte
 			debug.PrintStack()
 			return err, http.StatusInternalServerError
 		}
-		req.Header.Set("Authorization", string(jwt.Impersonate))
+		req.Header.Set("Authorization", token)
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			debug.PrintStack()

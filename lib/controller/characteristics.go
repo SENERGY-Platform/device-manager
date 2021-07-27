@@ -20,44 +20,43 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	"github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Controller) PublishCharacteristicCreate(jwt jwt_http_router.Jwt, conceptId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
+func (this *Controller) PublishCharacteristicCreate(token string, conceptId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
 	characteristic.GenerateId()
-	err, code := this.com.ValidateCharacteristic(jwt, characteristic)
+	err, code := this.com.ValidateCharacteristic(token, characteristic)
 	if err != nil {
 		return characteristic, err, code
 	}
-	err = this.publisher.PublishCharacteristic(conceptId, characteristic, jwt.UserId)
+	err = this.publisher.PublishCharacteristic(conceptId, characteristic, com.GetUserId(token))
 	if err != nil {
 		return characteristic, err, http.StatusInternalServerError
 	}
 	return characteristic, nil, http.StatusOK
 }
 
-func (this *Controller) PublishCharacteristicUpdate(jwt jwt_http_router.Jwt, conceptId string, characteristicId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
+func (this *Controller) PublishCharacteristicUpdate(token string, conceptId string, characteristicId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
 	if characteristic.Id != characteristicId {
 		return characteristic, errors.New("characteristic id in body unequal to characteristic id in request endpoint"), http.StatusBadRequest
 	}
 
 	characteristic.GenerateId()
 
-	if !com.IsAdmin(jwt){
-		err, code := this.com.PermissionCheckForCharacteristic(jwt, characteristicId, "w")
+	if !com.IsAdmin(token) {
+		err, code := this.com.PermissionCheckForCharacteristic(token, characteristicId, "w")
 		if err != nil {
 			debug.PrintStack()
 			return characteristic, err, code
 		}
 	}
-	err, code := this.com.ValidateCharacteristic(jwt, characteristic)
+	err, code := this.com.ValidateCharacteristic(token, characteristic)
 	if err != nil {
 		debug.PrintStack()
 		return characteristic, err, code
 	}
-	err = this.publisher.PublishCharacteristic(conceptId, characteristic, jwt.UserId)
+	err = this.publisher.PublishCharacteristic(conceptId, characteristic, com.GetUserId(token))
 	if err != nil {
 		debug.PrintStack()
 		return characteristic, err, http.StatusInternalServerError
@@ -65,12 +64,12 @@ func (this *Controller) PublishCharacteristicUpdate(jwt jwt_http_router.Jwt, con
 	return characteristic, nil, http.StatusOK
 }
 
-func (this *Controller) PublishCharacteristicDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	err, code := this.com.PermissionCheckForCharacteristic(jwt, id, "a")
+func (this *Controller) PublishCharacteristicDelete(token string, id string) (error, int) {
+	err, code := this.com.PermissionCheckForCharacteristic(token, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishCharacteristicDelete(id, jwt.UserId)
+	err = this.publisher.PublishCharacteristicDelete(id, com.GetUserId(token))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

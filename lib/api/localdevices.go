@@ -18,9 +18,10 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/SENERGY-Platform/device-manager/lib/api/util"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	"github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 )
@@ -29,17 +30,17 @@ func init() {
 	endpoints = append(endpoints, LocalDevicesEndpoints)
 }
 
-func LocalDevicesEndpoints(config config.Config, control Controller, router *jwt_http_router.Router) {
+func LocalDevicesEndpoints(config config.Config, control Controller, router *httprouter.Router) {
 	resource := "/local-devices"
 
-	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		id, err, errCode := control.DeviceLocalIdToId(jwt, id)
+		id, err, errCode := control.DeviceLocalIdToId(util.GetAuthToken(request), id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
 		}
-		result, err, errCode := control.ReadDevice(jwt, id)
+		result, err, errCode := control.ReadDevice(util.GetAuthToken(request), id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -52,14 +53,14 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *jwt
 		return
 	})
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		device := model.Device{}
 		err := json.NewDecoder(request.Body).Decode(&device)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceCreate(jwt, device)
+		result, err, errCode := control.PublishDeviceCreate(util.GetAuthToken(request), device)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -72,9 +73,9 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *jwt
 		return
 	})
 
-	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		id, err, errCode := control.DeviceLocalIdToId(jwt, id)
+		id, err, errCode := control.DeviceLocalIdToId(util.GetAuthToken(request), id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -85,7 +86,7 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *jwt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceUpdate(jwt, id, device)
+		result, err, errCode := control.PublishDeviceUpdate(util.GetAuthToken(request), id, device)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -98,14 +99,14 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *jwt
 		return
 	})
 
-	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		id, err, errCode := control.DeviceLocalIdToId(jwt, id)
+		id, err, errCode := control.DeviceLocalIdToId(util.GetAuthToken(request), id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
 		}
-		err, errCode = control.PublishDeviceDelete(jwt, id)
+		err, errCode = control.PublishDeviceDelete(util.GetAuthToken(request), id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

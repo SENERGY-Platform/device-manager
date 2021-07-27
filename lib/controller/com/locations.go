@@ -18,16 +18,15 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
-func (this *Com) GetLocation(jwt jwt_http_router.Jwt, id string) (Location model.Location, err error, code int) {
-	err, code = getResourceFromService(jwt, this.config.SemanticRepoUrl+"/locations", id, &Location)
+func (this *Com) GetLocation(token string, id string) (Location model.Location, err error, code int) {
+	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/locations", id, &Location)
 	return
 }
 
-func (this *Com) ValidateLocation(jwt jwt_http_router.Jwt, Location model.Location) (err error, code int) {
-	return validateResource(jwt, []string{
+func (this *Com) ValidateLocation(token string, Location model.Location) (err error, code int) {
+	return validateResource(token, []string{
 		this.config.SemanticRepoUrl + "/locations?dry-run=true",
 	}, Location)
 }

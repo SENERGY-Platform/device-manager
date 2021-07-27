@@ -18,22 +18,21 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 )
 
-func (this *Com) GetTechnicalDeviceGroup(jwt jwt_http_router.Jwt, id string) (dt model.DeviceGroup, err error, code int) {
+func (this *Com) GetTechnicalDeviceGroup(token string, id string) (dt model.DeviceGroup, err error, code int) {
 	if this.config.DeviceRepoUrl == "" || this.config.DeviceRepoUrl == "-" {
 		return model.DeviceGroup{}, nil, http.StatusOK
 	}
-	err, code = getResourceFromService(jwt, this.config.DeviceRepoUrl+"/device-groups", id, &dt)
+	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/device-groups", id, &dt)
 	return
 }
 
-func (this *Com) ValidateDeviceGroup(jwt jwt_http_router.Jwt, dt model.DeviceGroup) (err error, code int) {
+func (this *Com) ValidateDeviceGroup(token string, dt model.DeviceGroup) (err error, code int) {
 	list := []string{}
 	if this.config.DeviceRepoUrl != "" && this.config.DeviceRepoUrl != "-" {
 		list = append(list, this.config.DeviceRepoUrl+"/device-groups?dry-run=true")
 	}
-	return validateResource(jwt, list, dt)
+	return validateResource(token, list, dt)
 }

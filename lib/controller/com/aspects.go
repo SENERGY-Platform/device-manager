@@ -18,16 +18,15 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
-func (this *Com) GetAspect(jwt jwt_http_router.Jwt, id string) (aspect model.Aspect, err error, code int) {
-	err, code = getResourceFromService(jwt, this.config.SemanticRepoUrl+"/aspects", id, &aspect)
+func (this *Com) GetAspect(token string, id string) (aspect model.Aspect, err error, code int) {
+	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/aspects", id, &aspect)
 	return
 }
 
-func (this *Com) ValidateAspect(jwt jwt_http_router.Jwt, aspect model.Aspect) (err error, code int) {
-	return validateResource(jwt, []string{
+func (this *Com) ValidateAspect(token string, aspect model.Aspect) (err error, code int) {
+	return validateResource(token, []string{
 		this.config.SemanticRepoUrl + "/aspects?dry-run=true",
 	}, aspect)
 }

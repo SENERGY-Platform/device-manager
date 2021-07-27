@@ -18,17 +18,16 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
 //expects previous permission check and use own admin jwt to access hub
-func (this *Com) GetHub(jwt jwt_http_router.Jwt, id string) (hub model.Hub, err error, code int) {
-	err, code = getResourceFromService(jwt, this.config.DeviceRepoUrl+"/hubs", id, &hub)
+func (this *Com) GetHub(token string, id string) (hub model.Hub, err error, code int) {
+	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/hubs", id, &hub)
 	return
 }
 
-func (this *Com) ValidateHub(jwt jwt_http_router.Jwt, hub model.Hub) (err error, code int) {
-	return validateResource(jwt, []string{
+func (this *Com) ValidateHub(token string, hub model.Hub) (err error, code int) {
+	return validateResource(token, []string{
 		this.config.DeviceRepoUrl + "/hubs?dry-run=true",
 	}, hub)
 }

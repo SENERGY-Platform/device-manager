@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 InfAI (CC SES)
+ * Copyright 2021 InfAI (CC SES)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-package com
+package util
 
-import (
-	"github.com/SENERGY-Platform/device-manager/lib/model"
-)
+import "net/http"
 
-func (this *Com) GetFunction(token string, id string) (function model.Function, err error, code int) {
-	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/functions", id, &function)
-	return
-}
-
-func (this *Com) ValidateFunction(token string, function model.Function) (err error, code int) {
-	return validateResource(token, []string{
-		this.config.SemanticRepoUrl + "/functions?dry-run=true",
-	}, function)
+func GetAuthToken(req *http.Request) string {
+	return req.Header.Get("Authorization")
 }

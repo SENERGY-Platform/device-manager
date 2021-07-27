@@ -18,13 +18,12 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
-func (this *Com) ValidateCharacteristic(jwt jwt_http_router.Jwt, characteristic model.Characteristic) (err error, code int) {
+func (this *Com) ValidateCharacteristic(token string, characteristic model.Characteristic) (err error, code int) {
 	list := []string{}
 	if this.config.SemanticRepoUrl != "" && this.config.SemanticRepoUrl != "-" {
 		list = append(list, this.config.SemanticRepoUrl+"/characteristics?dry-run=true")
 	}
-	return validateResource(jwt, list, characteristic)
+	return validateResource(token, list, characteristic)
 }

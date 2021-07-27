@@ -19,18 +19,18 @@ package api
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/api/util"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"reflect"
 	"runtime"
 )
 
-var endpoints = []func(config config.Config, control Controller, router *jwt_http_router.Router){}
+var endpoints = []func(config config.Config, control Controller, router *httprouter.Router){}
 
 func Start(config config.Config, control Controller) (srv *http.Server, err error) {
 	log.Println("start api")
-	router := jwt_http_router.New(jwt_http_router.JwtConfig{PubRsa: config.JwtPubRsa, ForceAuth: config.ForceAuth, ForceUser: config.ForceUser})
+	router := httprouter.New()
 	for _, e := range endpoints {
 		log.Println("add endpoints: " + runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name())
 		e(config, control, router)

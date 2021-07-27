@@ -18,16 +18,15 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
-func (this *Com) GetDeviceClass(jwt jwt_http_router.Jwt, id string) (deviceClass model.DeviceClass, err error, code int) {
-	err, code = getResourceFromService(jwt, this.config.SemanticRepoUrl+"/device-classes", id, &deviceClass)
+func (this *Com) GetDeviceClass(token string, id string) (deviceClass model.DeviceClass, err error, code int) {
+	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/device-classes", id, &deviceClass)
 	return
 }
 
-func (this *Com) ValidateDeviceClass(jwt jwt_http_router.Jwt, deviceClass model.DeviceClass) (err error, code int) {
-	return validateResource(jwt, []string{
+func (this *Com) ValidateDeviceClass(token string, deviceClass model.DeviceClass) (err error, code int) {
+	return validateResource(token, []string{
 		this.config.SemanticRepoUrl + "/device-classes?dry-run=true",
 	}, deviceClass)
 }

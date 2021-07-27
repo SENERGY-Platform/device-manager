@@ -18,27 +18,26 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 )
 
-func (this *Com) GetTechnicalDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {
+func (this *Com) GetTechnicalDeviceType(token string, id string) (dt model.DeviceType, err error, code int) {
 	if this.config.DeviceRepoUrl == "" || this.config.DeviceRepoUrl == "-" {
 		return model.DeviceType{}, nil, http.StatusOK
 	}
-	err, code = getResourceFromService(jwt, this.config.DeviceRepoUrl+"/device-types", id, &dt)
+	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/device-types", id, &dt)
 	return
 }
 
-func (this *Com) GetSemanticDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {
+func (this *Com) GetSemanticDeviceType(token string, id string) (dt model.DeviceType, err error, code int) {
 	if this.config.SemanticRepoUrl == "" || this.config.SemanticRepoUrl == "-" {
 		return model.DeviceType{}, nil, http.StatusOK
 	}
-	err, code = getResourceFromService(jwt, this.config.SemanticRepoUrl+"/device-types", id, &dt)
+	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/device-types", id, &dt)
 	return
 }
 
-func (this *Com) ValidateDeviceType(jwt jwt_http_router.Jwt, dt model.DeviceType) (err error, code int) {
+func (this *Com) ValidateDeviceType(token string, dt model.DeviceType) (err error, code int) {
 	list := []string{}
 	if this.config.DeviceRepoUrl != "" && this.config.DeviceRepoUrl != "-" {
 		list = append(list, this.config.DeviceRepoUrl+"/device-types?dry-run=true")
@@ -46,5 +45,5 @@ func (this *Com) ValidateDeviceType(jwt jwt_http_router.Jwt, dt model.DeviceType
 	if this.config.SemanticRepoUrl != "" && this.config.SemanticRepoUrl != "-" {
 		list = append(list, this.config.SemanticRepoUrl+"/device-types?dry-run=true")
 	}
-	return validateResource(jwt, list, dt)
+	return validateResource(token, list, dt)
 }

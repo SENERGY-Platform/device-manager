@@ -1,7 +1,5 @@
 {
-  "force_auth": true,
-  "force_user": true,
-  "log_level": "DEBUG",
+  "log_level": "CALL",
   "server_port": "8080",
   "permissions_url": "http://perm:8080",
   "device_topic": "devices",

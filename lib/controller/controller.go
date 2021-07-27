@@ -21,7 +21,6 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/publisher"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
 type Controller struct {
@@ -77,46 +76,46 @@ type Publisher interface {
 }
 
 type Com interface {
-	GetTechnicalDeviceGroup(jwt jwt_http_router.Jwt, id string) (dt model.DeviceGroup, err error, code int)
-	ValidateDeviceGroup(jwt jwt_http_router.Jwt, dt model.DeviceGroup) (err error, code int)
-	PermissionCheckForDeviceGroup(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	GetTechnicalDeviceGroup(token string, id string) (dt model.DeviceGroup, err error, code int)
+	ValidateDeviceGroup(token string, dt model.DeviceGroup) (err error, code int)
+	PermissionCheckForDeviceGroup(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	GetTechnicalDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int)
-	GetSemanticDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int)
-	ValidateDeviceType(jwt jwt_http_router.Jwt, dt model.DeviceType) (err error, code int)
-	PermissionCheckForDeviceType(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	GetTechnicalDeviceType(token string, id string) (dt model.DeviceType, err error, code int)
+	GetSemanticDeviceType(token string, id string) (dt model.DeviceType, err error, code int)
+	ValidateDeviceType(token string, dt model.DeviceType) (err error, code int)
+	PermissionCheckForDeviceType(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	GetProtocol(jwt jwt_http_router.Jwt, id string) (model.Protocol, error, int)
-	ValidateProtocol(jwt jwt_http_router.Jwt, protocol model.Protocol) (err error, code int)
+	GetProtocol(token string, id string) (model.Protocol, error, int)
+	ValidateProtocol(token string, protocol model.Protocol) (err error, code int)
 
-	GetDevice(jwt jwt_http_router.Jwt, id string) (model.Device, error, int) //uses internal admin jwt
-	ValidateDevice(jwt jwt_http_router.Jwt, device model.Device) (err error, code int)
-	PermissionCheckForDevice(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	GetDevice(token string, id string) (model.Device, error, int) //uses internal admin jwt
+	ValidateDevice(token string, device model.Device) (err error, code int)
+	PermissionCheckForDevice(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	GetHub(jwt jwt_http_router.Jwt, id string) (model.Hub, error, int) //uses internal admin jwt
-	ValidateHub(jwt jwt_http_router.Jwt, hub model.Hub) (err error, code int)
-	PermissionCheckForHub(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	GetHub(token string, id string) (model.Hub, error, int) //uses internal admin jwt
+	ValidateHub(token string, hub model.Hub) (err error, code int)
+	PermissionCheckForHub(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	ValidateConcept(jwt jwt_http_router.Jwt, concept model.Concept) (err error, code int)
-	PermissionCheckForConcept(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	ValidateConcept(token string, concept model.Concept) (err error, code int)
+	PermissionCheckForConcept(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	ValidateCharacteristic(jwt jwt_http_router.Jwt, concept model.Characteristic) (err error, code int)
-	PermissionCheckForCharacteristic(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	ValidateCharacteristic(token string, concept model.Characteristic) (err error, code int)
+	PermissionCheckForCharacteristic(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	DevicesOfTypeExist(jwt jwt_http_router.Jwt, deviceTypeId string) (result bool, err error, code int)
+	DevicesOfTypeExist(token string, deviceTypeId string) (result bool, err error, code int)
 
-	DeviceLocalIdToId(jwt jwt_http_router.Jwt, localId string) (id string, err error, code int)
+	DeviceLocalIdToId(token string, localId string) (id string, err error, code int)
 
-	GetAspect(jwt jwt_http_router.Jwt, id string) (model.Aspect, error, int)
-	ValidateAspect(jwt jwt_http_router.Jwt, aspect model.Aspect) (err error, code int)
+	GetAspect(token string, id string) (model.Aspect, error, int)
+	ValidateAspect(token string, aspect model.Aspect) (err error, code int)
 
-	GetFunction(jwt jwt_http_router.Jwt, id string) (model.Function, error, int)
-	ValidateFunction(jwt jwt_http_router.Jwt, function model.Function) (err error, code int)
+	GetFunction(token string, id string) (model.Function, error, int)
+	ValidateFunction(token string, function model.Function) (err error, code int)
 
-	GetDeviceClass(jwt jwt_http_router.Jwt, id string) (model.DeviceClass, error, int)
-	ValidateDeviceClass(jwt jwt_http_router.Jwt, deviceClass model.DeviceClass) (err error, code int)
+	GetDeviceClass(token string, id string) (model.DeviceClass, error, int)
+	ValidateDeviceClass(token string, deviceClass model.DeviceClass) (err error, code int)
 
-	GetLocation(jwt jwt_http_router.Jwt, id string) (model.Location, error, int)
-	ValidateLocation(jwt jwt_http_router.Jwt, Location model.Location) (err error, code int)
-	PermissionCheckForLocation(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	GetLocation(token string, id string) (model.Location, error, int)
+	ValidateLocation(token string, Location model.Location) (err error, code int)
+	PermissionCheckForLocation(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 }

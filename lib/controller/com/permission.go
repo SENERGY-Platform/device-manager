@@ -20,76 +20,62 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"log"
 	"net/http"
 	"net/url"
 	"runtime/debug"
 )
 
-func IsAdmin(jwt jwt_http_router.Jwt) bool {
-	return contains(jwt.RealmAccess.Roles, "admin")
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *Com) PermissionCheckForDevice(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
-	if IsAdmin(jwt) {
+func (this *Com) PermissionCheckForDevice(token string, id string, permission string) (err error, code int) {
+	if IsAdmin(token) {
 		return nil, http.StatusOK
 	}
-	return this.PermissionCheck(jwt, id, permission, this.config.DeviceTopic)
+	return this.PermissionCheck(token, id, permission, this.config.DeviceTopic)
 }
 
-func (this *Com) PermissionCheckForHub(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
-	if IsAdmin(jwt) {
+func (this *Com) PermissionCheckForHub(token string, id string, permission string) (err error, code int) {
+	if IsAdmin(token) {
 		return nil, http.StatusOK
 	}
-	return this.PermissionCheck(jwt, id, permission, this.config.HubTopic)
+	return this.PermissionCheck(token, id, permission, this.config.HubTopic)
 }
 
-func (this *Com) PermissionCheckForDeviceGroup(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
-	if IsAdmin(jwt) {
+func (this *Com) PermissionCheckForDeviceGroup(token string, id string, permission string) (err error, code int) {
+	if IsAdmin(token) {
 		return nil, http.StatusOK
 	}
-	return this.PermissionCheck(jwt, id, permission, this.config.DeviceGroupTopic)
+	return this.PermissionCheck(token, id, permission, this.config.DeviceGroupTopic)
 }
 
-func (this *Com) PermissionCheckForDeviceType(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
-	if IsAdmin(jwt) {
+func (this *Com) PermissionCheckForDeviceType(token string, id string, permission string) (err error, code int) {
+	if IsAdmin(token) {
 		return nil, http.StatusOK
 	}
-	return this.PermissionCheck(jwt, id, permission, this.config.DeviceTypeTopic)
+	return this.PermissionCheck(token, id, permission, this.config.DeviceTypeTopic)
 }
 
-func (this *Com) PermissionCheckForConcept(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
-	if IsAdmin(jwt) {
+func (this *Com) PermissionCheckForConcept(token string, id string, permission string) (err error, code int) {
+	if IsAdmin(token) {
 		return nil, http.StatusOK
 	}
-	return this.PermissionCheck(jwt, id, permission, this.config.ConceptTopic)
+	return this.PermissionCheck(token, id, permission, this.config.ConceptTopic)
 }
 
-func (this *Com) PermissionCheckForCharacteristic(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
-	if IsAdmin(jwt) {
+func (this *Com) PermissionCheckForCharacteristic(token string, id string, permission string) (err error, code int) {
+	if IsAdmin(token) {
 		return nil, http.StatusOK
 	}
-	return this.PermissionCheck(jwt, id, permission, this.config.CharacteristicTopic)
+	return this.PermissionCheck(token, id, permission, this.config.CharacteristicTopic)
 }
 
-func (this *Com) PermissionCheckForLocation(jwt jwt_http_router.Jwt, id string, permission string) (err error, code int) {
-	if IsAdmin(jwt) {
+func (this *Com) PermissionCheckForLocation(token string, id string, permission string) (err error, code int) {
+	if IsAdmin(token) {
 		return nil, http.StatusOK
 	}
-	return this.PermissionCheck(jwt, id, permission, this.config.LocationTopic)
+	return this.PermissionCheck(token, id, permission, this.config.LocationTopic)
 }
 
-func (this *Com) PermissionCheck(jwt jwt_http_router.Jwt, id string, permission string, resource string) (err error, code int) {
+func (this *Com) PermissionCheck(token string, id string, permission string, resource string) (err error, code int) {
 	if this.config.PermissionsUrl == "" || this.config.PermissionsUrl == "-" {
 		return nil, 200
 	}
@@ -98,7 +84,7 @@ func (this *Com) PermissionCheck(jwt jwt_http_router.Jwt, id string, permission 
 		debug.PrintStack()
 		return err, http.StatusInternalServerError
 	}
-	req.Header.Set("Authorization", string(jwt.Impersonate))
+	req.Header.Set("Authorization", token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		debug.PrintStack()
@@ -128,8 +114,8 @@ func (this *Com) PermissionCheck(jwt jwt_http_router.Jwt, id string, permission 
 	return
 }
 
-func (this *Com) DevicesOfTypeExist(jwt jwt_http_router.Jwt, deviceTypeId string) (result bool, err error, code int) {
-	if !IsAdmin(jwt) {
+func (this *Com) DevicesOfTypeExist(token string, deviceTypeId string) (result bool, err error, code int) {
+	if !IsAdmin(token) {
 		return false, errors.New("only for admins allowed"), http.StatusForbidden
 	}
 	if this.config.PermissionsUrl == "" || this.config.PermissionsUrl == "-" {
@@ -140,7 +126,7 @@ func (this *Com) DevicesOfTypeExist(jwt jwt_http_router.Jwt, deviceTypeId string
 		debug.PrintStack()
 		return result, err, http.StatusInternalServerError
 	}
-	req.Header.Set("Authorization", string(jwt.Impersonate))
+	req.Header.Set("Authorization", token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		debug.PrintStack()
@@ -162,13 +148,13 @@ func (this *Com) DevicesOfTypeExist(jwt jwt_http_router.Jwt, deviceTypeId string
 	return len(temp) > 0, nil, http.StatusOK
 }
 
-func (this *Com) DeviceLocalIdToId(jwt jwt_http_router.Jwt, localId string) (id string, err error, code int) {
+func (this *Com) DeviceLocalIdToId(token string, localId string) (id string, err error, code int) {
 	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/jwt/select/devices/local_id/"+url.PathEscape(localId)+"/x", nil)
 	if err != nil {
 		debug.PrintStack()
 		return "", err, http.StatusInternalServerError
 	}
-	req.Header.Set("Authorization", string(jwt.Impersonate))
+	req.Header.Set("Authorization", token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		debug.PrintStack()

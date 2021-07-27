@@ -18,7 +18,7 @@ package servicemocks
 
 import (
 	"encoding/json"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"net/http/httptest"
 )
@@ -30,13 +30,13 @@ type PermSearch struct {
 func NewPermSearch() *PermSearch {
 	repo := &PermSearch{}
 
-	router := jwt_http_router.New(jwt_http_router.JwtConfig{ForceAuth: true, ForceUser: true})
+	router := httprouter.New()
 
-	router.GET("/jwt/check/:resource/:id/:permission/bool", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/jwt/check/:resource/:id/:permission/bool", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		json.NewEncoder(writer).Encode(true)
 	})
 
-	router.GET("/jwt/select/devices/device_type_id/:id/x", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/jwt/select/devices/device_type_id/:id/x", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		json.NewEncoder(writer).Encode([]interface{}{})
 	})
 

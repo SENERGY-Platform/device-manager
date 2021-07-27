@@ -19,7 +19,7 @@ package helper
 import (
 	"bytes"
 	"encoding/json"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+
 	"net"
 	"net/http"
 )
@@ -38,17 +38,17 @@ func GetFreePort() (int, error) {
 	return listener.Addr().(*net.TCPAddr).Port, nil
 }
 
-func Jwtdelete(jwt jwt_http_router.JwtImpersonate, url string) (resp *http.Response, err error) {
+func Jwtdelete(token string, url string) (resp *http.Response, err error) {
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", string(jwt))
+	req.Header.Set("Authorization", token)
 	resp, err = http.DefaultClient.Do(req)
 	return
 }
 
-func JwtDeleteWithBody(jwt jwt_http_router.JwtImpersonate, url string, msg interface{}) (resp *http.Response, err error) {
+func JwtDeleteWithBody(token string, url string, msg interface{}) (resp *http.Response, err error) {
 	body := new(bytes.Buffer)
 	err = json.NewEncoder(body).Encode(msg)
 	if err != nil {
@@ -58,23 +58,23 @@ func JwtDeleteWithBody(jwt jwt_http_router.JwtImpersonate, url string, msg inter
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", string(jwt))
+	req.Header.Set("Authorization", token)
 	resp, err = http.DefaultClient.Do(req)
 	return
 }
 
-func Jwtget(jwt jwt_http_router.JwtImpersonate, url string) (resp *http.Response, err error) {
+func Jwtget(token string, url string) (resp *http.Response, err error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", string(jwt))
+	req.Header.Set("Authorization", token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = http.DefaultClient.Do(req)
 	return
 }
 
-func Jwtput(jwt jwt_http_router.JwtImpersonate, url string, msg interface{}) (resp *http.Response, err error) {
+func Jwtput(token string, url string, msg interface{}) (resp *http.Response, err error) {
 	body := new(bytes.Buffer)
 	err = json.NewEncoder(body).Encode(msg)
 	if err != nil {
@@ -84,13 +84,13 @@ func Jwtput(jwt jwt_http_router.JwtImpersonate, url string, msg interface{}) (re
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", string(jwt))
+	req.Header.Set("Authorization", token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = http.DefaultClient.Do(req)
 	return
 }
 
-func Jwtpost(jwt jwt_http_router.JwtImpersonate, url string, msg interface{}) (resp *http.Response, err error) {
+func Jwtpost(token string, url string, msg interface{}) (resp *http.Response, err error) {
 	body := new(bytes.Buffer)
 	err = json.NewEncoder(body).Encode(msg)
 	if err != nil {
@@ -100,7 +100,7 @@ func Jwtpost(jwt jwt_http_router.JwtImpersonate, url string, msg interface{}) (r
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", string(jwt))
+	req.Header.Set("Authorization", token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = http.DefaultClient.Do(req)
 	return

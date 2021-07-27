@@ -18,13 +18,12 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 )
 
-func (this *Com) ValidateConcept(jwt jwt_http_router.Jwt, concept model.Concept) (err error, code int) {
+func (this *Com) ValidateConcept(token string, concept model.Concept) (err error, code int) {
 	list := []string{}
 	if this.config.SemanticRepoUrl != "" && this.config.SemanticRepoUrl != "-" {
 		list = append(list, this.config.SemanticRepoUrl+"/concepts?dry-run=true")
 	}
-	return validateResource(jwt, list, concept)
+	return validateResource(token, list, concept)
 }

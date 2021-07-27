@@ -20,32 +20,31 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 )
 
-func (this *Controller) ReadProtocol(jwt jwt_http_router.Jwt, id string) (protocol model.Protocol, err error, code int) {
-	return this.com.GetProtocol(jwt, id)
+func (this *Controller) ReadProtocol(token string, id string) (protocol model.Protocol, err error, code int) {
+	return this.com.GetProtocol(token, id)
 }
 
-func (this *Controller) PublishProtocolCreate(jwt jwt_http_router.Jwt, protocol model.Protocol) (model.Protocol, error, int) {
-	if !com.IsAdmin(jwt) {
+func (this *Controller) PublishProtocolCreate(token string, protocol model.Protocol) (model.Protocol, error, int) {
+	if !com.IsAdmin(token) {
 		return protocol, errors.New("access denied"), http.StatusForbidden
 	}
 	protocol.GenerateId()
-	err, code := this.com.ValidateProtocol(jwt, protocol)
+	err, code := this.com.ValidateProtocol(token, protocol)
 	if err != nil {
 		return protocol, err, code
 	}
-	err = this.publisher.PublishProtocol(protocol, jwt.UserId)
+	err = this.publisher.PublishProtocol(protocol, com.GetUserId(token))
 	if err != nil {
 		return protocol, err, http.StatusInternalServerError
 	}
 	return protocol, nil, http.StatusOK
 }
 
-func (this *Controller) PublishProtocolUpdate(jwt jwt_http_router.Jwt, id string, protocol model.Protocol) (model.Protocol, error, int) {
-	if !com.IsAdmin(jwt) {
+func (this *Controller) PublishProtocolUpdate(token string, id string, protocol model.Protocol) (model.Protocol, error, int) {
+	if !com.IsAdmin(token) {
 		return protocol, errors.New("access denied"), http.StatusForbidden
 	}
 	if protocol.Id != id {
@@ -56,22 +55,22 @@ func (this *Controller) PublishProtocolUpdate(jwt jwt_http_router.Jwt, id string
 	protocol.GenerateId()
 	protocol.Id = id
 
-	err, code := this.com.ValidateProtocol(jwt, protocol)
+	err, code := this.com.ValidateProtocol(token, protocol)
 	if err != nil {
 		return protocol, err, code
 	}
-	err = this.publisher.PublishProtocol(protocol, jwt.UserId)
+	err = this.publisher.PublishProtocol(protocol, com.GetUserId(token))
 	if err != nil {
 		return protocol, err, http.StatusInternalServerError
 	}
 	return protocol, nil, http.StatusOK
 }
 
-func (this *Controller) PublishProtocolDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	if !com.IsAdmin(jwt) {
+func (this *Controller) PublishProtocolDelete(token string, id string) (error, int) {
+	if !com.IsAdmin(token) {
 		return errors.New("access denied"), http.StatusForbidden
 	}
-	err := this.publisher.PublishProtocolDelete(id, jwt.UserId)
+	err := this.publisher.PublishProtocolDelete(id, com.GetUserId(token))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

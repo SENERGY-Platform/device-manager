@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/publisher"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -90,9 +90,9 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router := jwt_http_router.New(jwt_http_router.JwtConfig{ForceAuth: true, ForceUser: true})
+	router := httprouter.New()
 
-	router.GET("/device-groups/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/device-groups/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		dt, ok := repo.db[id]
 		if ok {
@@ -102,7 +102,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/device-groups", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/device-groups", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -126,7 +126,7 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/device-types/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/device-types/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		dt, ok := repo.db[id]
 		if ok {
@@ -136,7 +136,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/device-types", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/device-types", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -163,7 +163,7 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/devices/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/devices/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		dt, ok := repo.db[id]
 		if ok {
@@ -173,7 +173,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/devices", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/devices", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -208,7 +208,7 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/hubs/:id", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.GET("/hubs/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		dt, ok := repo.db[id]
 		if ok {
@@ -218,7 +218,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/hubs", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/hubs", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -252,7 +252,7 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.PUT("/protocols", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT("/protocols", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

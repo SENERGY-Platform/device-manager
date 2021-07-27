@@ -18,9 +18,10 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/SENERGY-Platform/device-manager/lib/api/util"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	"github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 )
@@ -29,17 +30,17 @@ func init() {
 	endpoints = append(endpoints, ConceptsEndpoints)
 }
 
-func ConceptsEndpoints(config config.Config, control Controller, router *jwt_http_router.Router) {
+func ConceptsEndpoints(config config.Config, control Controller, router *httprouter.Router) {
 	resource := "/concepts"
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		concept := model.Concept{}
 		err := json.NewDecoder(request.Body).Decode(&concept)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishConceptCreate(jwt, concept)
+		result, err, errCode := control.PublishConceptCreate(util.GetAuthToken(request), concept)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -52,7 +53,7 @@ func ConceptsEndpoints(config config.Config, control Controller, router *jwt_htt
 		return
 	})
 
-	router.PUT(resource+"/:conceptId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT(resource+"/:conceptId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("conceptId")
 		concept := model.Concept{}
 		err := json.NewDecoder(request.Body).Decode(&concept)
@@ -60,7 +61,7 @@ func ConceptsEndpoints(config config.Config, control Controller, router *jwt_htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishConceptUpdate(jwt, id, concept)
+		result, err, errCode := control.PublishConceptUpdate(util.GetAuthToken(request), id, concept)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -73,9 +74,9 @@ func ConceptsEndpoints(config config.Config, control Controller, router *jwt_htt
 		return
 	})
 
-	router.DELETE(resource+"/:conceptId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.DELETE(resource+"/:conceptId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("conceptId")
-		err, errCode := control.PublishConceptDelete(jwt, id)
+		err, errCode := control.PublishConceptDelete(util.GetAuthToken(request), id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

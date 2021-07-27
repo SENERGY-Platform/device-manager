@@ -20,18 +20,17 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	"github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 	"runtime/debug"
 	"sort"
 )
 
-func (this *Controller) ReadDeviceType(jwt jwt_http_router.Jwt, id string) (dt model.DeviceType, err error, code int) {
-	tdt, err, code := this.com.GetTechnicalDeviceType(jwt, id)
+func (this *Controller) ReadDeviceType(token string, id string) (dt model.DeviceType, err error, code int) {
+	tdt, err, code := this.com.GetTechnicalDeviceType(token, id)
 	if err != nil {
 		return tdt, err, code
 	}
-	sdt, err, code := this.com.GetSemanticDeviceType(jwt, id)
+	sdt, err, code := this.com.GetSemanticDeviceType(token, id)
 	if err != nil {
 		return tdt, err, code
 	}
@@ -53,39 +52,39 @@ func (this *Controller) ReadDeviceType(jwt jwt_http_router.Jwt, id string) (dt m
 	return tdt, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceTypeCreate(jwt jwt_http_router.Jwt, dt model.DeviceType) (model.DeviceType, error, int) {
+func (this *Controller) PublishDeviceTypeCreate(token string, dt model.DeviceType) (model.DeviceType, error, int) {
 	dt.GenerateId()
-	err, code := this.com.ValidateDeviceType(jwt, dt)
+	err, code := this.com.ValidateDeviceType(token, dt)
 	if err != nil {
 		return dt, err, code
 	}
-	err = this.publisher.PublishDeviceType(dt, jwt.UserId)
+	err = this.publisher.PublishDeviceType(dt, com.GetUserId(token))
 	if err != nil {
 		return dt, err, http.StatusInternalServerError
 	}
 	return dt, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceTypeUpdate(jwt jwt_http_router.Jwt, id string, dt model.DeviceType) (model.DeviceType, error, int) {
+func (this *Controller) PublishDeviceTypeUpdate(token string, id string, dt model.DeviceType) (model.DeviceType, error, int) {
 	if dt.Id != id {
 		return dt, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
 
 	dt.GenerateId()
 
-	if !com.IsAdmin(jwt) {
-		err, code := this.com.PermissionCheckForDeviceType(jwt, id, "w")
+	if !com.IsAdmin(token) {
+		err, code := this.com.PermissionCheckForDeviceType(token, id, "w")
 		if err != nil {
 			debug.PrintStack()
 			return dt, err, code
 		}
 	}
-	err, code := this.com.ValidateDeviceType(jwt, dt)
+	err, code := this.com.ValidateDeviceType(token, dt)
 	if err != nil {
 		debug.PrintStack()
 		return dt, err, code
 	}
-	err = this.publisher.PublishDeviceType(dt, jwt.UserId)
+	err = this.publisher.PublishDeviceType(dt, com.GetUserId(token))
 	if err != nil {
 		debug.PrintStack()
 		return dt, err, http.StatusInternalServerError
@@ -93,19 +92,19 @@ func (this *Controller) PublishDeviceTypeUpdate(jwt jwt_http_router.Jwt, id stri
 	return dt, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceTypeDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	exists, err, code := this.com.DevicesOfTypeExist(jwt, id)
+func (this *Controller) PublishDeviceTypeDelete(token string, id string) (error, int) {
+	exists, err, code := this.com.DevicesOfTypeExist(token, id)
 	if err != nil {
 		return err, code
 	}
 	if exists {
 		return errors.New("expect no dependent devices"), http.StatusBadRequest
 	}
-	err, code = this.com.PermissionCheckForDeviceType(jwt, id, "a")
+	err, code = this.com.PermissionCheckForDeviceType(token, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishDeviceTypeDelete(id, jwt.UserId)
+	err = this.publisher.PublishDeviceTypeDelete(id, com.GetUserId(token))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

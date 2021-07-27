@@ -20,32 +20,31 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	jwt_http_router "github.com/SmartEnergyPlatform/jwt-http-router"
 	"net/http"
 )
 
-func (this *Controller) ReadFunction(jwt jwt_http_router.Jwt, id string) (function model.Function, err error, code int) {
-	return this.com.GetFunction(jwt, id)
+func (this *Controller) ReadFunction(token string, id string) (function model.Function, err error, code int) {
+	return this.com.GetFunction(token, id)
 }
 
-func (this *Controller) PublishFunctionCreate(jwt jwt_http_router.Jwt, function model.Function) (model.Function, error, int) {
-	if !com.IsAdmin(jwt) {
+func (this *Controller) PublishFunctionCreate(token string, function model.Function) (model.Function, error, int) {
+	if !com.IsAdmin(token) {
 		return function, errors.New("access denied"), http.StatusForbidden
 	}
 	function.GenerateId()
-	err, code := this.com.ValidateFunction(jwt, function)
+	err, code := this.com.ValidateFunction(token, function)
 	if err != nil {
 		return function, err, code
 	}
-	err = this.publisher.PublishFunction(function, jwt.UserId)
+	err = this.publisher.PublishFunction(function, com.GetUserId(token))
 	if err != nil {
 		return function, err, http.StatusInternalServerError
 	}
 	return function, nil, http.StatusOK
 }
 
-func (this *Controller) PublishFunctionUpdate(jwt jwt_http_router.Jwt, id string, function model.Function) (model.Function, error, int) {
-	if !com.IsAdmin(jwt) {
+func (this *Controller) PublishFunctionUpdate(token string, id string, function model.Function) (model.Function, error, int) {
+	if !com.IsAdmin(token) {
 		return function, errors.New("access denied"), http.StatusForbidden
 	}
 	if function.Id != id {
@@ -56,22 +55,22 @@ func (this *Controller) PublishFunctionUpdate(jwt jwt_http_router.Jwt, id string
 	function.GenerateId()
 	function.Id = id
 
-	err, code := this.com.ValidateFunction(jwt, function)
+	err, code := this.com.ValidateFunction(token, function)
 	if err != nil {
 		return function, err, code
 	}
-	err = this.publisher.PublishFunction(function, jwt.UserId)
+	err = this.publisher.PublishFunction(function, com.GetUserId(token))
 	if err != nil {
 		return function, err, http.StatusInternalServerError
 	}
 	return function, nil, http.StatusOK
 }
 
-func (this *Controller) PublishFunctionDelete(jwt jwt_http_router.Jwt, id string) (error, int) {
-	if !com.IsAdmin(jwt) {
+func (this *Controller) PublishFunctionDelete(token string, id string) (error, int) {
+	if !com.IsAdmin(token) {
 		return errors.New("access denied"), http.StatusForbidden
 	}
-	err := this.publisher.PublishFunctionDelete(id, jwt.UserId)
+	err := this.publisher.PublishFunctionDelete(id, com.GetUserId(token))
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

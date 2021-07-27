@@ -18,9 +18,10 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/SENERGY-Platform/device-manager/lib/api/util"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	"github.com/SmartEnergyPlatform/jwt-http-router"
+	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 )
@@ -29,10 +30,10 @@ func init() {
 	endpoints = append(endpoints, CharacteristicsEndpoints)
 }
 
-func CharacteristicsEndpoints(config config.Config, control Controller, router *jwt_http_router.Router) {
+func CharacteristicsEndpoints(config config.Config, control Controller, router *httprouter.Router) {
 	resource := "/concepts/:conceptId/characteristics"
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		conceptId := params.ByName("conceptId")
 		characteristic := model.Characteristic{}
 		err := json.NewDecoder(request.Body).Decode(&characteristic)
@@ -40,7 +41,7 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishCharacteristicCreate(jwt, conceptId, characteristic)
+		result, err, errCode := control.PublishCharacteristicCreate(util.GetAuthToken(request), conceptId, characteristic)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -53,7 +54,7 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 		return
 	})
 
-	router.PUT(resource + "/:characteristicId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.PUT(resource+"/:characteristicId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		conceptId := params.ByName("conceptId")
 		characteristicId := params.ByName("characteristicId")
 		characteristic := model.Characteristic{}
@@ -62,7 +63,7 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishCharacteristicUpdate(jwt, conceptId, characteristicId, characteristic)
+		result, err, errCode := control.PublishCharacteristicUpdate(util.GetAuthToken(request), conceptId, characteristicId, characteristic)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -75,9 +76,9 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 		return
 	})
 
-	router.DELETE(resource + "/:characteristicId", func(writer http.ResponseWriter, request *http.Request, params jwt_http_router.Params, jwt jwt_http_router.Jwt) {
+	router.DELETE(resource+"/:characteristicId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("characteristicId")
-		err, errCode := control.PublishCharacteristicDelete(jwt, id)
+		err, errCode := control.PublishCharacteristicDelete(util.GetAuthToken(request), id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
