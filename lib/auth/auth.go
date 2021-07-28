@@ -53,12 +53,13 @@ func (this *Token) Valid() error {
 }
 
 func parse(token string) (claims Token, err error) {
+	orig := token
 	if strings.HasPrefix(token, "Bearer ") {
 		token = token[7:]
 	}
 	_, _, err = new(jwt.Parser).ParseUnverified(token, &claims)
 	if err == nil {
-		claims.Token = token
+		claims.Token = orig
 	}
 	return
 }
