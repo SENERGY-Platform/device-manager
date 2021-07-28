@@ -18,7 +18,7 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/api/util"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/julienschmidt/httprouter"
@@ -40,7 +40,12 @@ func ConceptsEndpoints(config config.Config, control Controller, router *httprou
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishConceptCreate(util.GetAuthToken(request), concept)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishConceptCreate(token, concept)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -61,7 +66,12 @@ func ConceptsEndpoints(config config.Config, control Controller, router *httprou
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishConceptUpdate(util.GetAuthToken(request), id, concept)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishConceptUpdate(token, id, concept)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -76,7 +86,12 @@ func ConceptsEndpoints(config config.Config, control Controller, router *httprou
 
 	router.DELETE(resource+"/:conceptId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("conceptId")
-		err, errCode := control.PublishConceptDelete(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err, errCode := control.PublishConceptDelete(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

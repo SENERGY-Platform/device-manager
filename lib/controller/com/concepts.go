@@ -17,10 +17,11 @@
 package com
 
 import (
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 )
 
-func (this *Com) ValidateConcept(token string, concept model.Concept) (err error, code int) {
+func (this *Com) ValidateConcept(token auth.Token, concept model.Concept) (err error, code int) {
 	list := []string{}
 	if this.config.SemanticRepoUrl != "" && this.config.SemanticRepoUrl != "-" {
 		list = append(list, this.config.SemanticRepoUrl+"/concepts?dry-run=true")

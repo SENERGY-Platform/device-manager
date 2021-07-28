@@ -18,33 +18,33 @@ package controller
 
 import (
 	"errors"
-	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 )
 
-func (this *Controller) DeviceLocalIdToId(token string, localId string) (id string, err error, errCode int) {
+func (this *Controller) DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, errCode int) {
 	return this.com.DeviceLocalIdToId(token, localId)
 }
 
-func (this *Controller) ReadDevice(token string, id string) (device model.Device, err error, code int) {
+func (this *Controller) ReadDevice(token auth.Token, id string) (device model.Device, err error, code int) {
 	return this.com.GetDevice(token, id)
 }
 
-func (this *Controller) PublishDeviceCreate(token string, device model.Device) (model.Device, error, int) {
+func (this *Controller) PublishDeviceCreate(token auth.Token, device model.Device) (model.Device, error, int) {
 	device.GenerateId()
 	err, code := this.com.ValidateDevice(token, device)
 	if err != nil {
 		return device, err, code
 	}
-	err = this.publisher.PublishDevice(device, com.GetUserId(token))
+	err = this.publisher.PublishDevice(device, token.GetUserId())
 	if err != nil {
 		return device, err, http.StatusInternalServerError
 	}
 	return device, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceUpdate(token string, id string, device model.Device) (model.Device, error, int) {
+func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device model.Device) (model.Device, error, int) {
 	if device.Id != id {
 		return device, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
@@ -61,19 +61,19 @@ func (this *Controller) PublishDeviceUpdate(token string, id string, device mode
 	if err != nil {
 		return device, err, code
 	}
-	err = this.publisher.PublishDevice(device, com.GetUserId(token))
+	err = this.publisher.PublishDevice(device, token.GetUserId())
 	if err != nil {
 		return device, err, http.StatusInternalServerError
 	}
 	return device, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceDelete(token string, id string) (error, int) {
+func (this *Controller) PublishDeviceDelete(token auth.Token, id string) (error, int) {
 	err, code := this.com.PermissionCheckForDevice(token, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishDeviceDelete(id, com.GetUserId(token))
+	err = this.publisher.PublishDeviceDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

@@ -17,15 +17,16 @@
 package com
 
 import (
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 )
 
-func (this *Com) GetFunction(token string, id string) (function model.Function, err error, code int) {
+func (this *Com) GetFunction(token auth.Token, id string) (function model.Function, err error, code int) {
 	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/functions", id, &function)
 	return
 }
 
-func (this *Com) ValidateFunction(token string, function model.Function) (err error, code int) {
+func (this *Com) ValidateFunction(token auth.Token, function model.Function) (err error, code int) {
 	return validateResource(token, []string{
 		this.config.SemanticRepoUrl + "/functions?dry-run=true",
 	}, function)

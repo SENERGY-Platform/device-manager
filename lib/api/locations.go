@@ -18,7 +18,7 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/api/util"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/julienschmidt/httprouter"
@@ -35,7 +35,12 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 
 	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		result, err, errCode := control.ReadLocation(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.ReadLocation(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -55,7 +60,12 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishLocationCreate(util.GetAuthToken(request), Location)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishLocationCreate(token, Location)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -76,7 +86,12 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishLocationUpdate(util.GetAuthToken(request), id, Location)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishLocationUpdate(token, id, Location)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -91,7 +106,12 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 
 	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		err, errCode := control.PublishLocationDelete(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err, errCode := control.PublishLocationDelete(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

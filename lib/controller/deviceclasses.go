@@ -18,18 +18,18 @@ package controller
 
 import (
 	"errors"
-	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 
 	"net/http"
 )
 
-func (this *Controller) ReadDeviceClass(token string, id string) (deviceClass model.DeviceClass, err error, code int) {
+func (this *Controller) ReadDeviceClass(token auth.Token, id string) (deviceClass model.DeviceClass, err error, code int) {
 	return this.com.GetDeviceClass(token, id)
 }
 
-func (this *Controller) PublishDeviceClassCreate(token string, deviceClass model.DeviceClass) (model.DeviceClass, error, int) {
-	if !com.IsAdmin(token) {
+func (this *Controller) PublishDeviceClassCreate(token auth.Token, deviceClass model.DeviceClass) (model.DeviceClass, error, int) {
+	if !token.IsAdmin() {
 		return deviceClass, errors.New("access denied"), http.StatusForbidden
 	}
 	deviceClass.GenerateId()
@@ -37,15 +37,15 @@ func (this *Controller) PublishDeviceClassCreate(token string, deviceClass model
 	if err != nil {
 		return deviceClass, err, code
 	}
-	err = this.publisher.PublishDeviceClass(deviceClass, com.GetUserId(token))
+	err = this.publisher.PublishDeviceClass(deviceClass, token.GetUserId())
 	if err != nil {
 		return deviceClass, err, http.StatusInternalServerError
 	}
 	return deviceClass, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceClassUpdate(token string, id string, deviceClass model.DeviceClass) (model.DeviceClass, error, int) {
-	if !com.IsAdmin(token) {
+func (this *Controller) PublishDeviceClassUpdate(token auth.Token, id string, deviceClass model.DeviceClass) (model.DeviceClass, error, int) {
+	if !token.IsAdmin() {
 		return deviceClass, errors.New("access denied"), http.StatusForbidden
 	}
 	if deviceClass.Id != id {
@@ -60,18 +60,18 @@ func (this *Controller) PublishDeviceClassUpdate(token string, id string, device
 	if err != nil {
 		return deviceClass, err, code
 	}
-	err = this.publisher.PublishDeviceClass(deviceClass, com.GetUserId(token))
+	err = this.publisher.PublishDeviceClass(deviceClass, token.GetUserId())
 	if err != nil {
 		return deviceClass, err, http.StatusInternalServerError
 	}
 	return deviceClass, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceClassDelete(token string, id string) (error, int) {
-	if !com.IsAdmin(token) {
+func (this *Controller) PublishDeviceClassDelete(token auth.Token, id string) (error, int) {
+	if !token.IsAdmin() {
 		return errors.New("access denied"), http.StatusForbidden
 	}
-	err := this.publisher.PublishDeviceClassDelete(id, com.GetUserId(token))
+	err := this.publisher.PublishDeviceClassDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

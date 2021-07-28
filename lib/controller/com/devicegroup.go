@@ -17,11 +17,12 @@
 package com
 
 import (
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 )
 
-func (this *Com) GetTechnicalDeviceGroup(token string, id string) (dt model.DeviceGroup, err error, code int) {
+func (this *Com) GetTechnicalDeviceGroup(token auth.Token, id string) (dt model.DeviceGroup, err error, code int) {
 	if this.config.DeviceRepoUrl == "" || this.config.DeviceRepoUrl == "-" {
 		return model.DeviceGroup{}, nil, http.StatusOK
 	}
@@ -29,7 +30,7 @@ func (this *Com) GetTechnicalDeviceGroup(token string, id string) (dt model.Devi
 	return
 }
 
-func (this *Com) ValidateDeviceGroup(token string, dt model.DeviceGroup) (err error, code int) {
+func (this *Com) ValidateDeviceGroup(token auth.Token, dt model.DeviceGroup) (err error, code int) {
 	list := []string{}
 	if this.config.DeviceRepoUrl != "" && this.config.DeviceRepoUrl != "-" {
 		list = append(list, this.config.DeviceRepoUrl+"/device-groups?dry-run=true")

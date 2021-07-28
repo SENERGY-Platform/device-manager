@@ -18,33 +18,33 @@ package controller
 
 import (
 	"errors"
-	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Controller) PublishCharacteristicCreate(token string, conceptId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
+func (this *Controller) PublishCharacteristicCreate(token auth.Token, conceptId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
 	characteristic.GenerateId()
 	err, code := this.com.ValidateCharacteristic(token, characteristic)
 	if err != nil {
 		return characteristic, err, code
 	}
-	err = this.publisher.PublishCharacteristic(conceptId, characteristic, com.GetUserId(token))
+	err = this.publisher.PublishCharacteristic(conceptId, characteristic, token.GetUserId())
 	if err != nil {
 		return characteristic, err, http.StatusInternalServerError
 	}
 	return characteristic, nil, http.StatusOK
 }
 
-func (this *Controller) PublishCharacteristicUpdate(token string, conceptId string, characteristicId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
+func (this *Controller) PublishCharacteristicUpdate(token auth.Token, conceptId string, characteristicId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
 	if characteristic.Id != characteristicId {
 		return characteristic, errors.New("characteristic id in body unequal to characteristic id in request endpoint"), http.StatusBadRequest
 	}
 
 	characteristic.GenerateId()
 
-	if !com.IsAdmin(token) {
+	if !token.IsAdmin() {
 		err, code := this.com.PermissionCheckForCharacteristic(token, characteristicId, "w")
 		if err != nil {
 			debug.PrintStack()
@@ -56,7 +56,7 @@ func (this *Controller) PublishCharacteristicUpdate(token string, conceptId stri
 		debug.PrintStack()
 		return characteristic, err, code
 	}
-	err = this.publisher.PublishCharacteristic(conceptId, characteristic, com.GetUserId(token))
+	err = this.publisher.PublishCharacteristic(conceptId, characteristic, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return characteristic, err, http.StatusInternalServerError
@@ -64,12 +64,12 @@ func (this *Controller) PublishCharacteristicUpdate(token string, conceptId stri
 	return characteristic, nil, http.StatusOK
 }
 
-func (this *Controller) PublishCharacteristicDelete(token string, id string) (error, int) {
+func (this *Controller) PublishCharacteristicDelete(token auth.Token, id string) (error, int) {
 	err, code := this.com.PermissionCheckForCharacteristic(token, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishCharacteristicDelete(id, com.GetUserId(token))
+	err = this.publisher.PublishCharacteristicDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

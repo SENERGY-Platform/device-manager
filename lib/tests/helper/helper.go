@@ -19,7 +19,6 @@ package helper
 import (
 	"bytes"
 	"encoding/json"
-
 	"net"
 	"net/http"
 )

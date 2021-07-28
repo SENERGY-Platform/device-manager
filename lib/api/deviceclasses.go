@@ -18,7 +18,7 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/api/util"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/julienschmidt/httprouter"
@@ -35,7 +35,12 @@ func DeviceClassesEndpoints(config config.Config, control Controller, router *ht
 
 	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		result, err, errCode := control.ReadDeviceClass(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.ReadDeviceClass(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -55,7 +60,12 @@ func DeviceClassesEndpoints(config config.Config, control Controller, router *ht
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceClassCreate(util.GetAuthToken(request), deviceClass)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishDeviceClassCreate(token, deviceClass)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -76,7 +86,12 @@ func DeviceClassesEndpoints(config config.Config, control Controller, router *ht
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceClassUpdate(util.GetAuthToken(request), id, deviceClass)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishDeviceClassUpdate(token, id, deviceClass)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -91,7 +106,12 @@ func DeviceClassesEndpoints(config config.Config, control Controller, router *ht
 
 	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		err, errCode := control.PublishDeviceClassDelete(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err, errCode := control.PublishDeviceClassDelete(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

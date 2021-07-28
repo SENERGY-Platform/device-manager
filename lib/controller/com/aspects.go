@@ -17,15 +17,16 @@
 package com
 
 import (
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 )
 
-func (this *Com) GetAspect(token string, id string) (aspect model.Aspect, err error, code int) {
+func (this *Com) GetAspect(token auth.Token, id string) (aspect model.Aspect, err error, code int) {
 	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/aspects", id, &aspect)
 	return
 }
 
-func (this *Com) ValidateAspect(token string, aspect model.Aspect) (err error, code int) {
+func (this *Com) ValidateAspect(token auth.Token, aspect model.Aspect) (err error, code int) {
 	return validateResource(token, []string{
 		this.config.SemanticRepoUrl + "/aspects?dry-run=true",
 	}, aspect)

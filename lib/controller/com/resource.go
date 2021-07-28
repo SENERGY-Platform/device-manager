@@ -4,19 +4,20 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"log"
 	"net/http"
 	"net/url"
 	"runtime/debug"
 )
 
-func getResourceFromService(token string, endpoint string, id string, result interface{}) (err error, code int) {
+func getResourceFromService(token auth.Token, endpoint string, id string, result interface{}) (err error, code int) {
 	req, err := http.NewRequest("GET", endpoint+"/"+url.PathEscape(id), nil)
 	if err != nil {
 		debug.PrintStack()
 		return err, http.StatusInternalServerError
 	}
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", token.Token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		debug.PrintStack()
@@ -39,7 +40,7 @@ func getResourceFromService(token string, endpoint string, id string, result int
 	return nil, http.StatusOK
 }
 
-func validateResource(token string, endpoints []string, resource interface{}) (err error, code int) {
+func validateResource(token auth.Token, endpoints []string, resource interface{}) (err error, code int) {
 	for _, endpoint := range endpoints {
 		b := new(bytes.Buffer)
 		err = json.NewEncoder(b).Encode(resource)
@@ -52,7 +53,7 @@ func validateResource(token string, endpoints []string, resource interface{}) (e
 			debug.PrintStack()
 			return err, http.StatusInternalServerError
 		}
-		req.Header.Set("Authorization", token)
+		req.Header.Set("Authorization", token.Token)
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			debug.PrintStack()

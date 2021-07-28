@@ -18,17 +18,17 @@ package controller
 
 import (
 	"errors"
-	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Controller) ReadDeviceGroup(token string, id string) (dt model.DeviceGroup, err error, code int) {
+func (this *Controller) ReadDeviceGroup(token auth.Token, id string) (dt model.DeviceGroup, err error, code int) {
 	return this.com.GetTechnicalDeviceGroup(token, id)
 }
 
-func (this *Controller) PublishDeviceGroupCreate(token string, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
+func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
 	dg.GenerateId()
 	dg.SetShortCriteria()
 
@@ -36,14 +36,14 @@ func (this *Controller) PublishDeviceGroupCreate(token string, dg model.DeviceGr
 	if err != nil {
 		return dg, err, code
 	}
-	err = this.publisher.PublishDeviceGroup(dg, com.GetUserId(token))
+	err = this.publisher.PublishDeviceGroup(dg, token.GetUserId())
 	if err != nil {
 		return dg, err, http.StatusInternalServerError
 	}
 	return dg, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceGroupUpdate(token string, id string, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
+func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
 	if dg.Id != id {
 		return dg, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
@@ -51,7 +51,7 @@ func (this *Controller) PublishDeviceGroupUpdate(token string, id string, dg mod
 	dg.GenerateId()
 	dg.SetShortCriteria()
 
-	if !com.IsAdmin(token) {
+	if !token.IsAdmin() {
 		err, code := this.com.PermissionCheckForDeviceGroup(token, id, "w")
 		if err != nil {
 			debug.PrintStack()
@@ -63,7 +63,7 @@ func (this *Controller) PublishDeviceGroupUpdate(token string, id string, dg mod
 		debug.PrintStack()
 		return dg, err, code
 	}
-	err = this.publisher.PublishDeviceGroup(dg, com.GetUserId(token))
+	err = this.publisher.PublishDeviceGroup(dg, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return dg, err, http.StatusInternalServerError
@@ -71,12 +71,12 @@ func (this *Controller) PublishDeviceGroupUpdate(token string, id string, dg mod
 	return dg, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceGroupDelete(token string, id string) (error, int) {
+func (this *Controller) PublishDeviceGroupDelete(token auth.Token, id string) (error, int) {
 	err, code := this.com.PermissionCheckForDeviceGroup(token, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishDeviceGroupDelete(id, com.GetUserId(token))
+	err = this.publisher.PublishDeviceGroupDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

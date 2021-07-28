@@ -18,7 +18,7 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/api/util"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/julienschmidt/httprouter"
@@ -35,7 +35,12 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 
 	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		result, err, errCode := control.ReadHub(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.ReadHub(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -50,7 +55,12 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 
 	router.HEAD(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		_, _, errCode := control.ReadHub(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		_, _, errCode := control.ReadHub(token, id)
 		writer.WriteHeader(errCode)
 		return
 	})
@@ -62,7 +72,12 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishHubCreate(util.GetAuthToken(request), hub)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishHubCreate(token, hub)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -83,7 +98,12 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishHubUpdate(util.GetAuthToken(request), id, hub)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishHubUpdate(token, id, hub)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -104,13 +124,18 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		hub, err, code := control.ReadHub(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		hub, err, code := control.ReadHub(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), code)
 			return
 		}
 		hub.Name = name
-		result, err, errCode := control.PublishHubUpdate(util.GetAuthToken(request), id, hub)
+		result, err, errCode := control.PublishHubUpdate(token, id, hub)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -125,7 +150,12 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 
 	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		err, errCode := control.PublishHubDelete(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err, errCode := control.PublishHubDelete(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

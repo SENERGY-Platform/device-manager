@@ -18,29 +18,29 @@ package controller
 
 import (
 	"errors"
-	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 )
 
-func (this *Controller) ReadHub(token string, id string) (hub model.Hub, err error, code int) {
+func (this *Controller) ReadHub(token auth.Token, id string) (hub model.Hub, err error, code int) {
 	return this.com.GetHub(token, id)
 }
 
-func (this *Controller) PublishHubCreate(token string, hub model.Hub) (model.Hub, error, int) {
+func (this *Controller) PublishHubCreate(token auth.Token, hub model.Hub) (model.Hub, error, int) {
 	hub.GenerateId()
 	err, code := this.com.ValidateHub(token, hub)
 	if err != nil {
 		return hub, err, code
 	}
-	err = this.publisher.PublishHub(hub, com.GetUserId(token))
+	err = this.publisher.PublishHub(hub, token.GetUserId())
 	if err != nil {
 		return hub, err, http.StatusInternalServerError
 	}
 	return hub, nil, http.StatusOK
 }
 
-func (this *Controller) PublishHubUpdate(token string, id string, hub model.Hub) (model.Hub, error, int) {
+func (this *Controller) PublishHubUpdate(token auth.Token, id string, hub model.Hub) (model.Hub, error, int) {
 	if hub.Id != id {
 		return hub, errors.New("hub id in body unequal to hub id in request endpoint"), http.StatusBadRequest
 	}
@@ -57,19 +57,19 @@ func (this *Controller) PublishHubUpdate(token string, id string, hub model.Hub)
 	if err != nil {
 		return hub, err, code
 	}
-	err = this.publisher.PublishHub(hub, com.GetUserId(token))
+	err = this.publisher.PublishHub(hub, token.GetUserId())
 	if err != nil {
 		return hub, err, http.StatusInternalServerError
 	}
 	return hub, nil, http.StatusOK
 }
 
-func (this *Controller) PublishHubDelete(token string, id string) (error, int) {
+func (this *Controller) PublishHubDelete(token auth.Token, id string) (error, int) {
 	err, code := this.com.PermissionCheckForHub(token, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishHubDelete(id, com.GetUserId(token))
+	err = this.publisher.PublishHubDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

@@ -18,17 +18,17 @@ package controller
 
 import (
 	"errors"
-	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 )
 
-func (this *Controller) ReadAspect(token string, id string) (aspect model.Aspect, err error, code int) {
+func (this *Controller) ReadAspect(token auth.Token, id string) (aspect model.Aspect, err error, code int) {
 	return this.com.GetAspect(token, id)
 }
 
-func (this *Controller) PublishAspectCreate(token string, aspect model.Aspect) (model.Aspect, error, int) {
-	if !com.IsAdmin(token) {
+func (this *Controller) PublishAspectCreate(token auth.Token, aspect model.Aspect) (model.Aspect, error, int) {
+	if !token.IsAdmin() {
 		return aspect, errors.New("access denied"), http.StatusForbidden
 	}
 	aspect.GenerateId()
@@ -36,15 +36,15 @@ func (this *Controller) PublishAspectCreate(token string, aspect model.Aspect) (
 	if err != nil {
 		return aspect, err, code
 	}
-	err = this.publisher.PublishAspect(aspect, com.GetUserId(token))
+	err = this.publisher.PublishAspect(aspect, token.GetUserId())
 	if err != nil {
 		return aspect, err, http.StatusInternalServerError
 	}
 	return aspect, nil, http.StatusOK
 }
 
-func (this *Controller) PublishAspectUpdate(token string, id string, aspect model.Aspect) (model.Aspect, error, int) {
-	if !com.IsAdmin(token) {
+func (this *Controller) PublishAspectUpdate(token auth.Token, id string, aspect model.Aspect) (model.Aspect, error, int) {
+	if !token.IsAdmin() {
 		return aspect, errors.New("access denied"), http.StatusForbidden
 	}
 	if aspect.Id != id {
@@ -59,18 +59,18 @@ func (this *Controller) PublishAspectUpdate(token string, id string, aspect mode
 	if err != nil {
 		return aspect, err, code
 	}
-	err = this.publisher.PublishAspect(aspect, com.GetUserId(token))
+	err = this.publisher.PublishAspect(aspect, token.GetUserId())
 	if err != nil {
 		return aspect, err, http.StatusInternalServerError
 	}
 	return aspect, nil, http.StatusOK
 }
 
-func (this *Controller) PublishAspectDelete(token string, id string) (error, int) {
-	if !com.IsAdmin(token) {
+func (this *Controller) PublishAspectDelete(token auth.Token, id string) (error, int) {
+	if !token.IsAdmin() {
 		return errors.New("access denied"), http.StatusForbidden
 	}
-	err := this.publisher.PublishAspectDelete(id, com.GetUserId(token))
+	err := this.publisher.PublishAspectDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

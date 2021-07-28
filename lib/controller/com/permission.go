@@ -20,62 +20,63 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"log"
 	"net/http"
 	"net/url"
 	"runtime/debug"
 )
 
-func (this *Com) PermissionCheckForDevice(token string, id string, permission string) (err error, code int) {
-	if IsAdmin(token) {
+func (this *Com) PermissionCheckForDevice(token auth.Token, id string, permission string) (err error, code int) {
+	if token.IsAdmin() {
 		return nil, http.StatusOK
 	}
 	return this.PermissionCheck(token, id, permission, this.config.DeviceTopic)
 }
 
-func (this *Com) PermissionCheckForHub(token string, id string, permission string) (err error, code int) {
-	if IsAdmin(token) {
+func (this *Com) PermissionCheckForHub(token auth.Token, id string, permission string) (err error, code int) {
+	if token.IsAdmin() {
 		return nil, http.StatusOK
 	}
 	return this.PermissionCheck(token, id, permission, this.config.HubTopic)
 }
 
-func (this *Com) PermissionCheckForDeviceGroup(token string, id string, permission string) (err error, code int) {
-	if IsAdmin(token) {
+func (this *Com) PermissionCheckForDeviceGroup(token auth.Token, id string, permission string) (err error, code int) {
+	if token.IsAdmin() {
 		return nil, http.StatusOK
 	}
 	return this.PermissionCheck(token, id, permission, this.config.DeviceGroupTopic)
 }
 
-func (this *Com) PermissionCheckForDeviceType(token string, id string, permission string) (err error, code int) {
-	if IsAdmin(token) {
+func (this *Com) PermissionCheckForDeviceType(token auth.Token, id string, permission string) (err error, code int) {
+	if token.IsAdmin() {
 		return nil, http.StatusOK
 	}
 	return this.PermissionCheck(token, id, permission, this.config.DeviceTypeTopic)
 }
 
-func (this *Com) PermissionCheckForConcept(token string, id string, permission string) (err error, code int) {
-	if IsAdmin(token) {
+func (this *Com) PermissionCheckForConcept(token auth.Token, id string, permission string) (err error, code int) {
+	if token.IsAdmin() {
 		return nil, http.StatusOK
 	}
 	return this.PermissionCheck(token, id, permission, this.config.ConceptTopic)
 }
 
-func (this *Com) PermissionCheckForCharacteristic(token string, id string, permission string) (err error, code int) {
-	if IsAdmin(token) {
+func (this *Com) PermissionCheckForCharacteristic(token auth.Token, id string, permission string) (err error, code int) {
+	if token.IsAdmin() {
 		return nil, http.StatusOK
 	}
 	return this.PermissionCheck(token, id, permission, this.config.CharacteristicTopic)
 }
 
-func (this *Com) PermissionCheckForLocation(token string, id string, permission string) (err error, code int) {
-	if IsAdmin(token) {
+func (this *Com) PermissionCheckForLocation(token auth.Token, id string, permission string) (err error, code int) {
+	if token.IsAdmin() {
 		return nil, http.StatusOK
 	}
 	return this.PermissionCheck(token, id, permission, this.config.LocationTopic)
 }
 
-func (this *Com) PermissionCheck(token string, id string, permission string, resource string) (err error, code int) {
+func (this *Com) PermissionCheck(token auth.Token, id string, permission string, resource string) (err error, code int) {
 	if this.config.PermissionsUrl == "" || this.config.PermissionsUrl == "-" {
 		return nil, 200
 	}
@@ -84,7 +85,7 @@ func (this *Com) PermissionCheck(token string, id string, permission string, res
 		debug.PrintStack()
 		return err, http.StatusInternalServerError
 	}
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", token.Token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		debug.PrintStack()
@@ -114,8 +115,8 @@ func (this *Com) PermissionCheck(token string, id string, permission string, res
 	return
 }
 
-func (this *Com) DevicesOfTypeExist(token string, deviceTypeId string) (result bool, err error, code int) {
-	if !IsAdmin(token) {
+func (this *Com) DevicesOfTypeExist(token auth.Token, deviceTypeId string) (result bool, err error, code int) {
+	if !token.IsAdmin() {
 		return false, errors.New("only for admins allowed"), http.StatusForbidden
 	}
 	if this.config.PermissionsUrl == "" || this.config.PermissionsUrl == "-" {
@@ -126,7 +127,7 @@ func (this *Com) DevicesOfTypeExist(token string, deviceTypeId string) (result b
 		debug.PrintStack()
 		return result, err, http.StatusInternalServerError
 	}
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", token.Token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		debug.PrintStack()
@@ -148,13 +149,13 @@ func (this *Com) DevicesOfTypeExist(token string, deviceTypeId string) (result b
 	return len(temp) > 0, nil, http.StatusOK
 }
 
-func (this *Com) DeviceLocalIdToId(token string, localId string) (id string, err error, code int) {
+func (this *Com) DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, code int) {
 	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/jwt/select/devices/local_id/"+url.PathEscape(localId)+"/x", nil)
 	if err != nil {
 		debug.PrintStack()
 		return "", err, http.StatusInternalServerError
 	}
-	req.Header.Set("Authorization", token)
+	req.Header.Set("Authorization", token.Token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		debug.PrintStack()

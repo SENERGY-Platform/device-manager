@@ -18,7 +18,7 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/api/util"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/julienschmidt/httprouter"
@@ -35,12 +35,17 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 
 	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		id, err, errCode := control.DeviceLocalIdToId(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		id, err, errCode := control.DeviceLocalIdToId(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
 		}
-		result, err, errCode := control.ReadDevice(util.GetAuthToken(request), id)
+		result, err, errCode := control.ReadDevice(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -60,7 +65,12 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceCreate(util.GetAuthToken(request), device)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishDeviceCreate(token, device)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -75,7 +85,12 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		id, err, errCode := control.DeviceLocalIdToId(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		id, err, errCode := control.DeviceLocalIdToId(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -86,7 +101,7 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceUpdate(util.GetAuthToken(request), id, device)
+		result, err, errCode := control.PublishDeviceUpdate(token, id, device)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -101,12 +116,17 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 
 	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		id, err, errCode := control.DeviceLocalIdToId(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		id, err, errCode := control.DeviceLocalIdToId(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
 		}
-		err, errCode = control.PublishDeviceDelete(util.GetAuthToken(request), id)
+		err, errCode = control.PublishDeviceDelete(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

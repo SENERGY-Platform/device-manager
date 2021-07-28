@@ -18,32 +18,32 @@ package controller
 
 import (
 	"errors"
-	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Controller) PublishConceptCreate(token string, concept model.Concept) (model.Concept, error, int) {
+func (this *Controller) PublishConceptCreate(token auth.Token, concept model.Concept) (model.Concept, error, int) {
 	concept.GenerateId()
 	err, code := this.com.ValidateConcept(token, concept)
 	if err != nil {
 		return concept, err, code
 	}
-	err = this.publisher.PublishConcept(concept, com.GetUserId(token))
+	err = this.publisher.PublishConcept(concept, token.GetUserId())
 	if err != nil {
 		return concept, err, http.StatusInternalServerError
 	}
 	return concept, nil, http.StatusOK
 }
 
-func (this *Controller) PublishConceptUpdate(token string, id string, concept model.Concept) (model.Concept, error, int) {
+func (this *Controller) PublishConceptUpdate(token auth.Token, id string, concept model.Concept) (model.Concept, error, int) {
 	if concept.Id != id {
 		return concept, errors.New("concept id in body unequal to concept id in request endpoint"), http.StatusBadRequest
 	}
 
 	concept.GenerateId()
-	if !com.IsAdmin(token) {
+	if !token.IsAdmin() {
 		err, code := this.com.PermissionCheckForConcept(token, id, "w")
 		if err != nil {
 			debug.PrintStack()
@@ -56,7 +56,7 @@ func (this *Controller) PublishConceptUpdate(token string, id string, concept mo
 		debug.PrintStack()
 		return concept, err, code
 	}
-	err = this.publisher.PublishConcept(concept, com.GetUserId(token))
+	err = this.publisher.PublishConcept(concept, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return concept, err, http.StatusInternalServerError
@@ -64,12 +64,12 @@ func (this *Controller) PublishConceptUpdate(token string, id string, concept mo
 	return concept, nil, http.StatusOK
 }
 
-func (this *Controller) PublishConceptDelete(token string, id string) (error, int) {
+func (this *Controller) PublishConceptDelete(token auth.Token, id string) (error, int) {
 	err, code := this.com.PermissionCheckForConcept(token, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishConceptDelete(id, com.GetUserId(token))
+	err = this.publisher.PublishConceptDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

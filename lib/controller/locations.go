@@ -18,29 +18,29 @@ package controller
 
 import (
 	"errors"
-	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 )
 
-func (this *Controller) ReadLocation(token string, id string) (Location model.Location, err error, code int) {
+func (this *Controller) ReadLocation(token auth.Token, id string) (Location model.Location, err error, code int) {
 	return this.com.GetLocation(token, id)
 }
 
-func (this *Controller) PublishLocationCreate(token string, Location model.Location) (model.Location, error, int) {
+func (this *Controller) PublishLocationCreate(token auth.Token, Location model.Location) (model.Location, error, int) {
 	Location.GenerateId()
 	err, code := this.com.ValidateLocation(token, Location)
 	if err != nil {
 		return Location, err, code
 	}
-	err = this.publisher.PublishLocation(Location, com.GetUserId(token))
+	err = this.publisher.PublishLocation(Location, token.GetUserId())
 	if err != nil {
 		return Location, err, http.StatusInternalServerError
 	}
 	return Location, nil, http.StatusOK
 }
 
-func (this *Controller) PublishLocationUpdate(token string, id string, location model.Location) (model.Location, error, int) {
+func (this *Controller) PublishLocationUpdate(token auth.Token, id string, location model.Location) (model.Location, error, int) {
 	if location.Id != id {
 		return location, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
@@ -58,19 +58,19 @@ func (this *Controller) PublishLocationUpdate(token string, id string, location 
 	if err != nil {
 		return location, err, code
 	}
-	err = this.publisher.PublishLocation(location, com.GetUserId(token))
+	err = this.publisher.PublishLocation(location, token.GetUserId())
 	if err != nil {
 		return location, err, http.StatusInternalServerError
 	}
 	return location, nil, http.StatusOK
 }
 
-func (this *Controller) PublishLocationDelete(token string, id string) (error, int) {
+func (this *Controller) PublishLocationDelete(token auth.Token, id string) (error, int) {
 	err, code := this.com.PermissionCheckForLocation(token, id, "a")
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishLocationDelete(id, com.GetUserId(token))
+	err = this.publisher.PublishLocationDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

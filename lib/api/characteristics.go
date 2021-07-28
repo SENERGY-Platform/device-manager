@@ -18,7 +18,7 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/api/util"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/julienschmidt/httprouter"
@@ -41,7 +41,12 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishCharacteristicCreate(util.GetAuthToken(request), conceptId, characteristic)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishCharacteristicCreate(token, conceptId, characteristic)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -63,7 +68,12 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishCharacteristicUpdate(util.GetAuthToken(request), conceptId, characteristicId, characteristic)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishCharacteristicUpdate(token, conceptId, characteristicId, characteristic)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -78,7 +88,12 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 
 	router.DELETE(resource+"/:characteristicId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("characteristicId")
-		err, errCode := control.PublishCharacteristicDelete(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err, errCode := control.PublishCharacteristicDelete(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

@@ -17,10 +17,11 @@
 package com
 
 import (
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 )
 
-func (this *Com) ValidateCharacteristic(token string, characteristic model.Characteristic) (err error, code int) {
+func (this *Com) ValidateCharacteristic(token auth.Token, characteristic model.Characteristic) (err error, code int) {
 	list := []string{}
 	if this.config.SemanticRepoUrl != "" && this.config.SemanticRepoUrl != "-" {
 		list = append(list, this.config.SemanticRepoUrl+"/characteristics?dry-run=true")

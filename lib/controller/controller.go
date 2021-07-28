@@ -17,6 +17,7 @@
 package controller
 
 import (
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
@@ -76,46 +77,46 @@ type Publisher interface {
 }
 
 type Com interface {
-	GetTechnicalDeviceGroup(token string, id string) (dt model.DeviceGroup, err error, code int)
-	ValidateDeviceGroup(token string, dt model.DeviceGroup) (err error, code int)
-	PermissionCheckForDeviceGroup(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	GetTechnicalDeviceGroup(token auth.Token, id string) (dt model.DeviceGroup, err error, code int)
+	ValidateDeviceGroup(token auth.Token, dt model.DeviceGroup) (err error, code int)
+	PermissionCheckForDeviceGroup(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	GetTechnicalDeviceType(token string, id string) (dt model.DeviceType, err error, code int)
-	GetSemanticDeviceType(token string, id string) (dt model.DeviceType, err error, code int)
-	ValidateDeviceType(token string, dt model.DeviceType) (err error, code int)
-	PermissionCheckForDeviceType(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	GetTechnicalDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int)
+	GetSemanticDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int)
+	ValidateDeviceType(token auth.Token, dt model.DeviceType) (err error, code int)
+	PermissionCheckForDeviceType(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	GetProtocol(token string, id string) (model.Protocol, error, int)
-	ValidateProtocol(token string, protocol model.Protocol) (err error, code int)
+	GetProtocol(token auth.Token, id string) (model.Protocol, error, int)
+	ValidateProtocol(token auth.Token, protocol model.Protocol) (err error, code int)
 
-	GetDevice(token string, id string) (model.Device, error, int) //uses internal admin jwt
-	ValidateDevice(token string, device model.Device) (err error, code int)
-	PermissionCheckForDevice(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	GetDevice(token auth.Token, id string) (model.Device, error, int) //uses internal admin jwt
+	ValidateDevice(token auth.Token, device model.Device) (err error, code int)
+	PermissionCheckForDevice(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	GetHub(token string, id string) (model.Hub, error, int) //uses internal admin jwt
-	ValidateHub(token string, hub model.Hub) (err error, code int)
-	PermissionCheckForHub(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	GetHub(token auth.Token, id string) (model.Hub, error, int) //uses internal admin jwt
+	ValidateHub(token auth.Token, hub model.Hub) (err error, code int)
+	PermissionCheckForHub(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	ValidateConcept(token string, concept model.Concept) (err error, code int)
-	PermissionCheckForConcept(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	ValidateConcept(token auth.Token, concept model.Concept) (err error, code int)
+	PermissionCheckForConcept(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	ValidateCharacteristic(token string, concept model.Characteristic) (err error, code int)
-	PermissionCheckForCharacteristic(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	ValidateCharacteristic(token auth.Token, concept model.Characteristic) (err error, code int)
+	PermissionCheckForCharacteristic(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	DevicesOfTypeExist(token string, deviceTypeId string) (result bool, err error, code int)
+	DevicesOfTypeExist(token auth.Token, deviceTypeId string) (result bool, err error, code int)
 
-	DeviceLocalIdToId(token string, localId string) (id string, err error, code int)
+	DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, code int)
 
-	GetAspect(token string, id string) (model.Aspect, error, int)
-	ValidateAspect(token string, aspect model.Aspect) (err error, code int)
+	GetAspect(token auth.Token, id string) (model.Aspect, error, int)
+	ValidateAspect(token auth.Token, aspect model.Aspect) (err error, code int)
 
-	GetFunction(token string, id string) (model.Function, error, int)
-	ValidateFunction(token string, function model.Function) (err error, code int)
+	GetFunction(token auth.Token, id string) (model.Function, error, int)
+	ValidateFunction(token auth.Token, function model.Function) (err error, code int)
 
-	GetDeviceClass(token string, id string) (model.DeviceClass, error, int)
-	ValidateDeviceClass(token string, deviceClass model.DeviceClass) (err error, code int)
+	GetDeviceClass(token auth.Token, id string) (model.DeviceClass, error, int)
+	ValidateDeviceClass(token auth.Token, deviceClass model.DeviceClass) (err error, code int)
 
-	GetLocation(token string, id string) (model.Location, error, int)
-	ValidateLocation(token string, Location model.Location) (err error, code int)
-	PermissionCheckForLocation(token string, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	GetLocation(token auth.Token, id string) (model.Location, error, int)
+	ValidateLocation(token auth.Token, Location model.Location) (err error, code int)
+	PermissionCheckForLocation(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 }

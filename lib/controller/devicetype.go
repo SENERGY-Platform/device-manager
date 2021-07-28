@@ -18,14 +18,14 @@ package controller
 
 import (
 	"errors"
-	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 	"runtime/debug"
 	"sort"
 )
 
-func (this *Controller) ReadDeviceType(token string, id string) (dt model.DeviceType, err error, code int) {
+func (this *Controller) ReadDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int) {
 	tdt, err, code := this.com.GetTechnicalDeviceType(token, id)
 	if err != nil {
 		return tdt, err, code
@@ -52,27 +52,27 @@ func (this *Controller) ReadDeviceType(token string, id string) (dt model.Device
 	return tdt, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceTypeCreate(token string, dt model.DeviceType) (model.DeviceType, error, int) {
+func (this *Controller) PublishDeviceTypeCreate(token auth.Token, dt model.DeviceType) (model.DeviceType, error, int) {
 	dt.GenerateId()
 	err, code := this.com.ValidateDeviceType(token, dt)
 	if err != nil {
 		return dt, err, code
 	}
-	err = this.publisher.PublishDeviceType(dt, com.GetUserId(token))
+	err = this.publisher.PublishDeviceType(dt, token.GetUserId())
 	if err != nil {
 		return dt, err, http.StatusInternalServerError
 	}
 	return dt, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceTypeUpdate(token string, id string, dt model.DeviceType) (model.DeviceType, error, int) {
+func (this *Controller) PublishDeviceTypeUpdate(token auth.Token, id string, dt model.DeviceType) (model.DeviceType, error, int) {
 	if dt.Id != id {
 		return dt, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
 
 	dt.GenerateId()
 
-	if !com.IsAdmin(token) {
+	if !token.IsAdmin() {
 		err, code := this.com.PermissionCheckForDeviceType(token, id, "w")
 		if err != nil {
 			debug.PrintStack()
@@ -84,7 +84,7 @@ func (this *Controller) PublishDeviceTypeUpdate(token string, id string, dt mode
 		debug.PrintStack()
 		return dt, err, code
 	}
-	err = this.publisher.PublishDeviceType(dt, com.GetUserId(token))
+	err = this.publisher.PublishDeviceType(dt, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return dt, err, http.StatusInternalServerError
@@ -92,7 +92,7 @@ func (this *Controller) PublishDeviceTypeUpdate(token string, id string, dt mode
 	return dt, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceTypeDelete(token string, id string) (error, int) {
+func (this *Controller) PublishDeviceTypeDelete(token auth.Token, id string) (error, int) {
 	exists, err, code := this.com.DevicesOfTypeExist(token, id)
 	if err != nil {
 		return err, code
@@ -104,7 +104,7 @@ func (this *Controller) PublishDeviceTypeDelete(token string, id string) (error,
 	if err != nil {
 		return err, code
 	}
-	err = this.publisher.PublishDeviceTypeDelete(id, com.GetUserId(token))
+	err = this.publisher.PublishDeviceTypeDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

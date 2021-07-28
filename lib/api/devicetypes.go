@@ -18,7 +18,7 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/api/util"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/julienschmidt/httprouter"
@@ -35,7 +35,12 @@ func DeviceTypesEndpoints(config config.Config, control Controller, router *http
 
 	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		result, err, errCode := control.ReadDeviceType(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.ReadDeviceType(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -55,7 +60,12 @@ func DeviceTypesEndpoints(config config.Config, control Controller, router *http
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceTypeCreate(util.GetAuthToken(request), devicetype)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishDeviceTypeCreate(token, devicetype)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -76,7 +86,12 @@ func DeviceTypesEndpoints(config config.Config, control Controller, router *http
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceTypeUpdate(util.GetAuthToken(request), id, devicetype)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishDeviceTypeUpdate(token, id, devicetype)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -91,7 +106,12 @@ func DeviceTypesEndpoints(config config.Config, control Controller, router *http
 
 	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		err, errCode := control.PublishDeviceTypeDelete(util.GetAuthToken(request), id)
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err, errCode := control.PublishDeviceTypeDelete(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

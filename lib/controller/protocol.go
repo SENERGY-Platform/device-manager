@@ -18,17 +18,17 @@ package controller
 
 import (
 	"errors"
-	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 )
 
-func (this *Controller) ReadProtocol(token string, id string) (protocol model.Protocol, err error, code int) {
+func (this *Controller) ReadProtocol(token auth.Token, id string) (protocol model.Protocol, err error, code int) {
 	return this.com.GetProtocol(token, id)
 }
 
-func (this *Controller) PublishProtocolCreate(token string, protocol model.Protocol) (model.Protocol, error, int) {
-	if !com.IsAdmin(token) {
+func (this *Controller) PublishProtocolCreate(token auth.Token, protocol model.Protocol) (model.Protocol, error, int) {
+	if !token.IsAdmin() {
 		return protocol, errors.New("access denied"), http.StatusForbidden
 	}
 	protocol.GenerateId()
@@ -36,15 +36,15 @@ func (this *Controller) PublishProtocolCreate(token string, protocol model.Proto
 	if err != nil {
 		return protocol, err, code
 	}
-	err = this.publisher.PublishProtocol(protocol, com.GetUserId(token))
+	err = this.publisher.PublishProtocol(protocol, token.GetUserId())
 	if err != nil {
 		return protocol, err, http.StatusInternalServerError
 	}
 	return protocol, nil, http.StatusOK
 }
 
-func (this *Controller) PublishProtocolUpdate(token string, id string, protocol model.Protocol) (model.Protocol, error, int) {
-	if !com.IsAdmin(token) {
+func (this *Controller) PublishProtocolUpdate(token auth.Token, id string, protocol model.Protocol) (model.Protocol, error, int) {
+	if !token.IsAdmin() {
 		return protocol, errors.New("access denied"), http.StatusForbidden
 	}
 	if protocol.Id != id {
@@ -59,18 +59,18 @@ func (this *Controller) PublishProtocolUpdate(token string, id string, protocol 
 	if err != nil {
 		return protocol, err, code
 	}
-	err = this.publisher.PublishProtocol(protocol, com.GetUserId(token))
+	err = this.publisher.PublishProtocol(protocol, token.GetUserId())
 	if err != nil {
 		return protocol, err, http.StatusInternalServerError
 	}
 	return protocol, nil, http.StatusOK
 }
 
-func (this *Controller) PublishProtocolDelete(token string, id string) (error, int) {
-	if !com.IsAdmin(token) {
+func (this *Controller) PublishProtocolDelete(token auth.Token, id string) (error, int) {
+	if !token.IsAdmin() {
 		return errors.New("access denied"), http.StatusForbidden
 	}
-	err := this.publisher.PublishProtocolDelete(id, com.GetUserId(token))
+	err := this.publisher.PublishProtocolDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

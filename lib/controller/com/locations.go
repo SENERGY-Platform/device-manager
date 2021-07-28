@@ -17,15 +17,16 @@
 package com
 
 import (
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 )
 
-func (this *Com) GetLocation(token string, id string) (Location model.Location, err error, code int) {
+func (this *Com) GetLocation(token auth.Token, id string) (Location model.Location, err error, code int) {
 	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/locations", id, &Location)
 	return
 }
 
-func (this *Com) ValidateLocation(token string, Location model.Location) (err error, code int) {
+func (this *Com) ValidateLocation(token auth.Token, Location model.Location) (err error, code int) {
 	return validateResource(token, []string{
 		this.config.SemanticRepoUrl + "/locations?dry-run=true",
 	}, Location)

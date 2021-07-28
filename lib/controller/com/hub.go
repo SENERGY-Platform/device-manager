@@ -17,16 +17,17 @@
 package com
 
 import (
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 )
 
 //expects previous permission check and use own admin jwt to access hub
-func (this *Com) GetHub(token string, id string) (hub model.Hub, err error, code int) {
+func (this *Com) GetHub(token auth.Token, id string) (hub model.Hub, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/hubs", id, &hub)
 	return
 }
 
-func (this *Com) ValidateHub(token string, hub model.Hub) (err error, code int) {
+func (this *Com) ValidateHub(token auth.Token, hub model.Hub) (err error, code int) {
 	return validateResource(token, []string{
 		this.config.DeviceRepoUrl + "/hubs?dry-run=true",
 	}, hub)
