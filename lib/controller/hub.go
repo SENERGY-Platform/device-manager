@@ -40,9 +40,12 @@ func (this *Controller) PublishHubCreate(token auth.Token, hub model.Hub) (model
 	return hub, nil, http.StatusOK
 }
 
-func (this *Controller) PublishHubUpdate(token auth.Token, id string, hub model.Hub) (model.Hub, error, int) {
+func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId string, hub model.Hub) (model.Hub, error, int) {
 	if hub.Id != id {
 		return hub, errors.New("hub id in body unequal to hub id in request endpoint"), http.StatusBadRequest
+	}
+	if userId == "" {
+		userId = token.GetUserId()
 	}
 
 	//replace sub ids and create new ones for new sub elements
@@ -60,7 +63,7 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, hub model.
 	if err != nil {
 		return hub, err, code
 	}
-	err = this.publisher.PublishHub(hub, token.GetUserId())
+	err = this.publisher.PublishHub(hub, userId)
 	if err != nil {
 		return hub, err, http.StatusInternalServerError
 	}
