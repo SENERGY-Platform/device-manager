@@ -49,11 +49,14 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, hub model.
 	hub.GenerateId()
 	hub.Id = id
 
-	err, code := this.com.PermissionCheckForHub(token, id, "w")
-	if err != nil {
-		return hub, err, code
+	if !token.IsAdmin() {
+		err, code := this.com.PermissionCheckForHub(token, id, "w")
+		if err != nil {
+			return hub, err, code
+		}
 	}
-	err, code = this.com.ValidateHub(token, hub)
+
+	err, code := this.com.ValidateHub(token, hub)
 	if err != nil {
 		return hub, err, code
 	}
