@@ -30,6 +30,7 @@ import (
 type Config struct {
 	LogLevel   string `json:"log_level"` //DEBUG | CALL | NONE
 	ServerPort string `json:"server_port"`
+	Debug      bool   `json:"debug"`
 
 	PermissionsUrl      string `json:"permissions_url"`
 	DeviceTopic         string `json:"device_topic"`
@@ -46,6 +47,9 @@ type Config struct {
 	SemanticRepoUrl     string `json:"semantic_repo_url"`
 	KafkaUrl            string `json:"kafka_url"`
 	LocationTopic       string `json:"location_topic"`
+	UserTopic           string `json:"user_topic"`
+	GroupId             string `json:"group_id"`
+	PermissionsTopic    string `json:"permissions_topic"`
 }
 
 //loads config from json in location and used environment variables (e.g KafkaUrl --> KAFKA_URL)

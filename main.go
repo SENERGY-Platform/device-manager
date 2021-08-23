@@ -37,7 +37,8 @@ func main() {
 		log.Fatal("ERROR: unable to load config", err)
 	}
 
-	ctrl, err := controller.New(conf)
+	ctx, cancel := context.WithCancel(context.Background())
+	ctrl, err := controller.New(ctx, conf)
 	if err != nil {
 		log.Fatal("ERROR: unable to start controller", err)
 	}
@@ -50,6 +51,7 @@ func main() {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 	sig := <-shutdown
+	cancel()
 	log.Println("received shutdown signal", sig)
 	log.Println(srv.Shutdown(context.Background()))
 }

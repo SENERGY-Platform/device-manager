@@ -17,11 +17,13 @@
 package controller
 
 import (
+	"context"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/kafka/listener"
+	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	"github.com/SENERGY-Platform/device-manager/lib/publisher"
 )
 
 type Controller struct {
@@ -29,12 +31,24 @@ type Controller struct {
 	com       Com
 }
 
-func New(conf config.Config) (*Controller, error) {
+func New(basectx context.Context, conf config.Config) (ctrl *Controller, err error) {
+	ctx, cancel := context.WithCancel(basectx)
+	defer func() {
+		if err != nil {
+			cancel()
+		}
+	}()
 	publ, err := publisher.New(conf)
 	if err != nil {
 		return &Controller{}, err
 	}
-	return &Controller{com: com.New(conf), publisher: publ}, nil
+	go func() {
+		<-ctx.Done()
+		publ.Close()
+	}()
+	ctrl = &Controller{com: com.New(conf), publisher: publ}
+	err = listener.Start(ctx, conf, ctrl)
+	return
 }
 
 func NewWithPublisher(conf config.Config, publisher Publisher) (*Controller, error) {
@@ -74,9 +88,13 @@ type Publisher interface {
 
 	PublishLocation(device model.Location, userID string) (err error)
 	PublishLocationDelete(id string, userID string) error
+
+	PublishDeleteUserRights(resource string, id string, userId string) error
 }
 
 type Com interface {
+	ResourcesEffectedByUserDelete(token auth.Token, resource string) (deleteResourceIds []string, deleteUserFromResourceIds []string, err error)
+
 	GetTechnicalDeviceGroup(token auth.Token, id string) (dt model.DeviceGroup, err error, code int)
 	ValidateDeviceGroup(token auth.Token, dt model.DeviceGroup) (err error, code int)
 	PermissionCheckForDeviceGroup(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"

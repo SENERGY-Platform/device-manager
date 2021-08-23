@@ -18,8 +18,8 @@ package servicemocks
 
 import (
 	"encoding/json"
+	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	"github.com/SENERGY-Platform/device-manager/lib/publisher"
 )
 
 var DtTopic = "devicetype"
@@ -33,6 +33,7 @@ var AspectTopic = "aspcet"
 var FunctionTopic = "function"
 var DeviceClassTopic = "function"
 var LocationTopic = "locations"
+var PermissionsTopic = "permissions"
 
 type Publisher struct {
 	listener map[string][]func(msg []byte)
@@ -249,4 +250,18 @@ func (this *Publisher) PublishLocationDelete(id string, userId string) error {
 		return err
 	}
 	return this.send(LocationTopic, message)
+}
+
+func (this *Publisher) PublishDeleteUserRights(resource string, id string, userId string) error {
+	cmd := publisher.PermCommandMsg{
+		Command:  "DELETE",
+		Kind:     resource,
+		Resource: id,
+		User:     userId,
+	}
+	message, err := json.Marshal(cmd)
+	if err != nil {
+		return err
+	}
+	return this.send(PermissionsTopic, message)
 }

@@ -19,6 +19,7 @@ package publisher
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/device-manager/lib/kafka/util"
 	"github.com/segmentio/kafka-go"
 	"io/ioutil"
 	"log"
@@ -38,11 +39,27 @@ type Publisher struct {
 	functions       *kafka.Writer
 	deviceclasses   *kafka.Writer
 	locations       *kafka.Writer
+	permissions     *kafka.Writer
+}
+
+func (this *Publisher) Close() {
+	this.devicetypes.Close()
+	this.devicegroups.Close()
+	this.protocols.Close()
+	this.devices.Close()
+	this.hubs.Close()
+	this.concepts.Close()
+	this.characteristics.Close()
+	this.aspects.Close()
+	this.functions.Close()
+	this.deviceclasses.Close()
+	this.locations.Close()
+	this.permissions.Close()
 }
 
 func New(conf config.Config) (*Publisher, error) {
 	log.Println("ensure kafka topics")
-	err := InitTopic(
+	err := util.InitTopic(
 		conf.KafkaUrl,
 		conf.DeviceTypeTopic,
 		conf.DeviceGroupTopic,
@@ -54,11 +71,12 @@ func New(conf config.Config) (*Publisher, error) {
 		conf.AspectTopic,
 		conf.FunctionTopic,
 		conf.DeviceClassTopic,
-		conf.LocationTopic)
+		conf.LocationTopic,
+		conf.PermissionsTopic)
 	if err != nil {
 		return nil, err
 	}
-	broker, err := GetBroker(conf.KafkaUrl)
+	broker, err := util.GetBroker(conf.KafkaUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -110,6 +128,10 @@ func New(conf config.Config) (*Publisher, error) {
 	if err != nil {
 		return nil, err
 	}
+	permissions, err := getProducer(broker, conf.PermissionsTopic, conf.LogLevel == "DEBUG")
+	if err != nil {
+		return nil, err
+	}
 	return &Publisher{
 		config:          conf,
 		devicetypes:     devicetypes,
@@ -123,6 +145,7 @@ func New(conf config.Config) (*Publisher, error) {
 		functions:       function,
 		deviceclasses:   deviceclass,
 		locations:       location,
+		permissions:     permissions,
 	}, nil
 }
 

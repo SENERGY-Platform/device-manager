@@ -1,6 +1,7 @@
 {
   "log_level": "CALL",
   "server_port": "8080",
+  "debug": false,
   "permissions_url": "http://perm:8080",
   "device_topic": "devices",
   "hub_topic": "hubs",
@@ -15,5 +16,8 @@
   "location_topic": "locations",
   "device_repo_url": "http://device-repo:8080",
   "semantic_repo_url": "http://semantic-repo:8080",
-  "kafka_url": "kafka_url:9092"
+  "kafka_url": "kafka_url:9092",
+  "user_topic": "user",
+  "group_id": "device-manager",
+  "permissions_topic": "permissions"
 }

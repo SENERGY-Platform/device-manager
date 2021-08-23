@@ -18,8 +18,8 @@ package servicemocks
 
 import (
 	"encoding/json"
+	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	"github.com/SENERGY-Platform/device-manager/lib/publisher"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"net/http/httptest"
