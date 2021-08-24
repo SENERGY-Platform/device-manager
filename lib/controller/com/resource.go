@@ -88,14 +88,50 @@ type PermissionHolders struct {
 	ExecuteUsers []string `json:"execute_users"`
 }
 
+var ResourcesEffectedByUserDelete_BATCH_SIZE = 1000
+
 func (this *Com) ResourcesEffectedByUserDelete(token auth.Token, resource string) (deleteResourceIds []string, deleteUserFromResourceIds []string, err error) {
-	rights := "a"
-	limit := 1000
-	lastCount := limit
+	err = this.iterateResource(token, resource, ResourcesEffectedByUserDelete_BATCH_SIZE, "a", func(element PermSearchElement) {
+		if len(element.PermissionHolders.AdminUsers) > 1 {
+			deleteUserFromResourceIds = append(deleteUserFromResourceIds, element.Id)
+		} else {
+			deleteResourceIds = append(deleteResourceIds, element.Id)
+		}
+	})
+	if err != nil {
+		return
+	}
+	userid := token.GetUserId()
+	err = this.iterateResource(token, resource, ResourcesEffectedByUserDelete_BATCH_SIZE, "r", func(element PermSearchElement) {
+		if !contains(element.PermissionHolders.AdminUsers, userid) {
+			deleteUserFromResourceIds = append(deleteUserFromResourceIds, element.Id)
+		}
+	})
+	err = this.iterateResource(token, resource, ResourcesEffectedByUserDelete_BATCH_SIZE, "w", func(element PermSearchElement) {
+		if !contains(element.PermissionHolders.AdminUsers, userid) &&
+			!contains(element.PermissionHolders.ReadUsers, userid) {
+			deleteUserFromResourceIds = append(deleteUserFromResourceIds, element.Id)
+		}
+	})
+	err = this.iterateResource(token, resource, ResourcesEffectedByUserDelete_BATCH_SIZE, "x", func(element PermSearchElement) {
+		if !contains(element.PermissionHolders.AdminUsers, userid) &&
+			!contains(element.PermissionHolders.ReadUsers, userid) &&
+			!contains(element.PermissionHolders.WriteUsers, userid) {
+			deleteUserFromResourceIds = append(deleteUserFromResourceIds, element.Id)
+		}
+	})
+	if err != nil {
+		return
+	}
+	return deleteResourceIds, deleteUserFromResourceIds, err
+}
+
+func (this *Com) iterateResource(token auth.Token, resource string, batchsize int, rights string, handler func(element PermSearchElement)) (err error) {
+	lastCount := batchsize
 	lastElement := PermSearchElement{}
-	for lastCount == limit {
+	for lastCount == batchsize {
 		query := url.Values{}
-		query.Add("limit", strconv.Itoa(limit))
+		query.Add("limit", strconv.Itoa(batchsize))
 		query.Add("sort", "name.asc")
 		query.Add("rights", rights)
 		if lastElement.Id == "" {
@@ -103,7 +139,7 @@ func (this *Com) ResourcesEffectedByUserDelete(token auth.Token, resource string
 		} else {
 			name, err := json.Marshal(lastElement.Name)
 			if err != nil {
-				return deleteResourceIds, deleteUserFromResourceIds, err
+				return err
 			}
 			query.Add("after.sort_field_value", string(name))
 			query.Add("after.id", lastElement.Id)
@@ -111,19 +147,17 @@ func (this *Com) ResourcesEffectedByUserDelete(token auth.Token, resource string
 		temp := []PermSearchElement{}
 		err = this.queryResourceInPermsearch(token, resource, query, &temp)
 		if err != nil {
-			return deleteResourceIds, deleteUserFromResourceIds, err
+			return err
 		}
 		lastCount = len(temp)
-		lastElement = temp[lastCount-1]
+		if lastCount > 0 {
+			lastElement = temp[lastCount-1]
+		}
 		for _, element := range temp {
-			if len(element.PermissionHolders.AdminUsers) > 1 {
-				deleteUserFromResourceIds = append(deleteUserFromResourceIds, element.Id)
-			} else {
-				deleteResourceIds = append(deleteResourceIds, element.Id)
-			}
+			handler(element)
 		}
 	}
-	return deleteResourceIds, deleteUserFromResourceIds, err
+	return err
 }
 
 func (this *Com) queryResourceInPermsearch(token auth.Token, resource string, query url.Values, result interface{}) (err error) {

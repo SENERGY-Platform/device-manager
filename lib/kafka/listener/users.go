@@ -32,7 +32,7 @@ type UserCommandMsg struct {
 }
 
 func UsersListenerFactory(config config.Config, control Controller) (topic string, listener Listener, err error) {
-	return config.DeviceTopic, func(msg []byte) (err error) {
+	return config.UserTopic, func(msg []byte) (err error) {
 		command := UserCommandMsg{}
 		err = json.Unmarshal(msg, &command)
 		if err != nil {

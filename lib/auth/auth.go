@@ -92,7 +92,11 @@ type KeycloakClaims struct {
 }
 
 func CreateToken(issuer string, userId string) (token Token, err error) {
-	realmAccess := RealmAccess{Roles: []string{}}
+	return CreateTokenWithRoles(issuer, userId, []string{})
+}
+
+func CreateTokenWithRoles(issuer string, userId string, roles []string) (token Token, err error) {
+	realmAccess := RealmAccess{Roles: roles}
 	claims := KeycloakClaims{
 		realmAccess,
 		jwt.StandardClaims{
