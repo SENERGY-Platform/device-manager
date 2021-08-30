@@ -29,6 +29,7 @@ import (
 type Controller struct {
 	publisher Publisher
 	com       Com
+	config    config.Config
 }
 
 func New(basectx context.Context, conf config.Config) (ctrl *Controller, err error) {
@@ -46,7 +47,7 @@ func New(basectx context.Context, conf config.Config) (ctrl *Controller, err err
 		<-ctx.Done()
 		publ.Close()
 	}()
-	ctrl = &Controller{com: com.New(conf), publisher: publ}
+	ctrl = &Controller{com: com.New(conf), publisher: publ, config: conf}
 	err = listener.Start(ctx, conf, ctrl)
 	return
 }

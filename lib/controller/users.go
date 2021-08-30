@@ -18,18 +18,13 @@ package controller
 
 import "github.com/SENERGY-Platform/device-manager/lib/auth"
 
-const deviceResource = "devices"
-const deviceGroupResource = "device-groups"
-const hubResource = "hubs"
-const locationsResource = "locations"
-
 func (this *Controller) DeleteUser(userId string) error {
 	token, err := auth.CreateToken("device-manager", userId)
 	if err != nil {
 		return err
 	}
 	//devices
-	devicesToDelete, userToDeleteFromDevices, err := this.com.ResourcesEffectedByUserDelete(token, deviceResource)
+	devicesToDelete, userToDeleteFromDevices, err := this.com.ResourcesEffectedByUserDelete(token, this.config.DeviceTopic)
 	if err != nil {
 		return err
 	}
@@ -40,13 +35,13 @@ func (this *Controller) DeleteUser(userId string) error {
 		}
 	}
 	for _, id := range userToDeleteFromDevices {
-		err = this.publisher.PublishDeleteUserRights(deviceResource, id, userId)
+		err = this.publisher.PublishDeleteUserRights(this.config.DeviceTopic, id, userId)
 		if err != nil {
 			return err
 		}
 	}
 	//device-groups
-	deviceGroupToDelete, userToDeleteFromDeviceGroups, err := this.com.ResourcesEffectedByUserDelete(token, deviceGroupResource)
+	deviceGroupToDelete, userToDeleteFromDeviceGroups, err := this.com.ResourcesEffectedByUserDelete(token, this.config.DeviceGroupTopic)
 	if err != nil {
 		return err
 	}
@@ -57,13 +52,13 @@ func (this *Controller) DeleteUser(userId string) error {
 		}
 	}
 	for _, id := range userToDeleteFromDeviceGroups {
-		err = this.publisher.PublishDeleteUserRights(deviceGroupResource, id, userId)
+		err = this.publisher.PublishDeleteUserRights(this.config.DeviceGroupTopic, id, userId)
 		if err != nil {
 			return err
 		}
 	}
 	//hubs
-	hubToDelete, userToDeleteFromHubs, err := this.com.ResourcesEffectedByUserDelete(token, hubResource)
+	hubToDelete, userToDeleteFromHubs, err := this.com.ResourcesEffectedByUserDelete(token, this.config.HubTopic)
 	if err != nil {
 		return err
 	}
@@ -74,13 +69,13 @@ func (this *Controller) DeleteUser(userId string) error {
 		}
 	}
 	for _, id := range userToDeleteFromHubs {
-		err = this.publisher.PublishDeleteUserRights(hubResource, id, userId)
+		err = this.publisher.PublishDeleteUserRights(this.config.HubTopic, id, userId)
 		if err != nil {
 			return err
 		}
 	}
 	//locations
-	locationToDelete, userToDeleteFromLocations, err := this.com.ResourcesEffectedByUserDelete(token, locationsResource)
+	locationToDelete, userToDeleteFromLocations, err := this.com.ResourcesEffectedByUserDelete(token, this.config.LocationTopic)
 	if err != nil {
 		return err
 	}
@@ -91,7 +86,7 @@ func (this *Controller) DeleteUser(userId string) error {
 		}
 	}
 	for _, id := range userToDeleteFromLocations {
-		err = this.publisher.PublishDeleteUserRights(locationsResource, id, userId)
+		err = this.publisher.PublishDeleteUserRights(this.config.LocationTopic, id, userId)
 		if err != nil {
 			return err
 		}
