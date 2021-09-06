@@ -19,5 +19,6 @@
   "kafka_url": "kafka_url:9092",
   "user_topic": "user",
   "group_id": "device-manager",
-  "permissions_topic": "permissions"
+  "permissions_topic": "permissions",
+  "edit_forward": ""
 }

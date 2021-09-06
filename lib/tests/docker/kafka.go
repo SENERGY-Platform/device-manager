@@ -18,6 +18,7 @@ package docker
 
 import (
 	"context"
+	"errors"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/segmentio/kafka-go"
@@ -31,7 +32,7 @@ import (
 func Kafka(pool *dockertest.Pool, ctx context.Context, wg *sync.WaitGroup, zookeeperUrl string) (kafkaUrl string, err error) {
 	kafkaport, err := getFreePort()
 	if err != nil {
-		log.Fatalf("Could not find new port: %s", err)
+		return "", errors.New("Could not find new port")
 	}
 	networks, _ := pool.Client.ListNetworks()
 	hostIp := ""
@@ -81,7 +82,7 @@ func Kafka(pool *dockertest.Pool, ctx context.Context, wg *sync.WaitGroup, zooke
 func Zookeeper(pool *dockertest.Pool, ctx context.Context, wg *sync.WaitGroup) (hostPort string, ipAddress string, err error) {
 	zkport, err := getFreePort()
 	if err != nil {
-		log.Fatalf("Could not find new port: %s", err)
+		return "", "", errors.New("Could not find new port")
 	}
 	env := []string{}
 	log.Println("start zookeeper on ", zkport)

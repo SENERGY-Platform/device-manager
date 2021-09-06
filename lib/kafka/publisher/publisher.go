@@ -17,6 +17,7 @@
 package publisher
 
 import (
+	"context"
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/util"
@@ -42,22 +43,7 @@ type Publisher struct {
 	permissions     *kafka.Writer
 }
 
-func (this *Publisher) Close() {
-	this.devicetypes.Close()
-	this.devicegroups.Close()
-	this.protocols.Close()
-	this.devices.Close()
-	this.hubs.Close()
-	this.concepts.Close()
-	this.characteristics.Close()
-	this.aspects.Close()
-	this.functions.Close()
-	this.deviceclasses.Close()
-	this.locations.Close()
-	this.permissions.Close()
-}
-
-func New(conf config.Config) (*Publisher, error) {
+func New(conf config.Config, ctx context.Context) (*Publisher, error) {
 	log.Println("ensure kafka topics")
 	err := util.InitTopic(
 		conf.KafkaUrl,
@@ -84,54 +70,18 @@ func New(conf config.Config) (*Publisher, error) {
 		return nil, errors.New("missing kafka broker")
 	}
 	log.Println("Produce to ", conf.DeviceTypeTopic, conf.ProtocolTopic, conf.DeviceTopic, conf.HubTopic, conf.ConceptTopic, conf.CharacteristicTopic, conf.LocationTopic)
-	devicetypes, err := getProducer(broker, conf.DeviceTypeTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
-	devicegroups, err := getProducer(broker, conf.DeviceGroupTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
-	devices, err := getProducer(broker, conf.DeviceTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
-	hubs, err := getProducer(broker, conf.HubTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
-	protocol, err := getProducer(broker, conf.ProtocolTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
-	concepts, err := getProducer(broker, conf.ConceptTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
-	characteristics, err := getProducer(broker, conf.CharacteristicTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
-	aspect, err := getProducer(broker, conf.AspectTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
-	function, err := getProducer(broker, conf.FunctionTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
-	deviceclass, err := getProducer(broker, conf.DeviceClassTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
-	location, err := getProducer(broker, conf.LocationTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
-	permissions, err := getProducer(broker, conf.PermissionsTopic, conf.LogLevel == "DEBUG")
-	if err != nil {
-		return nil, err
-	}
+	devicetypes := getProducer(ctx, broker, conf.DeviceTypeTopic, conf.LogLevel == "DEBUG")
+	devicegroups := getProducer(ctx, broker, conf.DeviceGroupTopic, conf.LogLevel == "DEBUG")
+	devices := getProducer(ctx, broker, conf.DeviceTopic, conf.LogLevel == "DEBUG")
+	hubs := getProducer(ctx, broker, conf.HubTopic, conf.LogLevel == "DEBUG")
+	protocol := getProducer(ctx, broker, conf.ProtocolTopic, conf.LogLevel == "DEBUG")
+	concepts := getProducer(ctx, broker, conf.ConceptTopic, conf.LogLevel == "DEBUG")
+	characteristics := getProducer(ctx, broker, conf.CharacteristicTopic, conf.LogLevel == "DEBUG")
+	aspect := getProducer(ctx, broker, conf.AspectTopic, conf.LogLevel == "DEBUG")
+	function := getProducer(ctx, broker, conf.FunctionTopic, conf.LogLevel == "DEBUG")
+	deviceclass := getProducer(ctx, broker, conf.DeviceClassTopic, conf.LogLevel == "DEBUG")
+	location := getProducer(ctx, broker, conf.LocationTopic, conf.LogLevel == "DEBUG")
+	permissions := getProducer(ctx, broker, conf.PermissionsTopic, conf.LogLevel == "DEBUG")
 	return &Publisher{
 		config:          conf,
 		devicetypes:     devicetypes,
@@ -149,7 +99,7 @@ func New(conf config.Config) (*Publisher, error) {
 	}, nil
 }
 
-func getProducer(broker []string, topic string, debug bool) (writer *kafka.Writer, err error) {
+func getProducer(ctx context.Context, broker []string, topic string, debug bool) (writer *kafka.Writer) {
 	var logger *log.Logger
 	if debug {
 		logger = log.New(os.Stdout, "[KAFKA-PRODUCER] ", 0)
@@ -162,5 +112,12 @@ func getProducer(broker []string, topic string, debug bool) (writer *kafka.Write
 		MaxAttempts: 10,
 		Logger:      logger,
 	}
-	return writer, err
+	go func() {
+		<-ctx.Done()
+		err := writer.Close()
+		if err != nil {
+			log.Println("ERROR: unable to close producer for", topic, err)
+		}
+	}()
+	return writer
 }

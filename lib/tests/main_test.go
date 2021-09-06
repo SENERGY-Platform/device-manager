@@ -24,7 +24,6 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/servicemocks"
 
-	"log"
 	"strconv"
 	"testing"
 	"time"
@@ -68,7 +67,94 @@ func TestWithMock(t *testing.T) {
 
 	srv, err := api.Start(conf, ctrl)
 	if err != nil {
-		log.Fatal("ERROR: unable to start api", err)
+		t.Fatal("ERROR: unable to start api", err)
+	}
+	defer srv.Shutdown(context.Background())
+
+	time.Sleep(200 * time.Millisecond)
+
+	t.Run("aspects", testAspect(conf.ServerPort))
+	t.Run("functions", testFunction(conf.ServerPort))
+	t.Run("deviceclasses", testDeviceClass(conf.ServerPort))
+	t.Run("locations", testLocation(conf.ServerPort))
+
+	t.Run("testDeviceType", func(t *testing.T) {
+		testDeviceType(t, conf.ServerPort)
+	})
+
+	t.Run("testDevice", func(t *testing.T) {
+		testDevice(t, conf.ServerPort)
+	})
+
+	t.Run("testLocalDevice", func(t *testing.T) {
+		t.Skip("missing endpoint in permissions search mock")
+		testLocalDevice(t, conf.ServerPort)
+	})
+
+	t.Run("testHub", func(t *testing.T) {
+		testHub(t, conf.ServerPort)
+	})
+
+	t.Run("testConcepts", func(t *testing.T) {
+		testConcepts(t, conf)
+	})
+
+	t.Run("testCharacteristics", func(t *testing.T) {
+		testCharacteristics(t, conf)
+	})
+
+	t.Run("testDeviceGroup", testDeviceGroup(conf.ServerPort))
+
+	t.Run("testDeviceBatchDelete", testDeviceBatchDelete(conf.ServerPort))
+}
+
+func TestWithEditRedirect(t *testing.T) {
+	conf, err := config.Load("./../../config.json")
+	if err != nil {
+		t.Fatal("ERROR: unable to load config", err)
+	}
+	servicemocks.DtTopic = conf.DeviceTypeTopic
+	servicemocks.ProtocolTopic = conf.ProtocolTopic
+	servicemocks.DeviceTopic = conf.DeviceTopic
+	servicemocks.ConceptTopic = conf.ConceptTopic
+	servicemocks.CharacteristicTopic = conf.ConceptTopic
+	servicemocks.AspectTopic = conf.AspectTopic
+	servicemocks.FunctionTopic = conf.FunctionTopic
+	servicemocks.DeviceClassTopic = conf.DeviceClassTopic
+	servicemocks.DeviceGroupTopic = conf.DeviceGroupTopic
+	servicemocks.LocationTopic = conf.LocationTopic
+	servicemocks.PermissionsTopic = conf.PermissionsTopic
+
+	publ, conf, stop := servicemocks.New(conf)
+	defer stop()
+
+	port, err := helper.GetFreePort()
+	if err != nil {
+		t.Fatal(err)
+	}
+	conf.ServerPort = strconv.Itoa(port)
+
+	ctrl, err := controller.NewWithPublisher(conf, publ)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	editPort, err := helper.GetFreePort()
+	if err != nil {
+		t.Fatal(err)
+	}
+	editConf := conf
+	editConf.ServerPort = strconv.Itoa(editPort)
+	editServ, err := api.Start(editConf, ctrl)
+	if err != nil {
+		t.Fatal("ERROR: unable to start api", err)
+	}
+	defer editServ.Shutdown(context.Background())
+	conf.EditForward = "http://localhost" + editServ.Addr
+
+	srv, err := api.Start(conf, ctrl)
+	if err != nil {
+		t.Fatal("ERROR: unable to start api", err)
 	}
 	defer srv.Shutdown(context.Background())
 

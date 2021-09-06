@@ -18,7 +18,6 @@ package listener
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 )
 
@@ -36,14 +35,11 @@ func UsersListenerFactory(config config.Config, control Controller) (topic strin
 		command := UserCommandMsg{}
 		err = json.Unmarshal(msg, &command)
 		if err != nil {
-			return
+			return err
 		}
-		switch command.Command {
-		case "PUT":
-			return nil
-		case "DELETE":
+		if command.Command == "DELETE" {
 			return control.DeleteUser(command.Id)
 		}
-		return errors.New("unable to handle command: " + string(msg))
+		return nil
 	}, nil
 }

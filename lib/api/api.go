@@ -38,8 +38,16 @@ func Start(config config.Config, control Controller) (srv *http.Server, err erro
 	log.Println("add logging and cors")
 	corsHandler := util.NewCors(router)
 	logger := util.NewLogger(corsHandler, config.LogLevel)
+	var handler http.Handler
+	if config.EditForward == "" || config.EditForward == "-" {
+		handler = logger
+	} else {
+		handler = util.NewConditionalForward(logger, config.EditForward, func(r *http.Request) bool {
+			return r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete
+		})
+	}
 	log.Println("listen on port", config.ServerPort)
-	srv = &http.Server{Addr: ":" + config.ServerPort, Handler: logger}
+	srv = &http.Server{Addr: ":" + config.ServerPort, Handler: handler}
 	go func() { log.Println(srv.ListenAndServe()) }()
 	return srv, nil
 }

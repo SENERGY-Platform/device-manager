@@ -32,6 +32,8 @@ type Config struct {
 	ServerPort string `json:"server_port"`
 	Debug      bool   `json:"debug"`
 
+	EditForward string `json:"edit_forward"`
+
 	PermissionsUrl      string `json:"permissions_url"`
 	DeviceTopic         string `json:"device_topic"`
 	DeviceTypeTopic     string `json:"device_type_topic"`

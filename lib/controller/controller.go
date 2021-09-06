@@ -39,16 +39,19 @@ func New(basectx context.Context, conf config.Config) (ctrl *Controller, err err
 			cancel()
 		}
 	}()
-	publ, err := publisher.New(conf)
-	if err != nil {
-		return &Controller{}, err
+	var publ Publisher
+	if conf.EditForward == "" || conf.EditForward == "-" {
+		publ, err = publisher.New(conf, ctx)
+		if err != nil {
+			return &Controller{}, err
+		}
+	} else {
+		publ = publisher.Void{}
 	}
-	go func() {
-		<-ctx.Done()
-		publ.Close()
-	}()
 	ctrl = &Controller{com: com.New(conf), publisher: publ, config: conf}
-	err = listener.Start(ctx, conf, ctrl)
+	if conf.EditForward == "" || conf.EditForward == "-" {
+		err = listener.Start(ctx, conf, ctrl)
+	}
 	return
 }
 
