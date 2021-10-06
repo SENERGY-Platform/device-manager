@@ -19,12 +19,15 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"log"
+	"net/http"
 	"os"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Config struct {
@@ -52,22 +55,21 @@ type Config struct {
 	UserTopic           string `json:"user_topic"`
 	GroupId             string `json:"group_id"`
 	PermissionsTopic    string `json:"permissions_topic"`
+	HttpClientTimeout   string `json:"http_client_timeout"`
 }
 
 //loads config from json in location and used environment variables (e.g KafkaUrl --> KAFKA_URL)
 func Load(location string) (config Config, err error) {
-	file, error := os.Open(location)
-	if error != nil {
-		log.Println("error on config load: ", error)
-		return config, error
+	file, err := os.Open(location)
+	if err != nil {
+		return config, errors.WithStack(err)
 	}
-	decoder := json.NewDecoder(file)
-	error = decoder.Decode(&config)
-	if error != nil {
-		log.Println("invalid config json: ", error)
-		return config, error
+	err = json.NewDecoder(file).Decode(&config)
+	if err != nil {
+		return config, errors.WithStack(err)
 	}
 	handleEnvironmentVars(&config)
+	setDefaultHttpClient(config)
 	return config, nil
 }
 
@@ -129,5 +131,13 @@ func handleEnvironmentVars(config *Config) {
 				configValue.FieldByName(fieldName).Set(reflect.ValueOf(value))
 			}
 		}
+	}
+}
+
+func setDefaultHttpClient(config Config) {
+	var err error
+	http.DefaultClient.Timeout, err = time.ParseDuration(config.HttpClientTimeout)
+	if err != nil {
+		log.Println("WARNING: invalid http timeout --> no timeouts\n", err)
 	}
 }
