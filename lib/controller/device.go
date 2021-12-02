@@ -53,11 +53,13 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 	device.GenerateId()
 	device.Id = id
 
-	err, code := this.com.PermissionCheckForDevice(token, id, "w")
-	if err != nil {
-		return device, err, code
+	if !token.IsAdmin() {
+		err, code := this.com.PermissionCheckForDevice(token, id, "w")
+		if err != nil {
+			return device, err, code
+		}
 	}
-	err, code = this.com.ValidateDevice(token, device)
+	err, code := this.com.ValidateDevice(token, device)
 	if err != nil {
 		return device, err, code
 	}
