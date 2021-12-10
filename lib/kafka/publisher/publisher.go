@@ -111,6 +111,7 @@ func getProducer(ctx context.Context, broker []string, topic string, debug bool)
 		Topic:       topic,
 		MaxAttempts: 10,
 		Logger:      logger,
+		BatchSize:   1,
 	}
 	go func() {
 		<-ctx.Done()
