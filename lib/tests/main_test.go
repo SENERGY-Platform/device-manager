@@ -86,6 +86,10 @@ func TestWithMock(t *testing.T) {
 		testDevice(t, conf.ServerPort)
 	})
 
+	t.Run("testDeviceAttributes", func(t *testing.T) {
+		testDeviceAttributes(t, conf.ServerPort)
+	})
+
 	t.Run("testLocalDevice", func(t *testing.T) {
 		t.Skip("missing endpoint in permissions search mock")
 		testLocalDevice(t, conf.ServerPort)
@@ -171,6 +175,10 @@ func TestWithEditRedirect(t *testing.T) {
 
 	t.Run("testDevice", func(t *testing.T) {
 		testDevice(t, conf.ServerPort)
+	})
+
+	t.Run("testDeviceAttributes", func(t *testing.T) {
+		testDeviceAttributes(t, conf.ServerPort)
 	})
 
 	t.Run("testLocalDevice", func(t *testing.T) {
