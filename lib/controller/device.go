@@ -44,22 +44,29 @@ func (this *Controller) PublishDeviceCreate(token auth.Token, device model.Devic
 	return device, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device model.Device) (model.Device, error, int) {
+//admins may create new devices but only without setting options.UpdateOnlySameOriginAttributes
+func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device model.Device, options model.DeviceUpdateOptions) (_ model.Device, err error, code int) {
 	if device.Id != id {
 		return device, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
 
-	//replace sub ids and create new ones for new sub elements
-	device.GenerateId()
-	device.Id = id
-
 	if !token.IsAdmin() {
-		err, code := this.com.PermissionCheckForDevice(token, id, "w")
+		err, code = this.com.PermissionCheckForDevice(token, id, "w")
 		if err != nil {
 			return device, err, code
 		}
 	}
-	err, code := this.com.ValidateDevice(token, device)
+
+	if options.UpdateOnlySameOriginAttributes != nil {
+		var original model.Device
+		original, err, code = this.com.GetDevice(token, device.Id)
+		if err != nil {
+			return device, err, code
+		}
+		device.Attributes = updateSameOriginAttributes(original.Attributes, device.Attributes, *options.UpdateOnlySameOriginAttributes)
+	}
+
+	err, code = this.com.ValidateDevice(token, device)
 	if err != nil {
 		return device, err, code
 	}

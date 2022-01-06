@@ -34,7 +34,7 @@ type Controller interface {
 
 	ReadDevice(token auth.Token, id string) (device model.Device, err error, code int)
 	PublishDeviceCreate(token auth.Token, dt model.Device) (result model.Device, err error, code int)
-	PublishDeviceUpdate(token auth.Token, id string, device model.Device) (result model.Device, err error, code int)
+	PublishDeviceUpdate(token auth.Token, id string, device model.Device, options model.DeviceUpdateOptions) (result model.Device, err error, code int)
 	PublishDeviceDelete(token auth.Token, id string) (err error, code int)
 
 	ReadHub(token auth.Token, id string) (hub model.Hub, err error, code int)

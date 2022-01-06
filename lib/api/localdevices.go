@@ -83,6 +83,7 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 		return
 	})
 
+	//admins may create new devices but only without using the UpdateOnlySameOriginAttributesKey query parameter
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		token, err := auth.GetParsedToken(request)
@@ -101,7 +102,14 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceUpdate(token, id, device)
+
+		options := model.DeviceUpdateOptions{}
+		if request.URL.Query().Has(UpdateOnlySameOriginAttributesKey) {
+			temp := request.URL.Query().Get(UpdateOnlySameOriginAttributesKey)
+			options.UpdateOnlySameOriginAttributes = &temp
+		}
+
+		result, err, errCode := control.PublishDeviceUpdate(token, id, device, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

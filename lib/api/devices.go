@@ -30,6 +30,8 @@ func init() {
 	endpoints = append(endpoints, DevicesEndpoints)
 }
 
+const UpdateOnlySameOriginAttributesKey = "update-only-same-origin-attributes"
+
 func DevicesEndpoints(config config.Config, control Controller, router *httprouter.Router) {
 	resource := "/devices"
 
@@ -78,6 +80,7 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 		return
 	})
 
+	//admins may create new devices but only without using the UpdateOnlySameOriginAttributesKey query parameter
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		device := model.Device{}
@@ -91,11 +94,19 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceUpdate(token, id, device)
+
+		options := model.DeviceUpdateOptions{}
+		if request.URL.Query().Has(UpdateOnlySameOriginAttributesKey) {
+			temp := request.URL.Query().Get(UpdateOnlySameOriginAttributesKey)
+			options.UpdateOnlySameOriginAttributes = &temp
+		}
+
+		result, err, errCode := control.PublishDeviceUpdate(token, id, device, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
 		}
+
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(result)
 		if err != nil {

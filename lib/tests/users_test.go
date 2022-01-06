@@ -123,7 +123,7 @@ func TestUserDelete(t *testing.T) {
 				Attributes:   nil,
 				DeviceTypeId: "test_dt",
 			}
-			_, err, _ = ctrl.PublishDeviceUpdate(user1a, id, device)
+			_, err, _ = ctrl.PublishDeviceUpdate(user1a, id, device, model.DeviceUpdateOptions{})
 			if err != nil {
 				t.Error(err)
 				return
@@ -139,7 +139,7 @@ func TestUserDelete(t *testing.T) {
 				DeviceTypeId: "test_dt",
 			}
 			log.Println("test create device", id)
-			_, err, _ = ctrl.PublishDeviceUpdate(user2a, id, device)
+			_, err, _ = ctrl.PublishDeviceUpdate(user2a, id, device, model.DeviceUpdateOptions{})
 			if err != nil {
 				t.Error(err)
 				return
