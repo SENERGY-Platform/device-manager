@@ -119,6 +119,7 @@ type Com interface {
 	ValidateHub(token auth.Token, hub model.Hub) (err error, code int)
 	PermissionCheckForHub(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
+	GetConcept(token auth.Token, id string) (model.Concept, error, int)
 	ValidateConcept(token auth.Token, concept model.Concept) (err error, code int)
 	PermissionCheckForConcept(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 

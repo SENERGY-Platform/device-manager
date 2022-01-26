@@ -47,6 +47,7 @@ type Controller interface {
 	PublishProtocolUpdate(token auth.Token, id string, device model.Protocol) (result model.Protocol, err error, code int)
 	PublishProtocolDelete(token auth.Token, id string) (err error, code int)
 
+	ReadConcept(token auth.Token, id string) (device model.Concept, err error, code int)
 	PublishConceptCreate(token auth.Token, concept model.Concept) (result model.Concept, err error, code int)
 	PublishConceptUpdate(token auth.Token, id string, concept model.Concept) (result model.Concept, err error, code int)
 	PublishConceptDelete(token auth.Token, id string) (err error, code int)

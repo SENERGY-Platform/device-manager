@@ -33,6 +33,26 @@ func init() {
 func ConceptsEndpoints(config config.Config, control Controller, router *httprouter.Router) {
 	resource := "/concepts"
 
+	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		id := params.ByName("id")
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.ReadConcept(token, id)
+		if err != nil {
+			http.Error(writer, err.Error(), errCode)
+			return
+		}
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(writer).Encode(result)
+		if err != nil {
+			log.Println("ERROR: unable to encode response", err)
+		}
+		return
+	})
+
 	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		concept := model.Concept{}
 		err := json.NewDecoder(request.Body).Decode(&concept)

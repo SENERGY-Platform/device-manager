@@ -24,6 +24,10 @@ import (
 	"runtime/debug"
 )
 
+func (this *Controller) ReadConcept(token auth.Token, id string) (concept model.Concept, err error, code int) {
+	return this.com.GetConcept(token, id)
+}
+
 func (this *Controller) PublishConceptCreate(token auth.Token, concept model.Concept) (model.Concept, error, int) {
 	concept.GenerateId()
 	err, code := this.com.ValidateConcept(token, concept)

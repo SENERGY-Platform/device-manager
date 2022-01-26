@@ -21,6 +21,11 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 )
 
+func (this *Com) GetConcept(token auth.Token, id string) (concept model.Concept, err error, code int) {
+	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/concepts", id, &concept)
+	return
+}
+
 func (this *Com) ValidateConcept(token auth.Token, concept model.Concept) (err error, code int) {
 	list := []string{}
 	if this.config.SemanticRepoUrl != "" && this.config.SemanticRepoUrl != "-" {
