@@ -18,17 +18,27 @@ package model
 
 type DeviceClass struct {
 	Id      string `json:"id"`
-	Name    string `json:"name"`
 	Image   string `json:"image"`
+	Name    string `json:"name"`
 	RdfType string `json:"rdf_type"`
 }
 
 type Function struct {
 	Id          string `json:"id"`
 	Name        string `json:"name"`
+	DisplayName string `json:"display_name"`
 	Description string `json:"description"`
 	ConceptId   string `json:"concept_id"`
 	RdfType     string `json:"rdf_type"`
+}
+
+type FunctionList struct {
+	Functions  []Function `json:"functions"`
+	TotalCount int        `json:"total_count"`
+}
+
+type TotalCount struct {
+	TotalCount int `json:"total_count"`
 }
 
 type Aspect struct {
@@ -48,12 +58,21 @@ type Concept struct {
 type Characteristic struct {
 	Id                 string           `json:"id"`
 	Name               string           `json:"name"`
+	DisplayUnit        string           `json:"display_unit"`
 	Type               Type             `json:"type"`
 	MinValue           interface{}      `json:"min_value,omitempty"`
 	MaxValue           interface{}      `json:"max_value,omitempty"`
 	Value              interface{}      `json:"value,omitempty"`
 	SubCharacteristics []Characteristic `json:"sub_characteristics"`
 	RdfType            string           `json:"rdf_type"`
+}
+
+type ConceptWithCharacteristics struct {
+	Id                   string           `json:"id"`
+	Name                 string           `json:"name"`
+	BaseCharacteristicId string           `json:"base_characteristic_id"`
+	Characteristics      []Characteristic `json:"characteristics"`
+	RdfType              string           `json:"rdf_type"`
 }
 
 type Location struct {
