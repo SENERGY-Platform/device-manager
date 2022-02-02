@@ -82,6 +82,10 @@ func TestWithMock(t *testing.T) {
 		testDeviceType(t, conf.ServerPort)
 	})
 
+	t.Run("testDeviceTypeWithServiceGroups", func(t *testing.T) {
+		testDeviceTypeWithServiceGroups(t, conf.ServerPort)
+	})
+
 	t.Run("testDevice", func(t *testing.T) {
 		testDevice(t, conf.ServerPort)
 	})
@@ -171,6 +175,9 @@ func TestWithEditRedirect(t *testing.T) {
 
 	t.Run("testDeviceType", func(t *testing.T) {
 		testDeviceType(t, conf.ServerPort)
+	})
+	t.Run("testDeviceTypeWithServiceGroups", func(t *testing.T) {
+		testDeviceTypeWithServiceGroups(t, conf.ServerPort)
 	})
 
 	t.Run("testDevice", func(t *testing.T) {
