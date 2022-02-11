@@ -53,14 +53,11 @@ type Service struct {
 	Name            string      `json:"name"`
 	Description     string      `json:"description"`
 	Interaction     Interaction `json:"interaction"`
-	AspectIds       []string    `json:"aspect_ids"`
 	ProtocolId      string      `json:"protocol_id"`
 	Inputs          []Content   `json:"inputs"`
 	Outputs         []Content   `json:"outputs"`
-	FunctionIds     []string    `json:"function_ids"`
 	Attributes      []Attribute `json:"attributes"`
 	ServiceGroupKey string      `json:"service_group_key"`
-	RdfType         string      `json:"rdf_type"`
 }
 
 type Interaction string

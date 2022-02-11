@@ -19,32 +19,13 @@ package com
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
-	"net/http"
 )
 
-func (this *Com) GetTechnicalDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int) {
-	if this.config.DeviceRepoUrl == "" || this.config.DeviceRepoUrl == "-" {
-		return model.DeviceType{}, nil, http.StatusOK
-	}
+func (this *Com) GetDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/device-types", id, &dt)
 	return
 }
 
-func (this *Com) GetSemanticDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int) {
-	if this.config.SemanticRepoUrl == "" || this.config.SemanticRepoUrl == "-" {
-		return model.DeviceType{}, nil, http.StatusOK
-	}
-	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/device-types", id, &dt)
-	return
-}
-
 func (this *Com) ValidateDeviceType(token auth.Token, dt model.DeviceType) (err error, code int) {
-	list := []string{}
-	if this.config.DeviceRepoUrl != "" && this.config.DeviceRepoUrl != "-" {
-		list = append(list, this.config.DeviceRepoUrl+"/device-types?dry-run=true")
-	}
-	if this.config.SemanticRepoUrl != "" && this.config.SemanticRepoUrl != "-" {
-		list = append(list, this.config.SemanticRepoUrl+"/device-types?dry-run=true")
-	}
-	return validateResource(token, list, dt)
+	return validateResource(token, []string{this.config.DeviceRepoUrl + "/device-types?dry-run=true"}, dt)
 }

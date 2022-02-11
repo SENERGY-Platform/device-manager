@@ -24,20 +24,20 @@ import (
 	"runtime/debug"
 )
 
-func (this *Controller) PublishCharacteristicCreate(token auth.Token, conceptId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
+func (this *Controller) PublishCharacteristicCreate(token auth.Token, characteristic model.Characteristic) (model.Characteristic, error, int) {
 	characteristic.GenerateId()
 	err, code := this.com.ValidateCharacteristic(token, characteristic)
 	if err != nil {
 		return characteristic, err, code
 	}
-	err = this.publisher.PublishCharacteristic(conceptId, characteristic, token.GetUserId())
+	err = this.publisher.PublishCharacteristic(characteristic, token.GetUserId())
 	if err != nil {
 		return characteristic, err, http.StatusInternalServerError
 	}
 	return characteristic, nil, http.StatusOK
 }
 
-func (this *Controller) PublishCharacteristicUpdate(token auth.Token, conceptId string, characteristicId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
+func (this *Controller) PublishCharacteristicUpdate(token auth.Token, characteristicId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
 	if characteristic.Id != characteristicId {
 		return characteristic, errors.New("characteristic id in body unequal to characteristic id in request endpoint"), http.StatusBadRequest
 	}
@@ -56,7 +56,7 @@ func (this *Controller) PublishCharacteristicUpdate(token auth.Token, conceptId 
 		debug.PrintStack()
 		return characteristic, err, code
 	}
-	err = this.publisher.PublishCharacteristic(conceptId, characteristic, token.GetUserId())
+	err = this.publisher.PublishCharacteristic(characteristic, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return characteristic, err, http.StatusInternalServerError

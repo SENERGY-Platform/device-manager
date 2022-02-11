@@ -48,7 +48,6 @@ type Config struct {
 	FunctionTopic       string `json:"function_topic"`
 	DeviceClassTopic    string `json:"device_class_topic"`
 	DeviceRepoUrl       string `json:"device_repo_url"`
-	SemanticRepoUrl     string `json:"semantic_repo_url"`
 	KafkaUrl            string `json:"kafka_url"`
 	LocationTopic       string `json:"location_topic"`
 	UserTopic           string `json:"user_topic"`

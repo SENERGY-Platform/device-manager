@@ -26,30 +26,11 @@ import (
 )
 
 func (this *Controller) ReadDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int) {
-	tdt, err, code := this.com.GetTechnicalDeviceType(token, id)
-	if err != nil {
-		return tdt, err, code
-	}
-	sdt, err, code := this.com.GetSemanticDeviceType(token, id)
-	if err != nil {
-		return tdt, err, code
-	}
-	tdt.DeviceClassId = sdt.DeviceClassId
-	index := map[string]model.Service{}
-	for _, service := range sdt.Services {
-		index[service.Id] = service
-	}
-	for i, service := range tdt.Services {
-		service.FunctionIds = index[service.Id].FunctionIds
-		service.AspectIds = index[service.Id].AspectIds
-		tdt.Services[i] = service
-	}
-
-	sort.Slice(tdt.Services, func(i, j int) bool {
-		return tdt.Services[i].Name < tdt.Services[j].Name
+	dt, err, code = this.com.GetDeviceType(token, id)
+	sort.Slice(dt.Services, func(i, j int) bool {
+		return dt.Services[i].Name < dt.Services[j].Name
 	})
-
-	return tdt, nil, http.StatusOK
+	return dt, err, code
 }
 
 func (this *Controller) PublishDeviceTypeCreate(token auth.Token, dt model.DeviceType) (model.DeviceType, error, int) {

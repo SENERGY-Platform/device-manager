@@ -21,10 +21,11 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/api"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/controller"
+	"github.com/SENERGY-Platform/device-manager/lib/tests/docker"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/servicemocks"
-
 	"strconv"
+	"sync"
 	"testing"
 	"time"
 )
@@ -73,47 +74,7 @@ func TestWithMock(t *testing.T) {
 
 	time.Sleep(200 * time.Millisecond)
 
-	t.Run("aspects", testAspect(conf.ServerPort))
-	t.Run("functions", testFunction(conf.ServerPort))
-	t.Run("deviceclasses", testDeviceClass(conf.ServerPort))
-	t.Run("locations", testLocation(conf.ServerPort))
-
-	t.Run("testDeviceType", func(t *testing.T) {
-		testDeviceType(t, conf.ServerPort)
-	})
-
-	t.Run("testDeviceTypeWithServiceGroups", func(t *testing.T) {
-		testDeviceTypeWithServiceGroups(t, conf.ServerPort)
-	})
-
-	t.Run("testDevice", func(t *testing.T) {
-		testDevice(t, conf.ServerPort)
-	})
-
-	t.Run("testDeviceAttributes", func(t *testing.T) {
-		testDeviceAttributes(t, conf.ServerPort)
-	})
-
-	t.Run("testLocalDevice", func(t *testing.T) {
-		t.Skip("missing endpoint in permissions search mock")
-		testLocalDevice(t, conf.ServerPort)
-	})
-
-	t.Run("testHub", func(t *testing.T) {
-		testHub(t, conf.ServerPort)
-	})
-
-	t.Run("testConcepts", func(t *testing.T) {
-		testConcepts(t, conf)
-	})
-
-	t.Run("testCharacteristics", func(t *testing.T) {
-		testCharacteristics(t, conf)
-	})
-
-	t.Run("testDeviceGroup", testDeviceGroup(conf.ServerPort))
-
-	t.Run("testDeviceBatchDelete", testDeviceBatchDelete(conf.ServerPort))
+	tests(t, conf)
 }
 
 func TestWithEditRedirect(t *testing.T) {
@@ -168,6 +129,52 @@ func TestWithEditRedirect(t *testing.T) {
 
 	time.Sleep(200 * time.Millisecond)
 
+	tests(t, conf)
+}
+
+func TestWithDocker(t *testing.T) {
+	helper.SleepAfterEdit = 2 * time.Second
+	defer func() {
+		helper.SleepAfterEdit = 0 * time.Second
+	}()
+
+	wg := &sync.WaitGroup{}
+	defer wg.Wait()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	conf, err := config.Load("./../../config.json")
+	if err != nil {
+		t.Fatal("ERROR: unable to load config", err)
+	}
+
+	port, err := helper.GetFreePort()
+	if err != nil {
+		t.Fatal(err)
+	}
+	conf.ServerPort = strconv.Itoa(port)
+
+	conf.DeviceRepoUrl, conf.PermissionsUrl, conf.KafkaUrl, err = docker.DeviceRepoWithDependencies(ctx, wg)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	ctrl, err := controller.New(ctx, conf)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	srv, err := api.Start(conf, ctrl)
+	if err != nil {
+		t.Fatal("ERROR: unable to start api", err)
+	}
+	defer srv.Shutdown(context.Background())
+
+	tests(t, conf)
+}
+
+func tests(t *testing.T, conf config.Config) {
 	t.Run("aspects", testAspect(conf.ServerPort))
 	t.Run("functions", testFunction(conf.ServerPort))
 	t.Run("deviceclasses", testDeviceClass(conf.ServerPort))
@@ -176,6 +183,7 @@ func TestWithEditRedirect(t *testing.T) {
 	t.Run("testDeviceType", func(t *testing.T) {
 		testDeviceType(t, conf.ServerPort)
 	})
+
 	t.Run("testDeviceTypeWithServiceGroups", func(t *testing.T) {
 		testDeviceTypeWithServiceGroups(t, conf.ServerPort)
 	})

@@ -22,12 +22,12 @@ import (
 )
 
 func (this *Com) GetFunction(token auth.Token, id string) (function model.Function, err error, code int) {
-	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/functions", id, &function)
+	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/functions", id, &function)
 	return
 }
 
 func (this *Com) ValidateFunction(token auth.Token, function model.Function) (err error, code int) {
 	return validateResource(token, []string{
-		this.config.SemanticRepoUrl + "/functions?dry-run=true",
+		this.config.DeviceRepoUrl + "/functions?dry-run=true",
 	}, function)
 }

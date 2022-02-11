@@ -94,8 +94,6 @@ func TestUserDelete(t *testing.T) {
 	mockPublisher := servicemocks.NewPublisher()
 	repo := servicemocks.NewDeviceRepo(mockPublisher)
 	conf.DeviceRepoUrl = repo.Url()
-	semantic := servicemocks.NewSemanticRepo(mockPublisher)
-	conf.SemanticRepoUrl = semantic.Url()
 
 	ctrl, err := controller.New(ctx, conf)
 	if err != nil {

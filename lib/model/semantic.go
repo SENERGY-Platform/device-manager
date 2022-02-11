@@ -17,10 +17,9 @@
 package model
 
 type DeviceClass struct {
-	Id      string `json:"id"`
-	Image   string `json:"image"`
-	Name    string `json:"name"`
-	RdfType string `json:"rdf_type"`
+	Id    string `json:"id"`
+	Image string `json:"image"`
+	Name  string `json:"name"`
 }
 
 type Function struct {
@@ -42,9 +41,9 @@ type TotalCount struct {
 }
 
 type Aspect struct {
-	Id      string `json:"id"`
-	Name    string `json:"name"`
-	RdfType string `json:"rdf_type"`
+	Id         string   `json:"id"`
+	Name       string   `json:"name"`
+	SubAspects []Aspect `json:"sub_aspects"`
 }
 
 type Concept struct {
@@ -52,7 +51,6 @@ type Concept struct {
 	Name                 string   `json:"name"`
 	CharacteristicIds    []string `json:"characteristic_ids"`
 	BaseCharacteristicId string   `json:"base_characteristic_id"`
-	RdfType              string   `json:"rdf_type"`
 }
 
 type Characteristic struct {
@@ -64,7 +62,6 @@ type Characteristic struct {
 	MaxValue           interface{}      `json:"max_value,omitempty"`
 	Value              interface{}      `json:"value,omitempty"`
 	SubCharacteristics []Characteristic `json:"sub_characteristics"`
-	RdfType            string           `json:"rdf_type"`
 }
 
 type ConceptWithCharacteristics struct {
@@ -72,7 +69,6 @@ type ConceptWithCharacteristics struct {
 	Name                 string           `json:"name"`
 	BaseCharacteristicId string           `json:"base_characteristic_id"`
 	Characteristics      []Characteristic `json:"characteristics"`
-	RdfType              string           `json:"rdf_type"`
 }
 
 type Location struct {
@@ -82,5 +78,4 @@ type Location struct {
 	Image          string   `json:"image"`
 	DeviceIds      []string `json:"device_ids"`
 	DeviceGroupIds []string `json:"device_group_ids"`
-	RdfType        string   `json:"rdf_type"`
 }

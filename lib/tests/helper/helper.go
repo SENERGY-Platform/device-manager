@@ -21,7 +21,10 @@ import (
 	"encoding/json"
 	"net"
 	"net/http"
+	"time"
 )
+
+var SleepAfterEdit = 0 * time.Second
 
 func GetFreePort() (int, error) {
 	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
@@ -44,6 +47,9 @@ func Jwtdelete(token string, url string) (resp *http.Response, err error) {
 	}
 	req.Header.Set("Authorization", token)
 	resp, err = http.DefaultClient.Do(req)
+	if SleepAfterEdit != 0 {
+		time.Sleep(SleepAfterEdit)
+	}
 	return
 }
 
@@ -59,6 +65,9 @@ func JwtDeleteWithBody(token string, url string, msg interface{}) (resp *http.Re
 	}
 	req.Header.Set("Authorization", token)
 	resp, err = http.DefaultClient.Do(req)
+	if SleepAfterEdit != 0 {
+		time.Sleep(SleepAfterEdit)
+	}
 	return
 }
 
@@ -86,6 +95,9 @@ func Jwtput(token string, url string, msg interface{}) (resp *http.Response, err
 	req.Header.Set("Authorization", token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = http.DefaultClient.Do(req)
+	if SleepAfterEdit != 0 {
+		time.Sleep(SleepAfterEdit)
+	}
 	return
 }
 
@@ -102,5 +114,8 @@ func Jwtpost(token string, url string, msg interface{}) (resp *http.Response, er
 	req.Header.Set("Authorization", token)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = http.DefaultClient.Do(req)
+	if SleepAfterEdit != 0 {
+		time.Sleep(SleepAfterEdit)
+	}
 	return
 }

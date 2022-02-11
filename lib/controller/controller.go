@@ -78,7 +78,7 @@ type Publisher interface {
 	PublishConcept(concept model.Concept, userID string) (err error)
 	PublishConceptDelete(id string, userID string) error
 
-	PublishCharacteristic(conceptId string, concept model.Characteristic, userID string) (err error)
+	PublishCharacteristic(characteristic model.Characteristic, userID string) (err error)
 	PublishCharacteristicDelete(id string, userID string) error
 
 	PublishAspect(device model.Aspect, userID string) (err error)
@@ -103,8 +103,7 @@ type Com interface {
 	ValidateDeviceGroup(token auth.Token, dt model.DeviceGroup) (err error, code int)
 	PermissionCheckForDeviceGroup(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	GetTechnicalDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int)
-	GetSemanticDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int)
+	GetDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int)
 	ValidateDeviceType(token auth.Token, dt model.DeviceType) (err error, code int)
 	PermissionCheckForDeviceType(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 

@@ -22,14 +22,12 @@ import (
 )
 
 func (this *Com) GetConcept(token auth.Token, id string) (concept model.Concept, err error, code int) {
-	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/concepts", id, &concept)
+	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/concepts", id, &concept)
 	return
 }
 
 func (this *Com) ValidateConcept(token auth.Token, concept model.Concept) (err error, code int) {
 	list := []string{}
-	if this.config.SemanticRepoUrl != "" && this.config.SemanticRepoUrl != "-" {
-		list = append(list, this.config.SemanticRepoUrl+"/concepts?dry-run=true")
-	}
+	list = append(list, this.config.DeviceRepoUrl+"/concepts?dry-run=true")
 	return validateResource(token, list, concept)
 }

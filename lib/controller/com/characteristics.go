@@ -23,8 +23,6 @@ import (
 
 func (this *Com) ValidateCharacteristic(token auth.Token, characteristic model.Characteristic) (err error, code int) {
 	list := []string{}
-	if this.config.SemanticRepoUrl != "" && this.config.SemanticRepoUrl != "-" {
-		list = append(list, this.config.SemanticRepoUrl+"/characteristics?dry-run=true")
-	}
+	list = append(list, this.config.DeviceRepoUrl+"/characteristics?dry-run=true")
 	return validateResource(token, list, characteristic)
 }

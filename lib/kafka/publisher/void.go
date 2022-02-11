@@ -73,7 +73,7 @@ func (this Void) PublishConceptDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 
-func (this Void) PublishCharacteristic(conceptId string, concept model.Characteristic, userID string) (err error) {
+func (this Void) PublishCharacteristic(characteristic model.Characteristic, userID string) (err error) {
 	return VoidPublisherError
 }
 

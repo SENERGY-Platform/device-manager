@@ -15,7 +15,6 @@
   "device_class_topic": "device-classes",
   "location_topic": "locations",
   "device_repo_url": "http://device-repo:8080",
-  "semantic_repo_url": "http://semantic-repo:8080",
   "kafka_url": "kafka_url:9092",
   "user_topic": "user",
   "group_id": "device-manager",

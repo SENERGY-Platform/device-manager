@@ -31,10 +31,9 @@ func init() {
 }
 
 func CharacteristicsEndpoints(config config.Config, control Controller, router *httprouter.Router) {
-	resource := "/concepts/:conceptId/characteristics"
+	resource := "/characteristics"
 
 	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		conceptId := params.ByName("conceptId")
 		characteristic := model.Characteristic{}
 		err := json.NewDecoder(request.Body).Decode(&characteristic)
 		if err != nil {
@@ -46,7 +45,7 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishCharacteristicCreate(token, conceptId, characteristic)
+		result, err, errCode := control.PublishCharacteristicCreate(token, characteristic)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -60,7 +59,6 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 	})
 
 	router.PUT(resource+"/:characteristicId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		conceptId := params.ByName("conceptId")
 		characteristicId := params.ByName("characteristicId")
 		characteristic := model.Characteristic{}
 		err := json.NewDecoder(request.Body).Decode(&characteristic)
@@ -73,7 +71,7 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishCharacteristicUpdate(token, conceptId, characteristicId, characteristic)
+		result, err, errCode := control.PublishCharacteristicUpdate(token, characteristicId, characteristic)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

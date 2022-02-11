@@ -72,14 +72,14 @@ func testDeviceType(t *testing.T, port string) {
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
 						ContentVariable: model.ContentVariable{
-							Name: "v1name",
-							Type: model.String,
+							Name:       "v1name",
+							Type:       model.String,
+							FunctionId: "f1",
+							AspectId:   "a1",
 						},
 					},
 				},
-				FunctionIds: []string{"f1"},
-				AspectIds:   []string{"a1"},
-				ProtocolId:  protocol.Id,
+				ProtocolId: protocol.Id,
 			},
 		},
 	})
@@ -127,11 +127,8 @@ func testDeviceType(t *testing.T, port string) {
 		len(result.Services) != 1 ||
 		result.Services[0].Name != "s1name" ||
 		result.Services[0].ProtocolId != protocol.Id ||
-		len(result.Services[0].AspectIds) != 1 ||
-		result.Services[0].AspectIds[0] != "a1" ||
-		len(result.Services[0].FunctionIds) != 1 ||
-		result.Services[0].FunctionIds[0] != "f1" {
-
+		result.Services[0].Inputs[0].ContentVariable.AspectId != "a1" ||
+		result.Services[0].Inputs[0].ContentVariable.FunctionId != "f1" {
 		t.Fatal(result)
 	}
 
@@ -207,14 +204,14 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
 						ContentVariable: model.ContentVariable{
-							Name: "v1name",
-							Type: model.String,
+							Name:       "v1name",
+							Type:       model.String,
+							FunctionId: "f1",
+							AspectId:   "a1",
 						},
 					},
 				},
-				FunctionIds: []string{"f1"},
-				AspectIds:   []string{"a1"},
-				ProtocolId:  protocol.Id,
+				ProtocolId: protocol.Id,
 			},
 			{
 				Name:    "s2name",
@@ -224,13 +221,13 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
 						ContentVariable: model.ContentVariable{
-							Name: "v1name",
-							Type: model.String,
+							Name:       "v1name",
+							Type:       model.String,
+							FunctionId: "f1",
+							AspectId:   "a1",
 						},
 					},
 				},
-				FunctionIds:     []string{"f1"},
-				AspectIds:       []string{"a1"},
 				ProtocolId:      protocol.Id,
 				ServiceGroupKey: "sg1",
 			},
@@ -295,10 +292,8 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		result.Services[0].LocalId != "lid1" ||
 		result.Services[0].ServiceGroupKey != "" ||
 		result.Services[0].ProtocolId != protocol.Id ||
-		len(result.Services[0].AspectIds) != 1 ||
-		result.Services[0].AspectIds[0] != "a1" ||
-		len(result.Services[0].FunctionIds) != 1 ||
-		result.Services[0].FunctionIds[0] != "f1" {
+		result.Services[0].Inputs[0].ContentVariable.AspectId != "a1" ||
+		result.Services[0].Inputs[0].ContentVariable.FunctionId != "f1" {
 
 		t.Fatal(result.Services[0])
 	}
@@ -307,10 +302,8 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		result.Services[1].LocalId != "lid2" ||
 		result.Services[1].ServiceGroupKey != "sg1" ||
 		result.Services[1].ProtocolId != protocol.Id ||
-		len(result.Services[1].AspectIds) != 1 ||
-		result.Services[1].AspectIds[0] != "a1" ||
-		len(result.Services[1].FunctionIds) != 1 ||
-		result.Services[1].FunctionIds[0] != "f1" {
+		result.Services[1].Inputs[0].ContentVariable.AspectId != "a1" ||
+		result.Services[1].Inputs[0].ContentVariable.FunctionId != "f1" {
 		temp, _ := json.Marshal(result.Services[1])
 		t.Fatal(string(temp))
 	}

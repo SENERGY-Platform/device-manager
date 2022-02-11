@@ -31,7 +31,7 @@ import (
 
 func testConcepts(t *testing.T, conf config.Config) {
 	createConcept := model.Concept{
-		Name: "c1",
+		Name:              "c1",
 		CharacteristicIds: []string{"urn:infai:ses:characteristic:4711a"},
 	}
 	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts", createConcept)
@@ -64,8 +64,8 @@ func testConcepts(t *testing.T, conf config.Config) {
 	})
 
 	updateConcept := model.Concept{
-		Id:   concept.Id,
-		Name: "c2",
+		Id:                concept.Id,
+		Name:              "c2",
 		CharacteristicIds: []string{"urn:infai:ses:characteristic:4712322a"},
 	}
 	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/"+url.PathEscape(concept.Id), updateConcept)
@@ -109,7 +109,7 @@ func testConcepts(t *testing.T, conf config.Config) {
 }
 
 func checkConceptDelete(t *testing.T, conf config.Config, id string) {
-	resp, err := helper.Jwtget(userjwt, conf.SemanticRepoUrl+"/concepts/"+url.PathEscape(id))
+	resp, err := helper.Jwtget(userjwt, conf.DeviceRepoUrl+"/concepts/"+url.PathEscape(id))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,7 +122,7 @@ func checkConceptDelete(t *testing.T, conf config.Config, id string) {
 }
 
 func checkConcept(t *testing.T, conf config.Config, id string, expected model.Concept) {
-	resp, err := helper.Jwtget(userjwt, conf.SemanticRepoUrl+"/concepts/"+url.PathEscape(id))
+	resp, err := helper.Jwtget(userjwt, conf.DeviceRepoUrl+"/concepts/"+url.PathEscape(id))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -174,4 +174,3 @@ func removeIdsFromConcept(concept model.Concept) model.Concept {
 
 	return concept
 }
-

@@ -22,12 +22,12 @@ import (
 )
 
 func (this *Com) GetDeviceClass(token auth.Token, id string) (deviceClass model.DeviceClass, err error, code int) {
-	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/device-classes", id, &deviceClass)
+	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/device-classes", id, &deviceClass)
 	return
 }
 
 func (this *Com) ValidateDeviceClass(token auth.Token, deviceClass model.DeviceClass) (err error, code int) {
 	return validateResource(token, []string{
-		this.config.SemanticRepoUrl + "/device-classes?dry-run=true",
+		this.config.DeviceRepoUrl + "/device-classes?dry-run=true",
 	}, deviceClass)
 }

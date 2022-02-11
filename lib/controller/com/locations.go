@@ -22,12 +22,12 @@ import (
 )
 
 func (this *Com) GetLocation(token auth.Token, id string) (Location model.Location, err error, code int) {
-	err, code = getResourceFromService(token, this.config.SemanticRepoUrl+"/locations", id, &Location)
+	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/locations", id, &Location)
 	return
 }
 
 func (this *Com) ValidateLocation(token auth.Token, Location model.Location) (err error, code int) {
 	return validateResource(token, []string{
-		this.config.SemanticRepoUrl + "/locations?dry-run=true",
+		this.config.DeviceRepoUrl + "/locations?dry-run=true",
 	}, Location)
 }

@@ -34,12 +34,12 @@ func testCharacteristics(t *testing.T, conf config.Config) {
 		Name: "char1",
 		Type: model.Structure,
 		SubCharacteristics: []model.Characteristic{{
-			Name: "char2",
-			Type: model.Float,
+			Name:               "char2",
+			Type:               model.Float,
 			SubCharacteristics: nil,
 		}},
 	}
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/4711/characteristics", createCharacteristic)
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics", createCharacteristic)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,17 +70,17 @@ func testCharacteristics(t *testing.T, conf config.Config) {
 	})
 
 	updateCharacteristic := model.Characteristic{
-		Id: characteristic.Id,
+		Id:   characteristic.Id,
 		Name: "char3",
 		Type: model.Structure,
 		SubCharacteristics: []model.Characteristic{{
-			Id: "",
-			Name: "char4",
-			Type: model.Float,
+			Id:                 "",
+			Name:               "char4",
+			Type:               model.Float,
 			SubCharacteristics: nil,
 		}},
 	}
-	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/4711/characteristics/"+url.PathEscape(characteristic.Id), updateCharacteristic)
+	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/"+url.PathEscape(characteristic.Id), updateCharacteristic)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,7 +108,7 @@ func testCharacteristics(t *testing.T, conf config.Config) {
 		checkCharacteristic(t, conf, characteristic2.Id, updateCharacteristic)
 	})
 
-	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/4711/characteristics/"+url.PathEscape(characteristic2.Id))
+	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/"+url.PathEscape(characteristic2.Id))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +120,7 @@ func testCharacteristics(t *testing.T, conf config.Config) {
 }
 
 func checkCharacteristicDelete(t *testing.T, conf config.Config, id string) {
-	resp, err := helper.Jwtget(userjwt, conf.SemanticRepoUrl+"/concepts/4711/characteristics/"+url.PathEscape(id))
+	resp, err := helper.Jwtget(userjwt, conf.DeviceRepoUrl+"/characteristics/"+url.PathEscape(id))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -133,7 +133,7 @@ func checkCharacteristicDelete(t *testing.T, conf config.Config, id string) {
 }
 
 func checkCharacteristic(t *testing.T, conf config.Config, id string, expected model.Characteristic) {
-	resp, err := helper.Jwtget(userjwt, conf.SemanticRepoUrl+"/characteristics/"+url.PathEscape(id))
+	resp, err := helper.Jwtget(userjwt, conf.DeviceRepoUrl+"/characteristics/"+url.PathEscape(id))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -26,15 +26,11 @@ func New(cin config.Config) (publisher *Publisher, cout config.Config, close fun
 	repo := NewDeviceRepo(publisher)
 	cout.DeviceRepoUrl = repo.Url()
 
-	semantic := NewSemanticRepo(publisher)
-	cout.SemanticRepoUrl = semantic.Url()
-
 	perm := NewPermSearch()
 	cout.PermissionsUrl = perm.Url()
 
 	close = func() {
 		repo.Stop()
-		semantic.Stop()
 	}
 
 	return

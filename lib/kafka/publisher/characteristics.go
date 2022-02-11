@@ -27,15 +27,14 @@ import (
 )
 
 type CharacteristicCommand struct {
-	Command           string           		`json:"command"`
-	ConceptId         string           		`json:"concept_id"`
-	Id                string           		`json:"id"`
-	Owner      		  string           		`json:"owner"`
-	Characteristic    model.Characteristic  `json:"characteristic"`
+	Command        string               `json:"command"`
+	Id             string               `json:"id"`
+	Owner          string               `json:"owner"`
+	Characteristic model.Characteristic `json:"characteristic"`
 }
 
-func (this *Publisher) PublishCharacteristic(conceptId string, characteristic model.Characteristic, userId string) (err error) {
-	cmd := CharacteristicCommand{Command: "PUT", ConceptId: conceptId, Id: characteristic.Id, Owner: userId, Characteristic: characteristic}
+func (this *Publisher) PublishCharacteristic(characteristic model.Characteristic, userId string) (err error) {
+	cmd := CharacteristicCommand{Command: "PUT", Id: characteristic.Id, Owner: userId, Characteristic: characteristic}
 	return this.PublishCharacteristicCommand(cmd)
 }
 
