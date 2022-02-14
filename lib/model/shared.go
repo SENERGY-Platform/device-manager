@@ -32,7 +32,6 @@ type DeviceType struct {
 	Services      []Service      `json:"services"`
 	DeviceClassId string         `json:"device_class_id"`
 	Attributes    []Attribute    `json:"attributes"`
-	RdfType       string         `json:"rdf_type"`
 }
 
 type ServiceGroup struct {
