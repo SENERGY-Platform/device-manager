@@ -41,6 +41,10 @@ func (aspect *Aspect) GenerateId() {
 	if aspect.Id == "" {
 		aspect.Id = URN_PREFIX + "aspect:" + uuid.New().String()
 	}
+	for i, sub := range aspect.SubAspects {
+		sub.GenerateId()
+		aspect.SubAspects[i] = sub
+	}
 }
 
 func (concept *Concept) GenerateId() {
