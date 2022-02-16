@@ -62,8 +62,8 @@ func testLocalDevice(t *testing.T, port string) {
 						ContentVariable: model.ContentVariable{
 							Name:       "v1name",
 							Type:       model.String,
-							FunctionId: "f1",
-							AspectId:   "a1",
+							FunctionId: f1Id,
+							AspectId:   a1Id,
 						},
 					},
 				},

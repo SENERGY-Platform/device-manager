@@ -74,8 +74,8 @@ func testDeviceType(t *testing.T, port string) {
 						ContentVariable: model.ContentVariable{
 							Name:       "v1name",
 							Type:       model.String,
-							FunctionId: "f1",
-							AspectId:   "a1",
+							FunctionId: f1Id,
+							AspectId:   a1Id,
 						},
 					},
 				},
@@ -127,8 +127,8 @@ func testDeviceType(t *testing.T, port string) {
 		len(result.Services) != 1 ||
 		result.Services[0].Name != "s1name" ||
 		result.Services[0].ProtocolId != protocol.Id ||
-		result.Services[0].Inputs[0].ContentVariable.AspectId != "a1" ||
-		result.Services[0].Inputs[0].ContentVariable.FunctionId != "f1" {
+		result.Services[0].Inputs[0].ContentVariable.AspectId != a1Id ||
+		result.Services[0].Inputs[0].ContentVariable.FunctionId != f1Id {
 		t.Fatal(result)
 	}
 
@@ -206,8 +206,8 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 						ContentVariable: model.ContentVariable{
 							Name:       "v1name",
 							Type:       model.String,
-							FunctionId: "f1",
-							AspectId:   "a1",
+							FunctionId: f1Id,
+							AspectId:   a1Id,
 						},
 					},
 				},
@@ -223,8 +223,8 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 						ContentVariable: model.ContentVariable{
 							Name:       "v1name",
 							Type:       model.String,
-							FunctionId: "f1",
-							AspectId:   "a1",
+							FunctionId: f1Id,
+							AspectId:   a1Id,
 						},
 					},
 				},
@@ -292,8 +292,8 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		result.Services[0].LocalId != "lid1" ||
 		result.Services[0].ServiceGroupKey != "" ||
 		result.Services[0].ProtocolId != protocol.Id ||
-		result.Services[0].Inputs[0].ContentVariable.AspectId != "a1" ||
-		result.Services[0].Inputs[0].ContentVariable.FunctionId != "f1" {
+		result.Services[0].Inputs[0].ContentVariable.AspectId != a1Id ||
+		result.Services[0].Inputs[0].ContentVariable.FunctionId != f1Id {
 
 		t.Fatal(result.Services[0])
 	}
@@ -302,8 +302,8 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		result.Services[1].LocalId != "lid2" ||
 		result.Services[1].ServiceGroupKey != "sg1" ||
 		result.Services[1].ProtocolId != protocol.Id ||
-		result.Services[1].Inputs[0].ContentVariable.AspectId != "a1" ||
-		result.Services[1].Inputs[0].ContentVariable.FunctionId != "f1" {
+		result.Services[1].Inputs[0].ContentVariable.AspectId != a1Id ||
+		result.Services[1].Inputs[0].ContentVariable.FunctionId != f1Id {
 		temp, _ := json.Marshal(result.Services[1])
 		t.Fatal(string(temp))
 	}

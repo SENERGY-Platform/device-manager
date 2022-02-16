@@ -93,5 +93,15 @@ func testFunction(port string) func(t *testing.T) {
 		if resp.StatusCode == http.StatusOK {
 			t.Fatal(resp.Status, resp.StatusCode)
 		}
+
+		resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/functions", model.Function{Id: f1Id, Name: f1Id})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			b, _ := ioutil.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+		resp.Body.Close()
 	}
 }
