@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"log"
 	"net/http"
 	"net/url"
@@ -41,7 +42,10 @@ func getResourceFromService(token auth.Token, endpoint string, id string, result
 	return nil, http.StatusOK
 }
 
-func validateResource(token auth.Token, endpoints []string, resource interface{}) (err error, code int) {
+func validateResource(token auth.Token, config config.Config, endpoints []string, resource interface{}) (err error, code int) {
+	if config.DisableValidation {
+		return nil, http.StatusOK
+	}
 	for _, endpoint := range endpoints {
 		b := new(bytes.Buffer)
 		err = json.NewEncoder(b).Encode(resource)

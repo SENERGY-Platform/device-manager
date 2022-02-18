@@ -27,5 +27,5 @@ func (this *Com) GetDeviceType(token auth.Token, id string) (dt model.DeviceType
 }
 
 func (this *Com) ValidateDeviceType(token auth.Token, dt model.DeviceType) (err error, code int) {
-	return validateResource(token, []string{this.config.DeviceRepoUrl + "/device-types?dry-run=true"}, dt)
+	return validateResource(token, this.config, []string{this.config.DeviceRepoUrl + "/device-types?dry-run=true"}, dt)
 }

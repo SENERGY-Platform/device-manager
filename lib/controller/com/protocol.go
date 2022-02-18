@@ -27,7 +27,7 @@ func (this *Com) GetProtocol(token auth.Token, id string) (protocol model.Protoc
 }
 
 func (this *Com) ValidateProtocol(token auth.Token, protocol model.Protocol) (err error, code int) {
-	return validateResource(token, []string{
+	return validateResource(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/protocols?dry-run=true",
 	}, protocol)
 }

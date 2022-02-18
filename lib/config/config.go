@@ -54,6 +54,8 @@ type Config struct {
 	GroupId             string `json:"group_id"`
 	PermissionsTopic    string `json:"permissions_topic"`
 	HttpClientTimeout   string `json:"http_client_timeout"`
+
+	DisableValidation bool `json:"disable_validation"`
 }
 
 //loads config from json in location and used environment variables (e.g KafkaUrl --> KAFKA_URL)

@@ -29,5 +29,5 @@ func (this *Com) GetConcept(token auth.Token, id string) (concept model.Concept,
 func (this *Com) ValidateConcept(token auth.Token, concept model.Concept) (err error, code int) {
 	list := []string{}
 	list = append(list, this.config.DeviceRepoUrl+"/concepts?dry-run=true")
-	return validateResource(token, list, concept)
+	return validateResource(token, this.config, list, concept)
 }

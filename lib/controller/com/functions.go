@@ -27,7 +27,7 @@ func (this *Com) GetFunction(token auth.Token, id string) (function model.Functi
 }
 
 func (this *Com) ValidateFunction(token auth.Token, function model.Function) (err error, code int) {
-	return validateResource(token, []string{
+	return validateResource(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/functions?dry-run=true",
 	}, function)
 }
