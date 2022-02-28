@@ -95,7 +95,7 @@ func DeviceRepo(pool *dockertest.Pool, ctx context.Context, wg *sync.WaitGroup, 
 	go Dockerlog(pool, ctx, container, "DEVICE-REPOSITORY")
 	hostPort = container.GetPort("8080/tcp")
 	err = pool.Retry(func() error {
-		log.Println("try device-manager connection...")
+		log.Println("try device-repo connection...")
 		_, err := http.Get("http://localhost:" + hostPort)
 		if err != nil {
 			log.Println(err)
