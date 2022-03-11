@@ -75,3 +75,7 @@ func (this *Controller) PublishCharacteristicDelete(token auth.Token, id string)
 	}
 	return nil, http.StatusOK
 }
+
+func (this *Controller) ReadCharacteristic(token auth.Token, id string) (result model.Characteristic, err error, code int) {
+	return this.com.GetCharacteristic(token, id)
+}

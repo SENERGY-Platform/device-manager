@@ -124,6 +124,7 @@ type Com interface {
 
 	ValidateCharacteristic(token auth.Token, concept model.Characteristic) (err error, code int)
 	PermissionCheckForCharacteristic(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	GetCharacteristic(token auth.Token, id string) (concept model.Characteristic, err error, code int)
 
 	DevicesOfTypeExist(token auth.Token, deviceTypeId string) (result bool, err error, code int)
 

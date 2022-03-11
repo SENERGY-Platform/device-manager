@@ -55,6 +55,7 @@ type Controller interface {
 	PublishCharacteristicCreate(token auth.Token, characteristic model.Characteristic) (result model.Characteristic, err error, code int)
 	PublishCharacteristicUpdate(token auth.Token, characteristicId string, characteristic model.Characteristic) (result model.Characteristic, err error, code int)
 	PublishCharacteristicDelete(token auth.Token, id string) (err error, code int)
+	ReadCharacteristic(token auth.Token, id string) (result model.Characteristic, err error, code int)
 
 	DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, errCode int)
 

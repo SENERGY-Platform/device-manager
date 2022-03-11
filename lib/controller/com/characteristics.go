@@ -26,3 +26,8 @@ func (this *Com) ValidateCharacteristic(token auth.Token, characteristic model.C
 	list = append(list, this.config.DeviceRepoUrl+"/characteristics?dry-run=true")
 	return validateResource(token, this.config, list, characteristic)
 }
+
+func (this *Com) GetCharacteristic(token auth.Token, id string) (concept model.Characteristic, err error, code int) {
+	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/characteristics", id, &concept)
+	return
+}
