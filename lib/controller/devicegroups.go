@@ -47,13 +47,18 @@ func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg model.Devi
 	return dg, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
+func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg model.DeviceGroup) (result model.DeviceGroup, err error, code int) {
 	if dg.Id != id {
 		return dg, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
 
 	dg.GenerateId()
 	dg.SetShortCriteria()
+
+	dg.DeviceIds, err = this.filterInvalidDeviceIds(token, dg.DeviceIds)
+	if err != nil {
+		return dg, err, http.StatusInternalServerError
+	}
 
 	if !token.IsAdmin() {
 		err, code := this.com.PermissionCheckForDeviceGroup(token, id, "w")
@@ -62,7 +67,7 @@ func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg
 			return dg, err, code
 		}
 	}
-	err, code := this.com.ValidateDeviceGroup(token, dg)
+	err, code = this.com.ValidateDeviceGroup(token, dg)
 	if err != nil {
 		debug.PrintStack()
 		return dg, err, code
