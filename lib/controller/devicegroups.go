@@ -20,6 +20,7 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"log"
 	"net/http"
 	"runtime/debug"
 )
@@ -28,11 +29,14 @@ func (this *Controller) ReadDeviceGroup(token auth.Token, id string) (dt model.D
 	return this.com.GetTechnicalDeviceGroup(token, id)
 }
 
-func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg model.DeviceGroup) (model.DeviceGroup, error, int) {
+func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg model.DeviceGroup) (result model.DeviceGroup, err error, code int) {
 	dg.GenerateId()
 	dg.SetShortCriteria()
-
-	err, code := this.com.ValidateDeviceGroup(token, dg)
+	dg.DeviceIds, err = this.filterInvalidDeviceIds(token, dg.DeviceIds)
+	if err != nil {
+		return dg, err, http.StatusInternalServerError
+	}
+	err, code = this.com.ValidateDeviceGroup(token, dg)
 	if err != nil {
 		return dg, err, code
 	}
@@ -81,4 +85,20 @@ func (this *Controller) PublishDeviceGroupDelete(token auth.Token, id string) (e
 		return err, http.StatusInternalServerError
 	}
 	return nil, http.StatusOK
+}
+
+func (this *Controller) filterInvalidDeviceIds(token auth.Token, ids []string) (result []string, err error) {
+	deviceIsAccessible, err, _ := this.com.PermissionCheckForDeviceList(token, ids, "r")
+	if err != nil {
+		return result, err
+	}
+	result = []string{}
+	for _, id := range ids {
+		if deviceIsAccessible[id] {
+			result = append(result, id)
+		} else {
+			log.Println("WARNING: remove device from device-group because its inaccessible", id)
+		}
+	}
+	return result, nil
 }

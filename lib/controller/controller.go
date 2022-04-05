@@ -113,6 +113,7 @@ type Com interface {
 	GetDevice(token auth.Token, id string) (model.Device, error, int) //uses internal admin jwt
 	ValidateDevice(token auth.Token, device model.Device) (err error, code int)
 	PermissionCheckForDevice(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+	PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int)
 
 	GetHub(token auth.Token, id string) (model.Hub, error, int) //uses internal admin jwt
 	ValidateHub(token auth.Token, hub model.Hub) (err error, code int)

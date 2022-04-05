@@ -27,6 +27,17 @@ import (
 	"runtime/debug"
 )
 
+func (this *Com) PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int) {
+	err, code = this.QueryPermissionsSearch(token.Jwt(), QueryMessage{
+		Resource: "devices",
+		CheckIds: &QueryCheckIds{
+			Ids:    ids,
+			Rights: rights,
+		},
+	}, &result)
+	return
+}
+
 func (this *Com) PermissionCheckForDevice(token auth.Token, id string, permission string) (err error, code int) {
 	if token.IsAdmin() {
 		return nil, http.StatusOK
