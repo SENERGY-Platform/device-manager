@@ -88,7 +88,7 @@ func (this *Controller) PublishDeviceGroupDelete(token auth.Token, id string) (e
 }
 
 func (this *Controller) filterInvalidDeviceIds(token auth.Token, ids []string) (result []string, err error) {
-	deviceIsAccessible, err, _ := this.com.PermissionCheckForDeviceList(token, ids, "r")
+	deviceIsAccessible, err, _ := this.com.PermissionCheckForDeviceList(token, ids, "x")
 	if err != nil {
 		return result, err
 	}
