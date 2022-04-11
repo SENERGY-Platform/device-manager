@@ -60,6 +60,7 @@ func DeviceRepoWithDependencies(basectx context.Context, wg *sync.WaitGroup) (re
 		return repoUrl, searchUrl, kafkaUrl, err
 	}
 	searchUrl = "http://" + permIp + ":8080"
+	time.Sleep(10 * time.Second)
 
 	_, mongoIp, err := MongoDB(pool, ctx, wg)
 	if err != nil {
