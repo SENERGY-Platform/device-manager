@@ -57,13 +57,13 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 		}
 	}
 
-	if options.UpdateOnlySameOriginAttributes != nil {
+	if len(options.UpdateOnlySameOriginAttributes) > 0 {
 		var original model.Device
 		original, err, code = this.com.GetDevice(token, device.Id)
 		if err != nil {
 			return device, err, code
 		}
-		device.Attributes = updateSameOriginAttributes(original.Attributes, device.Attributes, *options.UpdateOnlySameOriginAttributes)
+		device.Attributes = updateSameOriginAttributes(original.Attributes, device.Attributes, options.UpdateOnlySameOriginAttributes)
 	}
 
 	err, code = this.com.ValidateDevice(token, device)

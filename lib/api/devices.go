@@ -24,6 +24,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func init() {
@@ -98,7 +99,7 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 		options := model.DeviceUpdateOptions{}
 		if request.URL.Query().Has(UpdateOnlySameOriginAttributesKey) {
 			temp := request.URL.Query().Get(UpdateOnlySameOriginAttributesKey)
-			options.UpdateOnlySameOriginAttributes = &temp
+			options.UpdateOnlySameOriginAttributes = strings.Split(temp, ",")
 		}
 
 		result, err, errCode := control.PublishDeviceUpdate(token, id, device, options)

@@ -17,5 +17,5 @@
 package model
 
 type DeviceUpdateOptions struct {
-	UpdateOnlySameOriginAttributes *string
+	UpdateOnlySameOriginAttributes []string
 }

@@ -437,6 +437,154 @@ func testDeviceAttributes(t *testing.T, port string) {
 			Origin: "test2",
 		},
 	}))
+
+	t.Run("origin list create", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "shared,test3", []model.Attribute{
+		{
+			Key:    "a13",
+			Value:  "foo",
+			Origin: "",
+		},
+		{
+			Key:    "a23",
+			Value:  "bar",
+			Origin: "test1",
+		},
+		{
+			Key:    "a43",
+			Value:  "42",
+			Origin: "test2",
+		},
+		{
+			Key:    "shared/val1",
+			Value:  "s42",
+			Origin: "shared",
+		},
+		{
+			Key:    "shared/val2",
+			Value:  "s42",
+			Origin: "shared",
+		},
+		{
+			Key:    "test3/val1",
+			Value:  "t42",
+			Origin: "test3",
+		},
+		{
+			Key:    "test3/val2",
+			Value:  "t42",
+			Origin: "test3",
+		},
+	}, []model.Attribute{
+		{
+			Key:    "a12",
+			Value:  "va12",
+			Origin: "",
+		},
+		{
+			Key:    "a23",
+			Value:  "va23",
+			Origin: "test1",
+		},
+		{
+			Key:    "a33",
+			Value:  "va33",
+			Origin: "test1",
+		},
+		{
+			Key:    "a42",
+			Value:  "va42",
+			Origin: "test2",
+		},
+		{
+			Key:    "a52",
+			Value:  "va52",
+			Origin: "test2",
+		},
+		{
+			Key:    "shared/val1",
+			Value:  "s42",
+			Origin: "shared",
+		},
+		{
+			Key:    "shared/val2",
+			Value:  "s42",
+			Origin: "shared",
+		},
+		{
+			Key:    "test3/val1",
+			Value:  "t42",
+			Origin: "test3",
+		},
+		{
+			Key:    "test3/val2",
+			Value:  "t42",
+			Origin: "test3",
+		},
+	}))
+
+	t.Run("origin list update", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "shared,test3", []model.Attribute{
+		{
+			Key:    "a13",
+			Value:  "foo",
+			Origin: "",
+		},
+		{
+			Key:    "a23",
+			Value:  "bar",
+			Origin: "test1",
+		},
+		{
+			Key:    "a43",
+			Value:  "42",
+			Origin: "test2",
+		},
+		{
+			Key:    "shared/val1",
+			Value:  "s42u",
+			Origin: "shared",
+		},
+		{
+			Key:    "test3/val3",
+			Value:  "t42u",
+			Origin: "test3",
+		},
+	}, []model.Attribute{
+		{
+			Key:    "a12",
+			Value:  "va12",
+			Origin: "",
+		},
+		{
+			Key:    "a23",
+			Value:  "va23",
+			Origin: "test1",
+		},
+		{
+			Key:    "a33",
+			Value:  "va33",
+			Origin: "test1",
+		},
+		{
+			Key:    "a42",
+			Value:  "va42",
+			Origin: "test2",
+		},
+		{
+			Key:    "a52",
+			Value:  "va52",
+			Origin: "test2",
+		},
+		{
+			Key:    "shared/val1",
+			Value:  "s42u",
+			Origin: "shared",
+		},
+		{
+			Key:    "test3/val3",
+			Value:  "t42u",
+			Origin: "test3",
+		},
+	}))
 }
 
 func tryDeviceAttributeUpdate(port string, dtId string, deviceId string, origin string, attributes []model.Attribute, expected []model.Attribute) func(t *testing.T) {
@@ -476,9 +624,13 @@ func tryDeviceAttributeUpdate(port string, dtId string, deviceId string, origin 
 			t.Fatal(device)
 		}
 		if !reflect.DeepEqual(device.Attributes, expected) {
-			t.Error(device, expected)
+			a, _ := json.Marshal(device.Attributes)
+			e, _ := json.Marshal(expected)
+			t.Error("\n", string(a), "\n", string(e))
 			return
 		}
+
+		//time.Sleep(5 * time.Second)
 
 		resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id))
 		if err != nil {

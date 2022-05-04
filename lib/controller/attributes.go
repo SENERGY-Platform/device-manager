@@ -21,14 +21,14 @@ import (
 	"sort"
 )
 
-func updateSameOriginAttributes(attributes []model.Attribute, update []model.Attribute, origin string) (result []model.Attribute) {
+func updateSameOriginAttributes(attributes []model.Attribute, update []model.Attribute, origin []string) (result []model.Attribute) {
 	for _, attr := range attributes {
-		if attr.Origin != origin {
+		if !contains(origin, attr.Origin) {
 			result = append(result, attr)
 		}
 	}
 	for _, attr := range update {
-		if attr.Origin == origin {
+		if contains(origin, attr.Origin) {
 			result = append(result, attr)
 		}
 	}
@@ -36,4 +36,12 @@ func updateSameOriginAttributes(attributes []model.Attribute, update []model.Att
 		return result[i].Key < result[j].Key
 	})
 	return result
+}
+func contains(list []string, s string) bool {
+	for _, e := range list {
+		if e == s {
+			return true
+		}
+	}
+	return false
 }
