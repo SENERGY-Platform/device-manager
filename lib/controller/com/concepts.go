@@ -31,3 +31,9 @@ func (this *Com) ValidateConcept(token auth.Token, concept model.Concept) (err e
 	list = append(list, this.config.DeviceRepoUrl+"/concepts?dry-run=true")
 	return validateResource(token, this.config, list, concept)
 }
+
+func (this *Com) ValidateConceptDelete(token auth.Token, id string) (err error, code int) {
+	return validateResourceDelete(token, this.config, []string{
+		this.config.DeviceRepoUrl + "/concepts",
+	}, id)
+}

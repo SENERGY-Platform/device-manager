@@ -143,4 +143,10 @@ type Com interface {
 	GetLocation(token auth.Token, id string) (model.Location, error, int)
 	ValidateLocation(token auth.Token, Location model.Location) (err error, code int)
 	PermissionCheckForLocation(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
+
+	ValidateAspectDelete(token auth.Token, id string) (err error, code int)
+	ValidateCharacteristicDelete(token auth.Token, id string) (err error, code int)
+	ValidateConceptDelete(token auth.Token, id string) (err error, code int)
+	ValidateDeviceClassDelete(token auth.Token, id string) (err error, code int)
+	ValidateFunctionDelete(token auth.Token, id string) (err error, code int)
 }

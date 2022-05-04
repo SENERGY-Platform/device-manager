@@ -70,7 +70,11 @@ func (this *Controller) PublishAspectDelete(token auth.Token, id string) (error,
 	if !token.IsAdmin() {
 		return errors.New("access denied"), http.StatusForbidden
 	}
-	err := this.publisher.PublishAspectDelete(id, token.GetUserId())
+	err, code := this.com.ValidateAspectDelete(token, id)
+	if err != nil {
+		return err, code
+	}
+	err = this.publisher.PublishAspectDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

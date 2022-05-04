@@ -27,14 +27,33 @@ import (
 	"reflect"
 	"strconv"
 	"testing"
+	"time"
 )
 
 func testConcepts(t *testing.T, conf config.Config) {
-	createConcept := model.Concept{
-		Name:              "c1",
-		CharacteristicIds: []string{"urn:infai:ses:characteristic:4711a"},
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics", model.Characteristic{
+		Id:          "urn:infai:ses:characteristic:4711a",
+		Name:        "urn:infai:ses:characteristic:4711a",
+		DisplayUnit: "urn:infai:ses:characteristic:4711a",
+		Type:        model.String,
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts", createConcept)
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, _ := ioutil.ReadAll(resp.Body)
+		t.Fatal(resp.Status, resp.StatusCode, string(b))
+	}
+
+	time.Sleep(10 * time.Second)
+
+	createConcept := model.Concept{
+		Name:                 "c1",
+		CharacteristicIds:    []string{"urn:infai:ses:characteristic:4711a"},
+		BaseCharacteristicId: "urn:infai:ses:characteristic:4711a",
+	}
+	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts", createConcept)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,10 +82,28 @@ func testConcepts(t *testing.T, conf config.Config) {
 		checkConcept(t, conf, concept.Id, createConcept)
 	})
 
+	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics", model.Characteristic{
+		Id:          "urn:infai:ses:characteristic:4712322a",
+		Name:        "urn:infai:ses:characteristic:4712322a",
+		DisplayUnit: "urn:infai:ses:characteristic:4712322a",
+		Type:        model.String,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, _ := ioutil.ReadAll(resp.Body)
+		t.Fatal(resp.Status, resp.StatusCode, string(b))
+	}
+
+	time.Sleep(10 * time.Second)
+
 	updateConcept := model.Concept{
-		Id:                concept.Id,
-		Name:              "c2",
-		CharacteristicIds: []string{"urn:infai:ses:characteristic:4712322a"},
+		Id:                   concept.Id,
+		Name:                 "c2",
+		CharacteristicIds:    []string{"urn:infai:ses:characteristic:4712322a"},
+		BaseCharacteristicId: "urn:infai:ses:characteristic:4712322a",
 	}
 	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/"+url.PathEscape(concept.Id), updateConcept)
 	if err != nil {

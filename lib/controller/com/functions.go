@@ -31,3 +31,9 @@ func (this *Com) ValidateFunction(token auth.Token, function model.Function) (er
 		this.config.DeviceRepoUrl + "/functions?dry-run=true",
 	}, function)
 }
+
+func (this *Com) ValidateFunctionDelete(token auth.Token, id string) (err error, code int) {
+	return validateResourceDelete(token, this.config, []string{
+		this.config.DeviceRepoUrl + "/functions",
+	}, id)
+}

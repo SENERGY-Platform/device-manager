@@ -73,6 +73,10 @@ func (this *Controller) PublishConceptDelete(token auth.Token, id string) (error
 	if err != nil {
 		return err, code
 	}
+	err, code = this.com.ValidateConceptDelete(token, id)
+	if err != nil {
+		return err, code
+	}
 	err = this.publisher.PublishConceptDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError

@@ -31,3 +31,9 @@ func (this *Com) ValidateDeviceClass(token auth.Token, deviceClass model.DeviceC
 		this.config.DeviceRepoUrl + "/device-classes?dry-run=true",
 	}, deviceClass)
 }
+
+func (this *Com) ValidateDeviceClassDelete(token auth.Token, id string) (err error, code int) {
+	return validateResourceDelete(token, this.config, []string{
+		this.config.DeviceRepoUrl + "/device-classes",
+	}, id)
+}

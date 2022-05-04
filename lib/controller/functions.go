@@ -70,7 +70,11 @@ func (this *Controller) PublishFunctionDelete(token auth.Token, id string) (erro
 	if !token.IsAdmin() {
 		return errors.New("access denied"), http.StatusForbidden
 	}
-	err := this.publisher.PublishFunctionDelete(id, token.GetUserId())
+	err, code := this.com.ValidateFunctionDelete(token, id)
+	if err != nil {
+		return err, code
+	}
+	err = this.publisher.PublishFunctionDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

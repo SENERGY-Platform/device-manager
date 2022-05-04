@@ -69,6 +69,10 @@ func (this *Controller) PublishCharacteristicDelete(token auth.Token, id string)
 	if err != nil {
 		return err, code
 	}
+	err, code = this.com.ValidateCharacteristicDelete(token, id)
+	if err != nil {
+		return err, code
+	}
 	err = this.publisher.PublishCharacteristicDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError

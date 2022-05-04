@@ -77,6 +77,35 @@ func validateResource(token auth.Token, config config.Config, endpoints []string
 	return nil, http.StatusOK
 }
 
+func validateResourceDelete(token auth.Token, config config.Config, endpoints []string, id string) (err error, code int) {
+	if config.DisableValidation {
+		return nil, http.StatusOK
+	}
+	for _, endpoint := range endpoints {
+		req, err := http.NewRequest("DELETE", endpoint+"/"+url.PathEscape(id)+"?dry-run=true", nil)
+		if err != nil {
+			debug.PrintStack()
+			return err, http.StatusInternalServerError
+		}
+		req.Header.Set("Authorization", token.Token)
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			debug.PrintStack()
+			return err, http.StatusInternalServerError
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode >= 300 {
+			buf := new(bytes.Buffer)
+			buf.ReadFrom(resp.Body)
+			err = errors.New(buf.String())
+			log.Println("WARNING: validation error", endpoint, resp.StatusCode, err)
+			debug.PrintStack()
+			return err, resp.StatusCode
+		}
+	}
+	return nil, http.StatusOK
+}
+
 type PermSearchElement struct {
 	Id                string            `json:"id"`
 	Name              string            `json:"name"`

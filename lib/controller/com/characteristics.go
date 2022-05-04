@@ -31,3 +31,9 @@ func (this *Com) GetCharacteristic(token auth.Token, id string) (concept model.C
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/characteristics", id, &concept)
 	return
 }
+
+func (this *Com) ValidateCharacteristicDelete(token auth.Token, id string) (err error, code int) {
+	return validateResourceDelete(token, this.config, []string{
+		this.config.DeviceRepoUrl + "/characteristics",
+	}, id)
+}

@@ -357,6 +357,19 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
+	router.DELETE("/aspects/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
 	router.PUT("/aspects", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
@@ -413,6 +426,19 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
+	router.DELETE("/functions/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
 	router.GET("/device-classes/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		deviceclass, ok := repo.deviceclasses[id]
@@ -441,6 +467,19 @@ func NewDeviceRepo(producer interface {
 		}
 		if deviceclass.Id == "" {
 			http.Error(writer, "missing device id", http.StatusBadRequest)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
+	router.DELETE("/device-classes/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
 		writer.WriteHeader(http.StatusOK)
@@ -512,6 +551,19 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
+	router.DELETE("/concepts/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+	})
+
 	router.PUT("/characteristics", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
@@ -543,6 +595,19 @@ func NewDeviceRepo(producer interface {
 		} else {
 			http.Error(writer, "404", 404)
 		}
+	})
+
+	router.DELETE("/characteristics/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if !dryRun {
+			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
 	})
 
 	repo.ts = httptest.NewServer(router)

@@ -31,3 +31,9 @@ func (this *Com) ValidateAspect(token auth.Token, aspect model.Aspect) (err erro
 		this.config.DeviceRepoUrl + "/aspects?dry-run=true",
 	}, aspect)
 }
+
+func (this *Com) ValidateAspectDelete(token auth.Token, id string) (err error, code int) {
+	return validateResourceDelete(token, this.config, []string{
+		this.config.DeviceRepoUrl + "/aspects",
+	}, id)
+}
