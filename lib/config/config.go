@@ -55,7 +55,8 @@ type Config struct {
 	PermissionsTopic    string `json:"permissions_topic"`
 	HttpClientTimeout   string `json:"http_client_timeout"`
 
-	DisableValidation bool `json:"disable_validation"`
+	DisableValidation bool   `json:"disable_validation"`
+	ConverterUrl      string `json:"converter_url"` //to validate concept conversions, may be empty to disable concept conversion validation
 }
 
 //loads config from json in location and used environment variables (e.g KafkaUrl --> KAFKA_URL)

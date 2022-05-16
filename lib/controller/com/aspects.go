@@ -27,7 +27,7 @@ func (this *Com) GetAspect(token auth.Token, id string) (aspect model.Aspect, er
 }
 
 func (this *Com) ValidateAspect(token auth.Token, aspect model.Aspect) (err error, code int) {
-	return validateResource(token, this.config, []string{
+	return validateResources(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/aspects?dry-run=true",
 	}, aspect)
 }

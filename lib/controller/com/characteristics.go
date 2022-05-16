@@ -24,7 +24,7 @@ import (
 func (this *Com) ValidateCharacteristic(token auth.Token, characteristic model.Characteristic) (err error, code int) {
 	list := []string{}
 	list = append(list, this.config.DeviceRepoUrl+"/characteristics?dry-run=true")
-	return validateResource(token, this.config, list, characteristic)
+	return validateResources(token, this.config, list, characteristic)
 }
 
 func (this *Com) GetCharacteristic(token auth.Token, id string) (concept model.Characteristic, err error, code int) {

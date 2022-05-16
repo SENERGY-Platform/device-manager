@@ -27,7 +27,7 @@ func (this *Com) GetLocation(token auth.Token, id string) (Location model.Locati
 }
 
 func (this *Com) ValidateLocation(token auth.Token, Location model.Location) (err error, code int) {
-	return validateResource(token, this.config, []string{
+	return validateResources(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/locations?dry-run=true",
 	}, Location)
 }

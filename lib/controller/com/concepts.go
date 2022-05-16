@@ -27,9 +27,17 @@ func (this *Com) GetConcept(token auth.Token, id string) (concept model.Concept,
 }
 
 func (this *Com) ValidateConcept(token auth.Token, concept model.Concept) (err error, code int) {
-	list := []string{}
-	list = append(list, this.config.DeviceRepoUrl+"/concepts?dry-run=true")
-	return validateResource(token, this.config, list, concept)
+	err, code = validateResources(token, this.config, []string{this.config.DeviceRepoUrl + "/concepts?dry-run=true"}, concept)
+	if err != nil {
+		return err, code
+	}
+	if this.config.ConverterUrl != "" && this.config.ConverterUrl != "-" {
+		err, code = validateResource(token, this.config, "POST", this.config.ConverterUrl+"/validate/extended-conversions", map[string]interface{}{
+			"nodes":      concept.CharacteristicIds,
+			"extensions": concept.Conversions,
+		})
+	}
+	return err, code
 }
 
 func (this *Com) ValidateConceptDelete(token auth.Token, id string) (err error, code int) {

@@ -35,5 +35,5 @@ func (this *Com) ValidateDeviceGroup(token auth.Token, dt model.DeviceGroup) (er
 	if this.config.DeviceRepoUrl != "" && this.config.DeviceRepoUrl != "-" {
 		list = append(list, this.config.DeviceRepoUrl+"/device-groups?dry-run=true")
 	}
-	return validateResource(token, this.config, list, dt)
+	return validateResources(token, this.config, list, dt)
 }

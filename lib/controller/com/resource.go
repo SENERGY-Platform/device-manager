@@ -42,37 +42,48 @@ func getResourceFromService(token auth.Token, endpoint string, id string, result
 	return nil, http.StatusOK
 }
 
-func validateResource(token auth.Token, config config.Config, endpoints []string, resource interface{}) (err error, code int) {
+func validateResources(token auth.Token, config config.Config, endpoints []string, resource interface{}) (err error, code int) {
 	if config.DisableValidation {
 		return nil, http.StatusOK
 	}
 	for _, endpoint := range endpoints {
-		b := new(bytes.Buffer)
-		err = json.NewEncoder(b).Encode(resource)
+		err, code = validateResource(token, config, "PUT", endpoint, resource)
 		if err != nil {
-			debug.PrintStack()
-			return err, http.StatusInternalServerError
+			return err, code
 		}
-		req, err := http.NewRequest("PUT", endpoint, b)
-		if err != nil {
-			debug.PrintStack()
-			return err, http.StatusInternalServerError
-		}
-		req.Header.Set("Authorization", token.Token)
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			debug.PrintStack()
-			return err, http.StatusInternalServerError
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode >= 300 {
-			buf := new(bytes.Buffer)
-			buf.ReadFrom(resp.Body)
-			err = errors.New(buf.String())
-			log.Println("WARNING: validation error", endpoint, resource, resp.StatusCode, err)
-			debug.PrintStack()
-			return err, resp.StatusCode
-		}
+	}
+	return nil, http.StatusOK
+}
+
+func validateResource(token auth.Token, config config.Config, method string, endpoint string, resource interface{}) (err error, code int) {
+	if config.DisableValidation {
+		return nil, http.StatusOK
+	}
+	b := new(bytes.Buffer)
+	err = json.NewEncoder(b).Encode(resource)
+	if err != nil {
+		debug.PrintStack()
+		return err, http.StatusInternalServerError
+	}
+	req, err := http.NewRequest(method, endpoint, b)
+	if err != nil {
+		debug.PrintStack()
+		return err, http.StatusInternalServerError
+	}
+	req.Header.Set("Authorization", token.Token)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		debug.PrintStack()
+		return err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		err = errors.New(buf.String())
+		log.Println("WARNING: validation error", endpoint, resource, resp.StatusCode, err)
+		debug.PrintStack()
+		return err, resp.StatusCode
 	}
 	return nil, http.StatusOK
 }

@@ -28,7 +28,7 @@ func (this *Com) GetHub(token auth.Token, id string) (hub model.Hub, err error, 
 }
 
 func (this *Com) ValidateHub(token auth.Token, hub model.Hub) (err error, code int) {
-	return validateResource(token, this.config, []string{
+	return validateResources(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/hubs?dry-run=true",
 	}, hub)
 }
