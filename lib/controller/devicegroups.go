@@ -32,7 +32,7 @@ func (this *Controller) ReadDeviceGroup(token auth.Token, id string) (dt model.D
 func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg model.DeviceGroup) (result model.DeviceGroup, err error, code int) {
 	dg.GenerateId()
 	dg.SetShortCriteria()
-	dg.DeviceIds, err = this.filterInvalidDeviceIds(token, dg.DeviceIds)
+	dg.DeviceIds, err = this.filterInvalidDeviceIds(token, dg.DeviceIds, "r")
 	if err != nil {
 		return dg, err, http.StatusInternalServerError
 	}
@@ -55,7 +55,7 @@ func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg
 	dg.GenerateId()
 	dg.SetShortCriteria()
 
-	dg.DeviceIds, err = this.filterInvalidDeviceIds(token, dg.DeviceIds)
+	dg.DeviceIds, err = this.filterInvalidDeviceIds(token, dg.DeviceIds, "r")
 	if err != nil {
 		return dg, err, http.StatusInternalServerError
 	}
@@ -92,8 +92,8 @@ func (this *Controller) PublishDeviceGroupDelete(token auth.Token, id string) (e
 	return nil, http.StatusOK
 }
 
-func (this *Controller) filterInvalidDeviceIds(token auth.Token, ids []string) (result []string, err error) {
-	deviceIsAccessible, err, _ := this.com.PermissionCheckForDeviceList(token, ids, "x")
+func (this *Controller) filterInvalidDeviceIds(token auth.Token, ids []string, rights string) (result []string, err error) {
+	deviceIsAccessible, err, _ := this.com.PermissionCheckForDeviceList(token, ids, rights)
 	if err != nil {
 		return result, err
 	}

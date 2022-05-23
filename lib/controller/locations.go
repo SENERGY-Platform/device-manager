@@ -23,21 +23,25 @@ import (
 	"net/http"
 )
 
-func (this *Controller) ReadLocation(token auth.Token, id string) (Location model.Location, err error, code int) {
+func (this *Controller) ReadLocation(token auth.Token, id string) (location model.Location, err error, code int) {
 	return this.com.GetLocation(token, id)
 }
 
-func (this *Controller) PublishLocationCreate(token auth.Token, Location model.Location) (model.Location, error, int) {
-	Location.GenerateId()
-	err, code := this.com.ValidateLocation(token, Location)
+func (this *Controller) PublishLocationCreate(token auth.Token, location model.Location) (result model.Location, err error, code int) {
+	location.GenerateId()
+	location.DeviceIds, err = this.filterInvalidDeviceIds(token, location.DeviceIds, "r")
 	if err != nil {
-		return Location, err, code
+		return location, err, code
 	}
-	err = this.publisher.PublishLocation(Location, token.GetUserId())
+	err, code = this.com.ValidateLocation(token, location)
 	if err != nil {
-		return Location, err, http.StatusInternalServerError
+		return location, err, code
 	}
-	return Location, nil, http.StatusOK
+	err = this.publisher.PublishLocation(location, token.GetUserId())
+	if err != nil {
+		return location, err, http.StatusInternalServerError
+	}
+	return location, nil, http.StatusOK
 }
 
 func (this *Controller) PublishLocationUpdate(token auth.Token, id string, location model.Location) (model.Location, error, int) {
@@ -50,6 +54,11 @@ func (this *Controller) PublishLocationUpdate(token auth.Token, id string, locat
 	location.Id = id
 
 	err, code := this.com.PermissionCheckForLocation(token, id, "w")
+	if err != nil {
+		return location, err, code
+	}
+
+	location.DeviceIds, err = this.filterInvalidDeviceIds(token, location.DeviceIds, "r")
 	if err != nil {
 		return location, err, code
 	}
