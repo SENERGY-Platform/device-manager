@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"runtime/debug"
 	"strconv"
+	"time"
 )
 
 func getResourceFromService(token auth.Token, endpoint string, id string, result interface{}) (err error, code int) {
@@ -71,7 +72,10 @@ func validateResource(token auth.Token, config config.Config, method string, end
 		return err, http.StatusInternalServerError
 	}
 	req.Header.Set("Authorization", token.Token)
-	resp, err := http.DefaultClient.Do(req)
+	client := http.Client{
+		Timeout: 5 * time.Second,
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		debug.PrintStack()
 		return err, http.StatusInternalServerError
