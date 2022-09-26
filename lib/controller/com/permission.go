@@ -28,6 +28,7 @@ import (
 )
 
 func (this *Com) PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int) {
+	ids = removeIdModifiers(ids)
 	err, code = this.QueryPermissionsSearch(token.Jwt(), QueryMessage{
 		Resource: "devices",
 		CheckIds: &QueryCheckIds{
@@ -91,7 +92,8 @@ func (this *Com) PermissionCheck(token auth.Token, id string, permission string,
 	if this.config.PermissionsUrl == "" || this.config.PermissionsUrl == "-" {
 		return nil, 200
 	}
-	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/jwt/check/"+url.QueryEscape(resource)+"/"+url.QueryEscape(id)+"/"+permission+"/bool", nil)
+	id = removeIdModifier(id)
+	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/v3/resources/"+url.QueryEscape(resource)+"/"+url.QueryEscape(id)+"/access?rights="+url.QueryEscape(permission), nil)
 	if err != nil {
 		debug.PrintStack()
 		return err, http.StatusInternalServerError
@@ -133,6 +135,7 @@ func (this *Com) DevicesOfTypeExist(token auth.Token, deviceTypeId string) (resu
 	if this.config.PermissionsUrl == "" || this.config.PermissionsUrl == "-" {
 		return false, nil, 200
 	}
+	deviceTypeId = removeIdModifier(deviceTypeId)
 	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/jwt/select/devices/device_type_id/"+url.PathEscape(deviceTypeId)+"/x", nil)
 	if err != nil {
 		debug.PrintStack()

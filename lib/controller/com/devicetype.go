@@ -19,6 +19,7 @@ package com
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"net/http"
 )
 
 func (this *Com) GetDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int) {
@@ -27,5 +28,8 @@ func (this *Com) GetDeviceType(token auth.Token, id string) (dt model.DeviceType
 }
 
 func (this *Com) ValidateDeviceType(token auth.Token, dt model.DeviceType) (err error, code int) {
+	if err = PreventIdModifier(dt.Id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	return validateResources(token, this.config, []string{this.config.DeviceRepoUrl + "/device-types?dry-run=true"}, dt)
 }

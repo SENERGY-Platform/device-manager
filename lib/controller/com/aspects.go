@@ -19,6 +19,7 @@ package com
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"net/http"
 )
 
 func (this *Com) GetAspect(token auth.Token, id string) (aspect model.Aspect, err error, code int) {
@@ -27,12 +28,18 @@ func (this *Com) GetAspect(token auth.Token, id string) (aspect model.Aspect, er
 }
 
 func (this *Com) ValidateAspect(token auth.Token, aspect model.Aspect) (err error, code int) {
+	if err = PreventIdModifier(aspect.Id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	return validateResources(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/aspects?dry-run=true",
 	}, aspect)
 }
 
 func (this *Com) ValidateAspectDelete(token auth.Token, id string) (err error, code int) {
+	if err = PreventIdModifier(id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	return validateResourceDelete(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/aspects",
 	}, id)

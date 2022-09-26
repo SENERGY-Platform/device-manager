@@ -19,6 +19,7 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 )
@@ -44,7 +45,7 @@ func (this *Controller) PublishDeviceCreate(token auth.Token, device model.Devic
 	return device, nil, http.StatusOK
 }
 
-//admins may create new devices but only without setting options.UpdateOnlySameOriginAttributes
+// admins may create new devices but only without setting options.UpdateOnlySameOriginAttributes
 func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device model.Device, options model.DeviceUpdateOptions) (_ model.Device, err error, code int) {
 	if device.Id != id {
 		return device, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
@@ -78,6 +79,9 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 }
 
 func (this *Controller) PublishDeviceDelete(token auth.Token, id string) (error, int) {
+	if err := com.PreventIdModifier(id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	err, code := this.com.PermissionCheckForDevice(token, id, "a")
 	if err != nil {
 		return err, code

@@ -19,6 +19,7 @@ package com
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"net/http"
 )
 
 func (this *Com) GetDeviceClass(token auth.Token, id string) (deviceClass model.DeviceClass, err error, code int) {
@@ -27,12 +28,18 @@ func (this *Com) GetDeviceClass(token auth.Token, id string) (deviceClass model.
 }
 
 func (this *Com) ValidateDeviceClass(token auth.Token, deviceClass model.DeviceClass) (err error, code int) {
+	if err = PreventIdModifier(deviceClass.Id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	return validateResources(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/device-classes?dry-run=true",
 	}, deviceClass)
 }
 
 func (this *Com) ValidateDeviceClassDelete(token auth.Token, id string) (err error, code int) {
+	if err = PreventIdModifier(id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	return validateResourceDelete(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/device-classes",
 	}, id)

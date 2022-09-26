@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"runtime/debug"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -246,4 +247,24 @@ func contains(list []string, value string) bool {
 		}
 	}
 	return false
+}
+
+const Seperator = "$"
+
+func removeIdModifier(id string) string {
+	return strings.SplitN(id, Seperator, 2)[0]
+}
+
+func removeIdModifiers(ids []string) (result []string) {
+	for _, id := range ids {
+		result = append(result, removeIdModifier(id))
+	}
+	return result
+}
+
+func PreventIdModifier(id string) error {
+	if strings.Contains(id, Seperator) {
+		return errors.New("no edit on ids with " + Seperator + " part allowed")
+	}
+	return nil
 }

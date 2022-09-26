@@ -19,6 +19,7 @@ package com
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"net/http"
 )
 
 func (this *Com) GetProtocol(token auth.Token, id string) (protocol model.Protocol, err error, code int) {
@@ -27,6 +28,9 @@ func (this *Com) GetProtocol(token auth.Token, id string) (protocol model.Protoc
 }
 
 func (this *Com) ValidateProtocol(token auth.Token, protocol model.Protocol) (err error, code int) {
+	if err = PreventIdModifier(protocol.Id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	return validateResources(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/protocols?dry-run=true",
 	}, protocol)

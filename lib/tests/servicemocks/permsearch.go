@@ -37,6 +37,10 @@ func NewPermSearch() *PermSearch {
 		json.NewEncoder(writer).Encode(true)
 	})
 
+	router.GET("/v3/resources/:resource/:id/access", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		json.NewEncoder(writer).Encode(true)
+	})
+
 	router.GET("/jwt/select/devices/device_type_id/:id/x", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		json.NewEncoder(writer).Encode([]interface{}{})
 	})

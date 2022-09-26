@@ -19,6 +19,7 @@ package com
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"net/http"
 )
 
 func (this *Com) GetLocation(token auth.Token, id string) (Location model.Location, err error, code int) {
@@ -26,8 +27,11 @@ func (this *Com) GetLocation(token auth.Token, id string) (Location model.Locati
 	return
 }
 
-func (this *Com) ValidateLocation(token auth.Token, Location model.Location) (err error, code int) {
+func (this *Com) ValidateLocation(token auth.Token, location model.Location) (err error, code int) {
+	if err = PreventIdModifier(location.Id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	return validateResources(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/locations?dry-run=true",
-	}, Location)
+	}, location)
 }

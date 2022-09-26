@@ -19,9 +19,13 @@ package com
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"net/http"
 )
 
 func (this *Com) ValidateCharacteristic(token auth.Token, characteristic model.Characteristic) (err error, code int) {
+	if err = PreventIdModifier(characteristic.Id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	list := []string{}
 	list = append(list, this.config.DeviceRepoUrl+"/characteristics?dry-run=true")
 	return validateResources(token, this.config, list, characteristic)
@@ -33,6 +37,9 @@ func (this *Com) GetCharacteristic(token auth.Token, id string) (concept model.C
 }
 
 func (this *Com) ValidateCharacteristicDelete(token auth.Token, id string) (err error, code int) {
+	if err = PreventIdModifier(id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	return validateResourceDelete(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/characteristics",
 	}, id)

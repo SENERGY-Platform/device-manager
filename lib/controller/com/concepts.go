@@ -19,6 +19,7 @@ package com
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"net/http"
 )
 
 func (this *Com) GetConcept(token auth.Token, id string) (concept model.Concept, err error, code int) {
@@ -27,6 +28,9 @@ func (this *Com) GetConcept(token auth.Token, id string) (concept model.Concept,
 }
 
 func (this *Com) ValidateConcept(token auth.Token, concept model.Concept) (err error, code int) {
+	if err = PreventIdModifier(concept.Id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	err, code = validateResources(token, this.config, []string{this.config.DeviceRepoUrl + "/concepts?dry-run=true"}, concept)
 	if err != nil {
 		return err, code
@@ -41,6 +45,9 @@ func (this *Com) ValidateConcept(token auth.Token, concept model.Concept) (err e
 }
 
 func (this *Com) ValidateConceptDelete(token auth.Token, id string) (err error, code int) {
+	if err = PreventIdModifier(id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	return validateResourceDelete(token, this.config, []string{
 		this.config.DeviceRepoUrl + "/concepts",
 	}, id)

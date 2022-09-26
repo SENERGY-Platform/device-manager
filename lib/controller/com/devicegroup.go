@@ -30,10 +30,13 @@ func (this *Com) GetTechnicalDeviceGroup(token auth.Token, id string) (dt model.
 	return
 }
 
-func (this *Com) ValidateDeviceGroup(token auth.Token, dt model.DeviceGroup) (err error, code int) {
+func (this *Com) ValidateDeviceGroup(token auth.Token, dg model.DeviceGroup) (err error, code int) {
+	if err = PreventIdModifier(dg.Id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	list := []string{}
 	if this.config.DeviceRepoUrl != "" && this.config.DeviceRepoUrl != "-" {
 		list = append(list, this.config.DeviceRepoUrl+"/device-groups?dry-run=true")
 	}
-	return validateResources(token, this.config, list, dt)
+	return validateResources(token, this.config, list, dg)
 }

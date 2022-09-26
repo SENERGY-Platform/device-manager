@@ -19,6 +19,7 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 )
@@ -71,6 +72,9 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 }
 
 func (this *Controller) PublishHubDelete(token auth.Token, id string) (error, int) {
+	if err := com.PreventIdModifier(id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	err, code := this.com.PermissionCheckForHub(token, id, "a")
 	if err != nil {
 		return err, code

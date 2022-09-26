@@ -19,6 +19,7 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"net/http"
 	"runtime/debug"
@@ -74,6 +75,9 @@ func (this *Controller) PublishDeviceTypeUpdate(token auth.Token, id string, dt 
 }
 
 func (this *Controller) PublishDeviceTypeDelete(token auth.Token, id string) (error, int) {
+	if err := com.PreventIdModifier(id); err != nil {
+		return err, http.StatusBadRequest
+	}
 	exists, err, code := this.com.DevicesOfTypeExist(token, id)
 	if err != nil {
 		return err, code
