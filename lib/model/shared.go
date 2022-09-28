@@ -72,6 +72,7 @@ type Protocol struct {
 	Name             string            `json:"name"`
 	Handler          string            `json:"handler"`
 	ProtocolSegments []ProtocolSegment `json:"protocol_segments"`
+	Constraints      []string          `json:"constraints"`
 }
 
 type ProtocolSegment struct {
