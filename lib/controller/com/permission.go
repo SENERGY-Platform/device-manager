@@ -28,7 +28,8 @@ import (
 )
 
 func (this *Com) PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int) {
-	ids = removeIdModifiers(ids)
+	ids = append(ids, removeIdModifiers(ids)...)
+	ids = RemoveDuplicates(ids)
 	err, code = this.QueryPermissionsSearch(token.Jwt(), QueryMessage{
 		Resource: "devices",
 		CheckIds: &QueryCheckIds{

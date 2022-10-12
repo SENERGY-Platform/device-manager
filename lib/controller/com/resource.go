@@ -268,3 +268,15 @@ func PreventIdModifier(id string) error {
 	}
 	return nil
 }
+
+func RemoveDuplicates[T comparable](slice []T) []T {
+	keys := make(map[T]bool)
+	result := []T{}
+	for _, entry := range slice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			result = append(result, entry)
+		}
+	}
+	return result
+}
