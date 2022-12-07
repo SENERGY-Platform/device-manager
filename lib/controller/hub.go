@@ -28,9 +28,13 @@ func (this *Controller) ReadHub(token auth.Token, id string) (hub model.Hub, err
 	return this.com.GetHub(token, id)
 }
 
-func (this *Controller) PublishHubCreate(token auth.Token, hub model.Hub) (model.Hub, error, int) {
+func (this *Controller) PublishHubCreate(token auth.Token, hubEdit model.HubEdit) (model.Hub, error, int) {
+	hub, err, code := this.completeHub(token, hubEdit)
+	if err != nil {
+		return hub, err, code
+	}
 	hub.GenerateId()
-	err, code := this.com.ValidateHub(token, hub)
+	err, code = this.com.ValidateHub(token, hub)
 	if err != nil {
 		return hub, err, code
 	}
@@ -41,12 +45,17 @@ func (this *Controller) PublishHubCreate(token auth.Token, hub model.Hub) (model
 	return hub, nil, http.StatusOK
 }
 
-func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId string, hub model.Hub) (model.Hub, error, int) {
-	if hub.Id != id {
-		return hub, errors.New("hub id in body unequal to hub id in request endpoint"), http.StatusBadRequest
+func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId string, hubEdit model.HubEdit) (model.Hub, error, int) {
+	if hubEdit.Id != id {
+		return model.Hub{}, errors.New("hub id in body unequal to hub id in request endpoint"), http.StatusBadRequest
 	}
 	if userId == "" {
 		userId = token.GetUserId()
+	}
+
+	hub, err, code := this.completeHub(token, hubEdit)
+	if err != nil {
+		return hub, err, code
 	}
 
 	//replace sub ids and create new ones for new sub elements
@@ -60,7 +69,7 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 		}
 	}
 
-	err, code := this.com.ValidateHub(token, hub)
+	err, code = this.com.ValidateHub(token, hub)
 	if err != nil {
 		return hub, err, code
 	}
@@ -84,4 +93,38 @@ func (this *Controller) PublishHubDelete(token auth.Token, id string) (error, in
 		return err, http.StatusInternalServerError
 	}
 	return nil, http.StatusOK
+}
+
+type IdWrapper struct {
+	Id string `json:"id"`
+}
+
+func (this *Controller) completeHub(token auth.Token, edit model.HubEdit) (result model.Hub, err error, code int) {
+	idWrapperList := []IdWrapper{}
+	err, code = this.com.QueryPermissionsSearch(token.Jwt(), com.QueryMessage{
+		Resource: "devices",
+		Find: &com.QueryFind{
+			QueryListCommons: com.QueryListCommons{
+				Limit:  len(edit.DeviceLocalIds),
+				Offset: 0,
+				Rights: "r",
+			},
+			Filter: &com.Selection{
+				Condition: com.ConditionConfig{
+					Feature:   "features.local_id",
+					Operation: com.QueryAnyValueInFeatureOperation,
+					Value:     edit.DeviceLocalIds,
+				},
+			},
+		},
+	}, &idWrapperList)
+	if err != nil {
+		return result, err, code
+	}
+	result.HubEdit = edit
+	result.DeviceIds = []string{}
+	for _, id := range idWrapperList {
+		result.DeviceIds = append(result.DeviceIds, id.Id)
+	}
+	return result, err, code
 }

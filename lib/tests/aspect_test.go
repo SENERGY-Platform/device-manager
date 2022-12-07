@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -37,7 +37,7 @@ func testAspect(port string) func(t *testing.T) {
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
-			b, _ := ioutil.ReadAll(resp.Body)
+			b, _ := io.ReadAll(resp.Body)
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
@@ -59,7 +59,7 @@ func testAspect(port string) func(t *testing.T) {
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
-			b, _ := ioutil.ReadAll(resp.Body)
+			b, _ := io.ReadAll(resp.Body)
 			t.Log("http://localhost:" + port + "/aspects/" + url.PathEscape(aspect.Id))
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
@@ -80,7 +80,7 @@ func testAspect(port string) func(t *testing.T) {
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != http.StatusOK {
-			b, _ := ioutil.ReadAll(resp.Body)
+			b, _ := io.ReadAll(resp.Body)
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
@@ -98,7 +98,7 @@ func testAspect(port string) func(t *testing.T) {
 			t.Fatal(err)
 		}
 		if resp.StatusCode != http.StatusOK {
-			b, _ := ioutil.ReadAll(resp.Body)
+			b, _ := io.ReadAll(resp.Body)
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 		resp.Body.Close()

@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -39,7 +39,7 @@ func testHub(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
@@ -78,7 +78,7 @@ func testHub(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
@@ -127,7 +127,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.Hub{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.HubEdit{
 		Name:           "h1",
 		DeviceLocalIds: []string{"unknown"},
 	})
@@ -141,7 +141,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.Hub{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.HubEdit{
 		Name:           "h1",
 		Hash:           "foobar",
 		DeviceLocalIds: []string{device.LocalId},
@@ -152,7 +152,7 @@ func testHub(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
@@ -173,7 +173,7 @@ func testHub(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
@@ -184,7 +184,7 @@ func testHub(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
@@ -205,7 +205,7 @@ func testHub(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
@@ -233,7 +233,7 @@ func testHubAssertions(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
@@ -272,7 +272,7 @@ func testHubAssertions(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
@@ -340,7 +340,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.Hub{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.HubEdit{
 		Name:           "h2",
 		Hash:           "foobar",
 		DeviceLocalIds: []string{"lid3", "lid4", "lid5"},
@@ -388,7 +388,7 @@ func testHubAssertions(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
@@ -421,7 +421,7 @@ func testHubAssertions(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
@@ -437,7 +437,7 @@ func testHubAssertions(t *testing.T, port string) {
 
 	// only one hub may have device
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.Hub{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.HubEdit{
 		Name:           "h3",
 		Hash:           "foobar",
 		DeviceLocalIds: []string{"lid5"},
@@ -468,7 +468,7 @@ func testHubAssertions(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
@@ -484,7 +484,7 @@ func testHubAssertions(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		b, _ := ioutil.ReadAll(resp.Body)
+		b, _ := io.ReadAll(resp.Body)
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 

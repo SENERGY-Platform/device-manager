@@ -16,11 +16,16 @@
 
 package model
 
-type Hub struct {
+type HubEdit struct {
 	Id             string   `json:"id"`
 	Name           string   `json:"name"`
 	Hash           string   `json:"hash"`
 	DeviceLocalIds []string `json:"device_local_ids"`
+}
+
+type Hub struct {
+	HubEdit
+	DeviceIds []string `json:"device_ids"` //not user defined; set by finding device-ids of this.DeviceLocalIds
 }
 
 type Content struct {

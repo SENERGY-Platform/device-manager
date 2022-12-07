@@ -19,7 +19,6 @@ package util
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -43,7 +42,7 @@ func (this *ConditionalForward) ServeHTTP(w http.ResponseWriter, r *http.Request
 }
 
 func (this *ConditionalForward) forward(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

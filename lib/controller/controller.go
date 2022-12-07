@@ -149,4 +149,6 @@ type Com interface {
 	ValidateConceptDelete(token auth.Token, id string) (err error, code int)
 	ValidateDeviceClassDelete(token auth.Token, id string) (err error, code int)
 	ValidateFunctionDelete(token auth.Token, id string) (err error, code int)
+
+	QueryPermissionsSearch(token string, query com.QueryMessage, result interface{}) (err error, code int)
 }

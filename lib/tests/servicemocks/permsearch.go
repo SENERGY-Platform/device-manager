@@ -20,8 +20,10 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/julienschmidt/httprouter"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"runtime/debug"
 )
 
 type PermSearch struct {
@@ -52,15 +54,23 @@ func NewPermSearch() *PermSearch {
 			http.Error(writer, err.Error(), 500)
 			return
 		}
-		if message.CheckIds == nil {
+		if message.CheckIds != nil {
+			resp := map[string]bool{}
+			for _, id := range message.CheckIds.Ids {
+				resp[id] = true
+			}
+			json.NewEncoder(writer).Encode(resp)
+			return
+		} else if message.Find != nil {
+			json.NewEncoder(writer).Encode([]map[string]interface{}{})
+			return
+		} else {
+			temp, _ := json.Marshal(message)
+			log.Println("ERROR: ", string(temp))
+			debug.PrintStack()
 			http.Error(writer, "not implemented", 500)
 			return
 		}
-		resp := map[string]bool{}
-		for _, id := range message.CheckIds.Ids {
-			resp[id] = true
-		}
-		json.NewEncoder(writer).Encode(resp)
 	})
 
 	repo.ts = httptest.NewServer(router)

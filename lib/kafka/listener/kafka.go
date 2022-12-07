@@ -22,7 +22,6 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/util"
 	"github.com/segmentio/kafka-go"
 	"io"
-	"io/ioutil"
 	"log"
 	"sync"
 	"time"
@@ -63,8 +62,8 @@ func (this *Consumer) start() error {
 		GroupID:        this.groupId,
 		Topic:          this.topic,
 		MaxWait:        1 * time.Second,
-		Logger:         log.New(ioutil.Discard, "", 0),
-		ErrorLogger:    log.New(ioutil.Discard, "", 0),
+		Logger:         log.New(io.Discard, "", 0),
+		ErrorLogger:    log.New(io.Discard, "", 0),
 	})
 	go func() {
 		defer r.Close()
