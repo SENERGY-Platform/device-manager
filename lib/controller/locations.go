@@ -20,15 +20,15 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Controller) ReadLocation(token auth.Token, id string) (location model.Location, err error, code int) {
+func (this *Controller) ReadLocation(token auth.Token, id string) (location models.Location, err error, code int) {
 	return this.com.GetLocation(token, id)
 }
 
-func (this *Controller) PublishLocationCreate(token auth.Token, location model.Location) (result model.Location, err error, code int) {
+func (this *Controller) PublishLocationCreate(token auth.Token, location models.Location) (result models.Location, err error, code int) {
 	location.GenerateId()
 	location.DeviceIds, err = this.filterInvalidDeviceIds(token, location.DeviceIds, "r")
 	if err != nil {
@@ -45,7 +45,7 @@ func (this *Controller) PublishLocationCreate(token auth.Token, location model.L
 	return location, nil, http.StatusOK
 }
 
-func (this *Controller) PublishLocationUpdate(token auth.Token, id string, location model.Location) (model.Location, error, int) {
+func (this *Controller) PublishLocationUpdate(token auth.Token, id string, location models.Location) (models.Location, error, int) {
 	if location.Id != id {
 		return location, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}

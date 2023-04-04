@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -54,7 +54,7 @@ func AspectsEndpoints(config config.Config, control Controller, router *httprout
 	})
 
 	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		aspect := model.Aspect{}
+		aspect := models.Aspect{}
 		err := json.NewDecoder(request.Body).Decode(&aspect)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -80,7 +80,7 @@ func AspectsEndpoints(config config.Config, control Controller, router *httprout
 
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		aspect := model.Aspect{}
+		aspect := models.Aspect{}
 		err := json.NewDecoder(request.Body).Decode(&aspect)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

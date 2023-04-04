@@ -18,16 +18,16 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Com) GetFunction(token auth.Token, id string) (function model.Function, err error, code int) {
+func (this *Com) GetFunction(token auth.Token, id string) (function models.Function, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/functions", id, &function)
 	return
 }
 
-func (this *Com) ValidateFunction(token auth.Token, function model.Function) (err error, code int) {
+func (this *Com) ValidateFunction(token auth.Token, function models.Function) (err error, code int) {
 	if err = PreventIdModifier(function.Id); err != nil {
 		return err, http.StatusBadRequest
 	}

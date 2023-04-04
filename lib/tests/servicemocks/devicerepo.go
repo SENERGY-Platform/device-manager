@@ -19,7 +19,7 @@ package servicemocks
 import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"net/http/httptest"
@@ -30,12 +30,12 @@ type DeviceRepo struct {
 	db              map[string]interface{}
 	ts              *httptest.Server
 	localIds        map[string]bool
-	concepts        map[string]model.Concept
-	characteristics map[string]model.Characteristic
-	aspects         map[string]model.Aspect
-	functions       map[string]model.Function
-	deviceclasses   map[string]model.DeviceClass
-	locations       map[string]model.Location
+	concepts        map[string]models.Concept
+	characteristics map[string]models.Characteristic
+	aspects         map[string]models.Aspect
+	functions       map[string]models.Function
+	deviceclasses   map[string]models.DeviceClass
+	locations       map[string]models.Location
 }
 
 func NewDeviceRepo(producer interface {
@@ -44,12 +44,12 @@ func NewDeviceRepo(producer interface {
 	repo := &DeviceRepo{
 		db:              map[string]interface{}{},
 		localIds:        map[string]bool{},
-		concepts:        map[string]model.Concept{},
-		characteristics: map[string]model.Characteristic{},
-		aspects:         map[string]model.Aspect{},
-		functions:       map[string]model.Function{},
-		deviceclasses:   map[string]model.DeviceClass{},
-		locations:       map[string]model.Location{},
+		concepts:        map[string]models.Concept{},
+		characteristics: map[string]models.Characteristic{},
+		aspects:         map[string]models.Aspect{},
+		functions:       map[string]models.Function{},
+		deviceclasses:   map[string]models.DeviceClass{},
+		locations:       map[string]models.Location{},
 	}
 	producer.Subscribe(DtTopic, func(msg []byte) {
 		cmd := publisher.DeviceTypeCommand{}
@@ -184,7 +184,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
-		group := model.DeviceGroup{}
+		group := models.DeviceGroup{}
 		err = json.NewDecoder(request.Body).Decode(&group)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -218,7 +218,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
-		dt := model.DeviceType{}
+		dt := models.DeviceType{}
 		err = json.NewDecoder(request.Body).Decode(&dt)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -255,7 +255,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
-		device := model.Device{}
+		device := models.Device{}
 		err = json.NewDecoder(request.Body).Decode(&device)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -300,7 +300,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
-		hub := model.Hub{}
+		hub := models.Hub{}
 		err = json.NewDecoder(request.Body).Decode(&hub)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -334,7 +334,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
-		protocol := model.Protocol{}
+		protocol := models.Protocol{}
 		err = json.NewDecoder(request.Body).Decode(&protocol)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -380,7 +380,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
-		aspect := model.Aspect{}
+		aspect := models.Aspect{}
 		err = json.NewDecoder(request.Body).Decode(&aspect)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -413,7 +413,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
-		function := model.Function{}
+		function := models.Function{}
 		err = json.NewDecoder(request.Body).Decode(&function)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -459,7 +459,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
-		deviceclass := model.DeviceClass{}
+		deviceclass := models.DeviceClass{}
 		err = json.NewDecoder(request.Body).Decode(&deviceclass)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -505,7 +505,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
-		location := model.Location{}
+		location := models.Location{}
 		err = json.NewDecoder(request.Body).Decode(&location)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -538,7 +538,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
-		concept := model.Concept{}
+		concept := models.Concept{}
 		err = json.NewDecoder(request.Body).Decode(&concept)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -574,7 +574,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "only with query-parameter 'dry-run=true' allowed", http.StatusNotImplemented)
 			return
 		}
-		characteristic := model.Characteristic{}
+		characteristic := models.Characteristic{}
 		err = json.NewDecoder(request.Body).Decode(&characteristic)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

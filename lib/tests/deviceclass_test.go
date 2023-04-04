@@ -18,8 +18,8 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -28,7 +28,7 @@ import (
 
 func testDeviceClass(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/device-classes", model.DeviceClass{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/device-classes", models.DeviceClass{
 			Name: "foo",
 		})
 		if err != nil {
@@ -41,7 +41,7 @@ func testDeviceClass(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		deviceClass := model.DeviceClass{}
+		deviceClass := models.DeviceClass{}
 		err = json.NewDecoder(resp.Body).Decode(&deviceClass)
 		if err != nil {
 			t.Fatal(err)
@@ -51,7 +51,7 @@ func testDeviceClass(port string) func(t *testing.T) {
 			t.Fatal(deviceClass)
 		}
 
-		result := model.DeviceClass{}
+		result := models.DeviceClass{}
 		resp, err = helper.Jwtget(adminjwt, "http://localhost:"+port+"/device-classes/"+url.PathEscape(deviceClass.Id))
 		if err != nil {
 			t.Fatal(err)
@@ -64,7 +64,7 @@ func testDeviceClass(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		result = model.DeviceClass{}
+		result = models.DeviceClass{}
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
 			t.Fatal(err)

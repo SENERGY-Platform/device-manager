@@ -18,8 +18,8 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -28,10 +28,10 @@ import (
 
 func testDeviceBatchDelete(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", model.Protocol{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
 			Name:             "p3",
 			Handler:          "ph3",
-			ProtocolSegments: []model.ProtocolSegment{{Name: "ps3"}},
+			ProtocolSegments: []models.ProtocolSegment{{Name: "ps3"}},
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -43,26 +43,26 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		protocol := model.Protocol{}
+		protocol := models.Protocol{}
 		err = json.NewDecoder(resp.Body).Decode(&protocol)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
 			Name:          "foo",
 			DeviceClassId: "dc1",
-			Services: []model.Service{
+			Services: []models.Service{
 				{
 					Name:    "s1name",
 					LocalId: "lid1",
-					Inputs: []model.Content{
+					Inputs: []models.Content{
 						{
 							ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 							Serialization:     "json",
-							ContentVariable: model.ContentVariable{
+							ContentVariable: models.ContentVariable{
 								Name:       "v1name",
-								Type:       model.String,
+								Type:       models.String,
 								FunctionId: f1Id,
 								AspectId:   a1Id,
 							},
@@ -82,7 +82,7 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		dt := model.DeviceType{}
+		dt := models.DeviceType{}
 		err = json.NewDecoder(resp.Body).Decode(&dt)
 		if err != nil {
 			t.Fatal(err)
@@ -92,7 +92,7 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(dt)
 		}
 
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 			Name:         "delete_d1",
 			DeviceTypeId: dt.Id,
 			LocalId:      "dlid1",
@@ -106,7 +106,7 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode)
 		}
 
-		d1 := model.Device{}
+		d1 := models.Device{}
 		err = json.NewDecoder(resp.Body).Decode(&d1)
 		if err != nil {
 			t.Fatal(err)
@@ -116,7 +116,7 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(d1)
 		}
 
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 			Name:         "delete_d2",
 			DeviceTypeId: dt.Id,
 			LocalId:      "dlid2",
@@ -130,7 +130,7 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode)
 		}
 
-		d2 := model.Device{}
+		d2 := models.Device{}
 		err = json.NewDecoder(resp.Body).Decode(&d2)
 		if err != nil {
 			t.Fatal(err)
@@ -140,7 +140,7 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(d2)
 		}
 
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 			Name:         "delete_d3",
 			DeviceTypeId: dt.Id,
 			LocalId:      "dlid3",
@@ -154,7 +154,7 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode)
 		}
 
-		d3 := model.Device{}
+		d3 := models.Device{}
 		err = json.NewDecoder(resp.Body).Decode(&d3)
 		if err != nil {
 			t.Fatal(err)

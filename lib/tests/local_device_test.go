@@ -18,8 +18,8 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -27,10 +27,10 @@ import (
 )
 
 func testLocalDevice(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", model.Protocol{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
 		Name:             "p2",
 		Handler:          "ph1",
-		ProtocolSegments: []model.ProtocolSegment{{Name: "ps2"}},
+		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -42,26 +42,26 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	protocol := model.Protocol{}
+	protocol := models.Protocol{}
 	err = json.NewDecoder(resp.Body).Decode(&protocol)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
-		Services: []model.Service{
+		Services: []models.Service{
 			{
 				Name:    "s1name",
 				LocalId: "lid1",
-				Inputs: []model.Content{
+				Inputs: []models.Content{
 					{
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
-						ContentVariable: model.ContentVariable{
+						ContentVariable: models.ContentVariable{
 							Name:       "v1name",
-							Type:       model.String,
+							Type:       models.String,
 							FunctionId: f1Id,
 							AspectId:   a1Id,
 						},
@@ -81,7 +81,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	dt := model.DeviceType{}
+	dt := models.DeviceType{}
 	err = json.NewDecoder(resp.Body).Decode(&dt)
 	if err != nil {
 		t.Fatal(err)
@@ -91,7 +91,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(dt)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", models.Device{
 		Name:    "d1",
 		LocalId: "lid1",
 	})
@@ -105,7 +105,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", models.Device{
 		Name:         "d1",
 		DeviceTypeId: dt.Id,
 	})
@@ -119,7 +119,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", models.Device{
 		Name:         "d1",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid1",
@@ -134,7 +134,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	device := model.Device{}
+	device := models.Device{}
 	err = json.NewDecoder(resp.Body).Decode(&device)
 	if err != nil {
 		t.Fatal(err)
@@ -155,7 +155,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	result := model.Device{}
+	result := models.Device{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		t.Fatal(err)
@@ -165,7 +165,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(result)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", models.Device{
 		Name:         "reused_local_id",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid1",
@@ -181,7 +181,7 @@ func testLocalDevice(t *testing.T, port string) {
 	}
 
 	//update
-	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/local-devices/"+url.PathEscape(device.LocalId), model.Device{
+	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/local-devices/"+url.PathEscape(device.LocalId), models.Device{
 		Name:         "updated_device_name",
 		DeviceTypeId: dt.Id,
 		LocalId:      device.LocalId,
@@ -208,7 +208,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	result = model.Device{}
+	result = models.Device{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		t.Fatal(err)

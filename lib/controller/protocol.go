@@ -20,15 +20,15 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Controller) ReadProtocol(token auth.Token, id string) (protocol model.Protocol, err error, code int) {
+func (this *Controller) ReadProtocol(token auth.Token, id string) (protocol models.Protocol, err error, code int) {
 	return this.com.GetProtocol(token, id)
 }
 
-func (this *Controller) PublishProtocolCreate(token auth.Token, protocol model.Protocol) (model.Protocol, error, int) {
+func (this *Controller) PublishProtocolCreate(token auth.Token, protocol models.Protocol) (models.Protocol, error, int) {
 	if !token.IsAdmin() {
 		return protocol, errors.New("access denied"), http.StatusForbidden
 	}
@@ -44,7 +44,7 @@ func (this *Controller) PublishProtocolCreate(token auth.Token, protocol model.P
 	return protocol, nil, http.StatusOK
 }
 
-func (this *Controller) PublishProtocolUpdate(token auth.Token, id string, protocol model.Protocol) (model.Protocol, error, int) {
+func (this *Controller) PublishProtocolUpdate(token auth.Token, id string, protocol models.Protocol) (models.Protocol, error, int) {
 	if !token.IsAdmin() {
 		return protocol, errors.New("access denied"), http.StatusForbidden
 	}

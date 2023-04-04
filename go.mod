@@ -12,6 +12,8 @@ require (
 	github.com/wvanbergen/kazoo-go v0.0.0-20180202103751-f72d8611297a
 )
 
+require github.com/SENERGY-Platform/models/go v0.0.0-20230404065955-02043f7b5593
+
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/Microsoft/go-winio v0.5.1 // indirect
@@ -41,3 +43,5 @@ require (
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
+
+//replace github.com/SENERGY-Platform/models/go => ../models/go

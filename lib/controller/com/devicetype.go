@@ -18,16 +18,16 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Com) GetDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int) {
+func (this *Com) GetDeviceType(token auth.Token, id string) (dt models.DeviceType, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/device-types", id, &dt)
 	return
 }
 
-func (this *Com) ValidateDeviceType(token auth.Token, dt model.DeviceType) (err error, code int) {
+func (this *Com) ValidateDeviceType(token auth.Token, dt models.DeviceType) (err error, code int) {
 	if err = PreventIdModifier(dt.Id); err != nil {
 		return err, http.StatusBadRequest
 	}

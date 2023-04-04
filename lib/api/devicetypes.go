@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -54,7 +54,7 @@ func DeviceTypesEndpoints(config config.Config, control Controller, router *http
 	})
 
 	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		devicetype := model.DeviceType{}
+		devicetype := models.DeviceType{}
 		err := json.NewDecoder(request.Body).Decode(&devicetype)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -80,7 +80,7 @@ func DeviceTypesEndpoints(config config.Config, control Controller, router *http
 
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		devicetype := model.DeviceType{}
+		devicetype := models.DeviceType{}
 		err := json.NewDecoder(request.Body).Decode(&devicetype)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

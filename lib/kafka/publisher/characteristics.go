@@ -19,7 +19,7 @@ package publisher
 import (
 	"context"
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"runtime/debug"
@@ -27,13 +27,13 @@ import (
 )
 
 type CharacteristicCommand struct {
-	Command        string               `json:"command"`
-	Id             string               `json:"id"`
-	Owner          string               `json:"owner"`
-	Characteristic model.Characteristic `json:"characteristic"`
+	Command        string                `json:"command"`
+	Id             string                `json:"id"`
+	Owner          string                `json:"owner"`
+	Characteristic models.Characteristic `json:"characteristic"`
 }
 
-func (this *Publisher) PublishCharacteristic(characteristic model.Characteristic, userId string) (err error) {
+func (this *Publisher) PublishCharacteristic(characteristic models.Characteristic, userId string) (err error) {
 	cmd := CharacteristicCommand{Command: "PUT", Id: characteristic.Id, Owner: userId, Characteristic: characteristic}
 	return this.PublishCharacteristicCommand(cmd)
 }

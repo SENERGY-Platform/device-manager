@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -66,7 +66,7 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 	})
 
 	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		hub := model.HubEdit{}
+		hub := models.HubEdit{}
 		err := json.NewDecoder(request.Body).Decode(&hub)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -93,7 +93,7 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		userId := request.URL.Query().Get("user_id")
-		hub := model.HubEdit{}
+		hub := models.HubEdit{}
 		err := json.NewDecoder(request.Body).Decode(&hub)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

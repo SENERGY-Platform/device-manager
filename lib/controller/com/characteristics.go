@@ -18,11 +18,11 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Com) ValidateCharacteristic(token auth.Token, characteristic model.Characteristic) (err error, code int) {
+func (this *Com) ValidateCharacteristic(token auth.Token, characteristic models.Characteristic) (err error, code int) {
 	if err = PreventIdModifier(characteristic.Id); err != nil {
 		return err, http.StatusBadRequest
 	}
@@ -31,7 +31,7 @@ func (this *Com) ValidateCharacteristic(token auth.Token, characteristic model.C
 	return validateResources(token, this.config, list, characteristic)
 }
 
-func (this *Com) GetCharacteristic(token auth.Token, id string) (concept model.Characteristic, err error, code int) {
+func (this *Com) GetCharacteristic(token auth.Token, id string) (concept models.Characteristic, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/characteristics", id, &concept)
 	return
 }

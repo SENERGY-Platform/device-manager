@@ -17,11 +17,11 @@
 package controller
 
 import (
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"sort"
 )
 
-func updateSameOriginAttributes(attributes []model.Attribute, update []model.Attribute, origin []string) (result []model.Attribute) {
+func updateSameOriginAttributes(attributes []models.Attribute, update []models.Attribute, origin []string) (result []models.Attribute) {
 	for _, attr := range attributes {
 		if !contains(origin, attr.Origin) {
 			result = append(result, attr)

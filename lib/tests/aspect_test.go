@@ -18,8 +18,8 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -28,7 +28,7 @@ import (
 
 func testAspect(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/aspects", model.Aspect{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/aspects", models.Aspect{
 			Name: "foo",
 		})
 		if err != nil {
@@ -41,7 +41,7 @@ func testAspect(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		aspect := model.Aspect{}
+		aspect := models.Aspect{}
 		err = json.NewDecoder(resp.Body).Decode(&aspect)
 		if err != nil {
 			t.Fatal(err)
@@ -51,7 +51,7 @@ func testAspect(port string) func(t *testing.T) {
 			t.Fatal(aspect)
 		}
 
-		result := model.Aspect{}
+		result := models.Aspect{}
 		resp, err = helper.Jwtget(adminjwt, "http://localhost:"+port+"/aspects/"+url.PathEscape(aspect.Id))
 		if err != nil {
 			t.Fatal(err)
@@ -64,7 +64,7 @@ func testAspect(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		result = model.Aspect{}
+		result = models.Aspect{}
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
 			t.Fatal(err)
@@ -93,7 +93,7 @@ func testAspect(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode)
 		}
 
-		resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/aspects", model.Aspect{Id: a1Id, Name: a1Id})
+		resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/aspects", models.Aspect{Id: a1Id, Name: a1Id})
 		if err != nil {
 			t.Fatal(err)
 		}

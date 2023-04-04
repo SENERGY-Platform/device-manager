@@ -18,8 +18,8 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -28,9 +28,9 @@ import (
 
 func testFunction(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/functions", model.Function{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/functions", models.Function{
 			Name:    "foo",
-			RdfType: model.SES_ONTOLOGY_CONTROLLING_FUNCTION,
+			RdfType: models.SES_ONTOLOGY_CONTROLLING_FUNCTION,
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -42,7 +42,7 @@ func testFunction(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		function := model.Function{}
+		function := models.Function{}
 		err = json.NewDecoder(resp.Body).Decode(&function)
 		if err != nil {
 			t.Fatal(err)
@@ -52,7 +52,7 @@ func testFunction(port string) func(t *testing.T) {
 			t.Fatal(function)
 		}
 
-		result := model.Function{}
+		result := models.Function{}
 		resp, err = helper.Jwtget(adminjwt, "http://localhost:"+port+"/functions/"+url.PathEscape(function.Id))
 		if err != nil {
 			t.Fatal(err)
@@ -65,7 +65,7 @@ func testFunction(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		result = model.Function{}
+		result = models.Function{}
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
 			t.Fatal(err)
@@ -94,7 +94,7 @@ func testFunction(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode)
 		}
 
-		resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/functions", model.Function{Id: f1Id, Name: f1Id})
+		resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/functions", models.Function{Id: f1Id, Name: f1Id})
 		if err != nil {
 			t.Fatal(err)
 		}

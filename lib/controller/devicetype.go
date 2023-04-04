@@ -20,13 +20,13 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 	"runtime/debug"
 	"sort"
 )
 
-func (this *Controller) ReadDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int) {
+func (this *Controller) ReadDeviceType(token auth.Token, id string) (dt models.DeviceType, err error, code int) {
 	dt, err, code = this.com.GetDeviceType(token, id)
 	sort.Slice(dt.Services, func(i, j int) bool {
 		return dt.Services[i].Name < dt.Services[j].Name
@@ -34,7 +34,7 @@ func (this *Controller) ReadDeviceType(token auth.Token, id string) (dt model.De
 	return dt, err, code
 }
 
-func (this *Controller) PublishDeviceTypeCreate(token auth.Token, dt model.DeviceType) (model.DeviceType, error, int) {
+func (this *Controller) PublishDeviceTypeCreate(token auth.Token, dt models.DeviceType) (models.DeviceType, error, int) {
 	dt.GenerateId()
 	err, code := this.com.ValidateDeviceType(token, dt)
 	if err != nil {
@@ -47,7 +47,7 @@ func (this *Controller) PublishDeviceTypeCreate(token auth.Token, dt model.Devic
 	return dt, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceTypeUpdate(token auth.Token, id string, dt model.DeviceType) (model.DeviceType, error, int) {
+func (this *Controller) PublishDeviceTypeUpdate(token auth.Token, id string, dt models.DeviceType) (models.DeviceType, error, int) {
 	if dt.Id != id {
 		return dt, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}

@@ -31,6 +31,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/docker"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/servicemocks"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"net/http"
@@ -114,7 +115,7 @@ func TestUserDelete(t *testing.T) {
 	t.Run("create devices", func(t *testing.T) {
 		for i := 0; i < 20; i++ {
 			id := strconv.Itoa(i)
-			device := model.Device{
+			device := models.Device{
 				Id:           id,
 				LocalId:      id,
 				Name:         id + "_name",
@@ -129,7 +130,7 @@ func TestUserDelete(t *testing.T) {
 		}
 		for i := 20; i < 40; i++ {
 			id := strconv.Itoa(i)
-			device := model.Device{
+			device := models.Device{
 				Id:           id,
 				LocalId:      id,
 				Name:         id + "_name",

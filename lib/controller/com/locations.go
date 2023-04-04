@@ -18,16 +18,16 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Com) GetLocation(token auth.Token, id string) (Location model.Location, err error, code int) {
+func (this *Com) GetLocation(token auth.Token, id string) (Location models.Location, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/locations", id, &Location)
 	return
 }
 
-func (this *Com) ValidateLocation(token auth.Token, location model.Location) (err error, code int) {
+func (this *Com) ValidateLocation(token auth.Token, location models.Location) (err error, code int) {
 	if err = PreventIdModifier(location.Id); err != nil {
 		return err, http.StatusBadRequest
 	}

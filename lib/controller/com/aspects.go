@@ -18,16 +18,16 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Com) GetAspect(token auth.Token, id string) (aspect model.Aspect, err error, code int) {
+func (this *Com) GetAspect(token auth.Token, id string) (aspect models.Aspect, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/aspects", id, &aspect)
 	return
 }
 
-func (this *Com) ValidateAspect(token auth.Token, aspect model.Aspect) (err error, code int) {
+func (this *Com) ValidateAspect(token auth.Token, aspect models.Aspect) (err error, code int) {
 	if err = PreventIdModifier(aspect.Id); err != nil {
 		return err, http.StatusBadRequest
 	}

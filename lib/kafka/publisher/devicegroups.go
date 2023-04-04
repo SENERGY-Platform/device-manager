@@ -19,7 +19,7 @@ package publisher
 import (
 	"context"
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"runtime/debug"
@@ -27,13 +27,13 @@ import (
 )
 
 type DeviceGroupCommand struct {
-	Command     string            `json:"command"`
-	Id          string            `json:"id"`
-	Owner       string            `json:"owner"`
-	DeviceGroup model.DeviceGroup `json:"device_group"`
+	Command     string             `json:"command"`
+	Id          string             `json:"id"`
+	Owner       string             `json:"owner"`
+	DeviceGroup models.DeviceGroup `json:"device_group"`
 }
 
-func (this *Publisher) PublishDeviceGroup(group model.DeviceGroup, userId string) (err error) {
+func (this *Publisher) PublishDeviceGroup(group models.DeviceGroup, userId string) (err error) {
 	cmd := DeviceGroupCommand{Command: "PUT", Id: group.Id, DeviceGroup: group, Owner: userId}
 	return this.PublishDeviceGroupCommand(cmd)
 }

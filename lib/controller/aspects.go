@@ -19,15 +19,15 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Controller) ReadAspect(token auth.Token, id string) (aspect model.Aspect, err error, code int) {
+func (this *Controller) ReadAspect(token auth.Token, id string) (aspect models.Aspect, err error, code int) {
 	return this.com.GetAspect(token, id)
 }
 
-func (this *Controller) PublishAspectCreate(token auth.Token, aspect model.Aspect) (model.Aspect, error, int) {
+func (this *Controller) PublishAspectCreate(token auth.Token, aspect models.Aspect) (models.Aspect, error, int) {
 	if !token.IsAdmin() {
 		return aspect, errors.New("access denied"), http.StatusForbidden
 	}
@@ -43,7 +43,7 @@ func (this *Controller) PublishAspectCreate(token auth.Token, aspect model.Aspec
 	return aspect, nil, http.StatusOK
 }
 
-func (this *Controller) PublishAspectUpdate(token auth.Token, id string, aspect model.Aspect) (model.Aspect, error, int) {
+func (this *Controller) PublishAspectUpdate(token auth.Token, id string, aspect models.Aspect) (models.Aspect, error, int) {
 	if !token.IsAdmin() {
 		return aspect, errors.New("access denied"), http.StatusForbidden
 	}

@@ -19,7 +19,7 @@ package publisher
 import (
 	"context"
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"runtime/debug"
@@ -27,13 +27,13 @@ import (
 )
 
 type ConceptCommand struct {
-	Command string        `json:"command"`
-	Id      string        `json:"id"`
-	Owner   string        `json:"owner"`
-	Concept model.Concept `json:"concept"`
+	Command string         `json:"command"`
+	Id      string         `json:"id"`
+	Owner   string         `json:"owner"`
+	Concept models.Concept `json:"concept"`
 }
 
-func (this *Publisher) PublishConcept(concept model.Concept, userId string) (err error) {
+func (this *Publisher) PublishConcept(concept models.Concept, userId string) (err error) {
 	cmd := ConceptCommand{Command: "PUT", Id: concept.Id, Concept: concept, Owner: userId}
 	return this.PublishConceptCommand(cmd)
 }

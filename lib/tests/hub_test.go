@@ -18,8 +18,8 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -28,10 +28,10 @@ import (
 )
 
 func testHub(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", model.Protocol{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
 		Name:             "p2",
 		Handler:          "ph1",
-		ProtocolSegments: []model.ProtocolSegment{{Name: "ps2"}},
+		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -43,26 +43,26 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	protocol := model.Protocol{}
+	protocol := models.Protocol{}
 	err = json.NewDecoder(resp.Body).Decode(&protocol)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
-		Services: []model.Service{
+		Services: []models.Service{
 			{
 				Name:    "s1name",
 				LocalId: "lid1",
-				Inputs: []model.Content{
+				Inputs: []models.Content{
 					{
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
-						ContentVariable: model.ContentVariable{
+						ContentVariable: models.ContentVariable{
 							Name:       "v1name",
-							Type:       model.String,
+							Type:       models.String,
 							FunctionId: f1Id,
 							AspectId:   a1Id,
 						},
@@ -82,7 +82,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	dt := model.DeviceType{}
+	dt := models.DeviceType{}
 	err = json.NewDecoder(resp.Body).Decode(&dt)
 	if err != nil {
 		t.Fatal(err)
@@ -92,7 +92,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(dt)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 		Name:         "d2",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid2",
@@ -106,7 +106,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	device := model.Device{}
+	device := models.Device{}
 	err = json.NewDecoder(resp.Body).Decode(&device)
 	if err != nil {
 		t.Fatal(err)
@@ -116,7 +116,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(device)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.Hub{})
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.Hub{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,7 +127,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.HubEdit{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.HubEdit{
 		Name:           "h1",
 		DeviceLocalIds: []string{"unknown"},
 	})
@@ -141,7 +141,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.HubEdit{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.HubEdit{
 		Name:           "h1",
 		Hash:           "foobar",
 		DeviceLocalIds: []string{device.LocalId},
@@ -156,7 +156,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	hub := model.Hub{}
+	hub := models.Hub{}
 	err = json.NewDecoder(resp.Body).Decode(&hub)
 	if err != nil {
 		t.Fatal(err)
@@ -188,7 +188,7 @@ func testHub(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	result := model.Hub{}
+	result := models.Hub{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		t.Fatal(err)
@@ -222,10 +222,10 @@ func testHub(t *testing.T, port string) {
 }
 
 func testHubAssertions(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", model.Protocol{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
 		Name:             "p2",
 		Handler:          "ph1",
-		ProtocolSegments: []model.ProtocolSegment{{Name: "ps2"}},
+		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -237,26 +237,26 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	protocol := model.Protocol{}
+	protocol := models.Protocol{}
 	err = json.NewDecoder(resp.Body).Decode(&protocol)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
-		Services: []model.Service{
+		Services: []models.Service{
 			{
 				Name:    "s1name",
 				LocalId: "lid1",
-				Inputs: []model.Content{
+				Inputs: []models.Content{
 					{
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
-						ContentVariable: model.ContentVariable{
+						ContentVariable: models.ContentVariable{
 							Name:       "v1name",
-							Type:       model.String,
+							Type:       models.String,
 							FunctionId: f1Id,
 							AspectId:   a1Id,
 						},
@@ -276,7 +276,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	dt := model.DeviceType{}
+	dt := models.DeviceType{}
 	err = json.NewDecoder(resp.Body).Decode(&dt)
 	if err != nil {
 		t.Fatal(err)
@@ -286,7 +286,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(dt)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 		Name:         "d3",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid3",
@@ -300,13 +300,13 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	d3 := model.Device{}
+	d3 := models.Device{}
 	err = json.NewDecoder(resp.Body).Decode(&d3)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 		Name:         "d4",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid4",
@@ -320,13 +320,13 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	d4 := model.Device{}
+	d4 := models.Device{}
 	err = json.NewDecoder(resp.Body).Decode(&d4)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 		Name:         "d5",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid5",
@@ -340,7 +340,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.HubEdit{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.HubEdit{
 		Name:           "h2",
 		Hash:           "foobar",
 		DeviceLocalIds: []string{"lid3", "lid4", "lid5"},
@@ -354,7 +354,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	hub := model.Hub{}
+	hub := models.Hub{}
 	err = json.NewDecoder(resp.Body).Decode(&hub)
 	if err != nil {
 		t.Fatal(err)
@@ -366,7 +366,7 @@ func testHubAssertions(t *testing.T, port string) {
 
 	// update hub on device local id change
 
-	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(d3.Id), model.Device{
+	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(d3.Id), models.Device{
 		Id:           d3.Id,
 		Name:         "d3",
 		DeviceTypeId: dt.Id,
@@ -392,7 +392,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	result := model.Hub{}
+	result := models.Hub{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		t.Fatal(err)
@@ -425,7 +425,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	result = model.Hub{}
+	result = models.Hub{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		t.Fatal(err)
@@ -437,7 +437,7 @@ func testHubAssertions(t *testing.T, port string) {
 
 	// only one hub may have device
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", model.HubEdit{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.HubEdit{
 		Name:           "h3",
 		Hash:           "foobar",
 		DeviceLocalIds: []string{"lid5"},
@@ -451,7 +451,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	newHub := model.Hub{}
+	newHub := models.Hub{}
 	err = json.NewDecoder(resp.Body).Decode(&newHub)
 	if err != nil {
 		t.Fatal(err)

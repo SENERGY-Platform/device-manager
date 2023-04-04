@@ -21,10 +21,10 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/api"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/controller"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/docker"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/servicemocks"
+	"github.com/SENERGY-Platform/models/go/models"
 	"strconv"
 	"sync"
 	"testing"
@@ -175,8 +175,8 @@ func TestWithDocker(t *testing.T) {
 	tests(t, conf)
 }
 
-const a1Id = model.URN_PREFIX + "aspect:a1"
-const f1Id = model.URN_PREFIX + "controlling-function:f1"
+const a1Id = models.URN_PREFIX + "aspect:a1"
+const f1Id = models.URN_PREFIX + "controlling-function:f1"
 
 func tests(t *testing.T, conf config.Config) {
 	t.Run("aspects", testAspect(conf.ServerPort))

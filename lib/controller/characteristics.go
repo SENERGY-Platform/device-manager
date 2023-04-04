@@ -19,12 +19,12 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Controller) PublishCharacteristicCreate(token auth.Token, characteristic model.Characteristic) (model.Characteristic, error, int) {
+func (this *Controller) PublishCharacteristicCreate(token auth.Token, characteristic models.Characteristic) (models.Characteristic, error, int) {
 	characteristic.GenerateId()
 	err, code := this.com.ValidateCharacteristic(token, characteristic)
 	if err != nil {
@@ -37,7 +37,7 @@ func (this *Controller) PublishCharacteristicCreate(token auth.Token, characteri
 	return characteristic, nil, http.StatusOK
 }
 
-func (this *Controller) PublishCharacteristicUpdate(token auth.Token, characteristicId string, characteristic model.Characteristic) (model.Characteristic, error, int) {
+func (this *Controller) PublishCharacteristicUpdate(token auth.Token, characteristicId string, characteristic models.Characteristic) (models.Characteristic, error, int) {
 	if characteristic.Id != characteristicId {
 		return characteristic, errors.New("characteristic id in body unequal to characteristic id in request endpoint"), http.StatusBadRequest
 	}
@@ -80,6 +80,6 @@ func (this *Controller) PublishCharacteristicDelete(token auth.Token, id string)
 	return nil, http.StatusOK
 }
 
-func (this *Controller) ReadCharacteristic(token auth.Token, id string) (result model.Characteristic, err error, code int) {
+func (this *Controller) ReadCharacteristic(token auth.Token, id string) (result models.Characteristic, err error, code int) {
 	return this.com.GetCharacteristic(token, id)
 }

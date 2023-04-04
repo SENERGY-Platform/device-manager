@@ -19,7 +19,7 @@ package publisher
 import (
 	"context"
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"runtime/debug"
@@ -27,13 +27,13 @@ import (
 )
 
 type FunctionCommand struct {
-	Command  string         `json:"command"`
-	Id       string         `json:"id"`
-	Owner    string         `json:"owner"`
-	Function model.Function `json:"function"`
+	Command  string          `json:"command"`
+	Id       string          `json:"id"`
+	Owner    string          `json:"owner"`
+	Function models.Function `json:"function"`
 }
 
-func (this *Publisher) PublishFunction(function model.Function, userId string) (err error) {
+func (this *Publisher) PublishFunction(function models.Function, userId string) (err error) {
 	cmd := FunctionCommand{Command: "PUT", Id: function.Id, Function: function, Owner: userId}
 	return this.PublishFunctionCommand(cmd)
 }

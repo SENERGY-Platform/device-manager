@@ -19,16 +19,16 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Controller) ReadConcept(token auth.Token, id string) (concept model.Concept, err error, code int) {
+func (this *Controller) ReadConcept(token auth.Token, id string) (concept models.Concept, err error, code int) {
 	return this.com.GetConcept(token, id)
 }
 
-func (this *Controller) PublishConceptCreate(token auth.Token, concept model.Concept) (model.Concept, error, int) {
+func (this *Controller) PublishConceptCreate(token auth.Token, concept models.Concept) (models.Concept, error, int) {
 	concept.GenerateId()
 	err, code := this.com.ValidateConcept(token, concept)
 	if err != nil {
@@ -41,7 +41,7 @@ func (this *Controller) PublishConceptCreate(token auth.Token, concept model.Con
 	return concept, nil, http.StatusOK
 }
 
-func (this *Controller) PublishConceptUpdate(token auth.Token, id string, concept model.Concept) (model.Concept, error, int) {
+func (this *Controller) PublishConceptUpdate(token auth.Token, id string, concept models.Concept) (models.Concept, error, int) {
 	if concept.Id != id {
 		return concept, errors.New("concept id in body unequal to concept id in request endpoint"), http.StatusBadRequest
 	}

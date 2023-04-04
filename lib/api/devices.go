@@ -21,6 +21,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -57,7 +58,7 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 	})
 
 	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		device := model.Device{}
+		device := models.Device{}
 		err := json.NewDecoder(request.Body).Decode(&device)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -84,7 +85,7 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 	//admins may create new devices but only without using the UpdateOnlySameOriginAttributesKey query parameter
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		device := model.Device{}
+		device := models.Device{}
 		err := json.NewDecoder(request.Body).Decode(&device)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

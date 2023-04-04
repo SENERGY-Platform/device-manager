@@ -18,8 +18,8 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -28,7 +28,7 @@ import (
 )
 
 func testDeviceType(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{})
+	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,10 +39,10 @@ func testDeviceType(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", model.Protocol{
+	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
 		Name:             "pname1",
 		Handler:          "ph1",
-		ProtocolSegments: []model.ProtocolSegment{{Name: "ps1"}},
+		ProtocolSegments: []models.ProtocolSegment{{Name: "ps1"}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -54,26 +54,26 @@ func testDeviceType(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	protocol := model.Protocol{}
+	protocol := models.Protocol{}
 	err = json.NewDecoder(resp.Body).Decode(&protocol)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
-		Services: []model.Service{
+		Services: []models.Service{
 			{
 				Name:    "s1name",
 				LocalId: "lid1",
-				Inputs: []model.Content{
+				Inputs: []models.Content{
 					{
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
-						ContentVariable: model.ContentVariable{
+						ContentVariable: models.ContentVariable{
 							Name:       "v1name",
-							Type:       model.String,
+							Type:       models.String,
 							FunctionId: f1Id,
 							AspectId:   a1Id,
 						},
@@ -93,7 +93,7 @@ func testDeviceType(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	dt := model.DeviceType{}
+	dt := models.DeviceType{}
 	err = json.NewDecoder(resp.Body).Decode(&dt)
 	if err != nil {
 		t.Fatal(err)
@@ -103,7 +103,7 @@ func testDeviceType(t *testing.T, port string) {
 		t.Fatal(dt)
 	}
 
-	result := model.DeviceType{}
+	result := models.DeviceType{}
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
 	if err != nil {
 		t.Fatal(err)
@@ -116,7 +116,7 @@ func testDeviceType(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	result = model.DeviceType{}
+	result = models.DeviceType{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		t.Fatal(err)
@@ -153,7 +153,7 @@ func testDeviceType(t *testing.T, port string) {
 }
 
 func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{})
+	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,10 +164,10 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", model.Protocol{
+	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
 		Name:             "pname2",
 		Handler:          "ph2",
-		ProtocolSegments: []model.ProtocolSegment{{Name: "ps2"}},
+		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -179,33 +179,33 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	protocol := model.Protocol{}
+	protocol := models.Protocol{}
 	err = json.NewDecoder(resp.Body).Decode(&protocol)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
-		ServiceGroups: []model.ServiceGroup{
+		ServiceGroups: []models.ServiceGroup{
 			{
 				Key:         "sg1",
 				Name:        "service group 1",
 				Description: "foo  bar",
 			},
 		},
-		Services: []model.Service{
+		Services: []models.Service{
 			{
 				Name:    "s1name",
 				LocalId: "lid1",
-				Inputs: []model.Content{
+				Inputs: []models.Content{
 					{
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
-						ContentVariable: model.ContentVariable{
+						ContentVariable: models.ContentVariable{
 							Name:       "v1name",
-							Type:       model.String,
+							Type:       models.String,
 							FunctionId: f1Id,
 							AspectId:   a1Id,
 						},
@@ -216,13 +216,13 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 			{
 				Name:    "s2name",
 				LocalId: "lid2",
-				Inputs: []model.Content{
+				Inputs: []models.Content{
 					{
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
-						ContentVariable: model.ContentVariable{
+						ContentVariable: models.ContentVariable{
 							Name:       "v1name",
-							Type:       model.String,
+							Type:       models.String,
 							FunctionId: f1Id,
 							AspectId:   a1Id,
 						},
@@ -243,7 +243,7 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	dt := model.DeviceType{}
+	dt := models.DeviceType{}
 	err = json.NewDecoder(resp.Body).Decode(&dt)
 	if err != nil {
 		t.Fatal(err)
@@ -253,7 +253,7 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		t.Fatal(dt)
 	}
 
-	result := model.DeviceType{}
+	result := models.DeviceType{}
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
 	if err != nil {
 		t.Fatal(err)
@@ -266,7 +266,7 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	result = model.DeviceType{}
+	result = models.DeviceType{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		t.Fatal(err)
@@ -278,7 +278,7 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		t.Fatal(result.Name, result.DeviceClassId, len(result.Services))
 	}
 
-	if !reflect.DeepEqual(result.ServiceGroups, []model.ServiceGroup{
+	if !reflect.DeepEqual(result.ServiceGroups, []models.ServiceGroup{
 		{
 			Key:         "sg1",
 			Name:        "service group 1",

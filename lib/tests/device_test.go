@@ -20,8 +20,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/api"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/google/uuid"
 	"io"
 	"net/http"
@@ -32,10 +32,10 @@ import (
 )
 
 func testDevice(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", model.Protocol{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
 		Name:             "p2",
 		Handler:          "ph1",
-		ProtocolSegments: []model.ProtocolSegment{{Name: "ps2"}},
+		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -47,26 +47,26 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	protocol := model.Protocol{}
+	protocol := models.Protocol{}
 	err = json.NewDecoder(resp.Body).Decode(&protocol)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
-		Services: []model.Service{
+		Services: []models.Service{
 			{
 				Name:    "s1name",
 				LocalId: "lid1",
-				Inputs: []model.Content{
+				Inputs: []models.Content{
 					{
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
-						ContentVariable: model.ContentVariable{
+						ContentVariable: models.ContentVariable{
 							Name:       "v1name",
-							Type:       model.String,
+							Type:       models.String,
 							FunctionId: f1Id,
 							AspectId:   a1Id,
 						},
@@ -87,7 +87,7 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	dt := model.DeviceType{}
+	dt := models.DeviceType{}
 	err = json.NewDecoder(resp.Body).Decode(&dt)
 	if err != nil {
 		t.Fatal(err)
@@ -97,7 +97,7 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(dt)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 		Name:    "d1",
 		LocalId: "lid1",
 	})
@@ -111,7 +111,7 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 		Name:         "d1",
 		DeviceTypeId: dt.Id,
 	})
@@ -125,7 +125,7 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 		Name:         "d1",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid1",
@@ -140,7 +140,7 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	device := model.Device{}
+	device := models.Device{}
 	err = json.NewDecoder(resp.Body).Decode(&device)
 	if err != nil {
 		t.Fatal(err)
@@ -161,7 +161,7 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	result := model.Device{}
+	result := models.Device{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		t.Fatal(err)
@@ -171,7 +171,7 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(result)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 		Name:         "reused_local_id",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid1",
@@ -210,10 +210,10 @@ func testDevice(t *testing.T, port string) {
 }
 
 func testDeviceAttributes(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", model.Protocol{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
 		Name:             "p2",
 		Handler:          "ph1",
-		ProtocolSegments: []model.ProtocolSegment{{Name: "ps2"}},
+		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -225,26 +225,26 @@ func testDeviceAttributes(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	protocol := model.Protocol{}
+	protocol := models.Protocol{}
 	err = json.NewDecoder(resp.Body).Decode(&protocol)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", model.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
-		Services: []model.Service{
+		Services: []models.Service{
 			{
 				Name:    "s1name",
 				LocalId: "lid1",
-				Inputs: []model.Content{
+				Inputs: []models.Content{
 					{
 						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
 						Serialization:     "json",
-						ContentVariable: model.ContentVariable{
+						ContentVariable: models.ContentVariable{
 							Name:       "v1name",
-							Type:       model.String,
+							Type:       models.String,
 							FunctionId: f1Id,
 							AspectId:   a1Id,
 						},
@@ -264,7 +264,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	dt := model.DeviceType{}
+	dt := models.DeviceType{}
 	err = json.NewDecoder(resp.Body).Decode(&dt)
 	if err != nil {
 		t.Fatal(err)
@@ -276,7 +276,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 
 	deviceId, err := initDevice(port, dt)
 
-	t.Run("normal attr init", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "", []model.Attribute{
+	t.Run("normal attr init", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "", []models.Attribute{
 		{
 			Key:    "a1",
 			Value:  "va1",
@@ -302,7 +302,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 			Value:  "va5",
 			Origin: "test2",
 		},
-	}, []model.Attribute{
+	}, []models.Attribute{
 		{
 			Key:    "a1",
 			Value:  "va1",
@@ -330,7 +330,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 		},
 	}))
 
-	t.Run("normal attr update", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "", []model.Attribute{
+	t.Run("normal attr update", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "", []models.Attribute{
 		{
 			Key:    "a12",
 			Value:  "va12",
@@ -356,7 +356,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 			Value:  "va52",
 			Origin: "test2",
 		},
-	}, []model.Attribute{
+	}, []models.Attribute{
 		{
 			Key:    "a12",
 			Value:  "va12",
@@ -384,7 +384,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 		},
 	}))
 
-	t.Run("origin attr update", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "test1", []model.Attribute{
+	t.Run("origin attr update", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "test1", []models.Attribute{
 		{
 			Key:    "a13",
 			Value:  "va13",
@@ -410,7 +410,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 			Value:  "va53",
 			Origin: "test2",
 		},
-	}, []model.Attribute{
+	}, []models.Attribute{
 		{
 			Key:    "a12",
 			Value:  "va12",
@@ -438,7 +438,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 		},
 	}))
 
-	t.Run("origin list create", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "shared,test3", []model.Attribute{
+	t.Run("origin list create", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "shared,test3", []models.Attribute{
 		{
 			Key:    "a13",
 			Value:  "foo",
@@ -474,7 +474,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 			Value:  "t42",
 			Origin: "test3",
 		},
-	}, []model.Attribute{
+	}, []models.Attribute{
 		{
 			Key:    "a12",
 			Value:  "va12",
@@ -522,7 +522,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 		},
 	}))
 
-	t.Run("origin list update", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "shared,test3", []model.Attribute{
+	t.Run("origin list update", tryDeviceAttributeUpdate(port, dt.Id, deviceId, "shared,test3", []models.Attribute{
 		{
 			Key:    "a13",
 			Value:  "foo",
@@ -548,7 +548,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 			Value:  "t42u",
 			Origin: "test3",
 		},
-	}, []model.Attribute{
+	}, []models.Attribute{
 		{
 			Key:    "a12",
 			Value:  "va12",
@@ -587,7 +587,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 	}))
 }
 
-func tryDeviceAttributeUpdate(port string, dtId string, deviceId string, origin string, attributes []model.Attribute, expected []model.Attribute) func(t *testing.T) {
+func tryDeviceAttributeUpdate(port string, dtId string, deviceId string, origin string, attributes []models.Attribute, expected []models.Attribute) func(t *testing.T) {
 	return func(t *testing.T) {
 		sort.Slice(attributes, func(i, j int) bool {
 			return attributes[i].Key < attributes[j].Key
@@ -597,7 +597,7 @@ func tryDeviceAttributeUpdate(port string, dtId string, deviceId string, origin 
 		if origin != "" {
 			endpoint = endpoint + "?" + url.Values{api.UpdateOnlySameOriginAttributesKey: {origin}}.Encode()
 		}
-		resp, err := helper.Jwtput(userjwt, endpoint, model.Device{
+		resp, err := helper.Jwtput(userjwt, endpoint, models.Device{
 			Id:           deviceId,
 			Name:         "d1",
 			LocalId:      uuid.New().String(),
@@ -614,7 +614,7 @@ func tryDeviceAttributeUpdate(port string, dtId string, deviceId string, origin 
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		device := model.Device{}
+		device := models.Device{}
 		err = json.NewDecoder(resp.Body).Decode(&device)
 		if err != nil {
 			t.Fatal(err)
@@ -643,7 +643,7 @@ func tryDeviceAttributeUpdate(port string, dtId string, deviceId string, origin 
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		result := model.Device{}
+		result := models.Device{}
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
 			t.Fatal(err)
@@ -656,8 +656,8 @@ func tryDeviceAttributeUpdate(port string, dtId string, deviceId string, origin 
 	}
 }
 
-func initDevice(port string, dt model.DeviceType) (string, error) {
-	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", model.Device{
+func initDevice(port string, dt models.DeviceType) (string, error) {
+	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
 		Name:         "d1",
 		LocalId:      uuid.New().String(),
 		DeviceTypeId: dt.Id,
@@ -668,7 +668,7 @@ func initDevice(port string, dt model.DeviceType) (string, error) {
 	if resp.StatusCode != http.StatusOK {
 		return "", errors.New(resp.Status)
 	}
-	result := model.Device{}
+	result := models.Device{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	return result.Id, err
 }

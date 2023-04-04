@@ -23,7 +23,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/listener"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 )
 
 type Controller struct {
@@ -60,37 +60,37 @@ func NewWithPublisher(conf config.Config, publisher Publisher) (*Controller, err
 }
 
 type Publisher interface {
-	PublishDevice(device model.Device, userID string) (err error)
+	PublishDevice(device models.Device, userID string) (err error)
 	PublishDeviceDelete(id string, userID string) error
 
-	PublishDeviceType(device model.DeviceType, userID string) (err error)
+	PublishDeviceType(device models.DeviceType, userID string) (err error)
 	PublishDeviceTypeDelete(id string, userID string) error
 
-	PublishDeviceGroup(device model.DeviceGroup, userID string) (err error)
+	PublishDeviceGroup(device models.DeviceGroup, userID string) (err error)
 	PublishDeviceGroupDelete(id string, userID string) error
 
-	PublishProtocol(device model.Protocol, userID string) (err error)
+	PublishProtocol(device models.Protocol, userID string) (err error)
 	PublishProtocolDelete(id string, userID string) error
 
-	PublishHub(hub model.Hub, userID string) (err error)
+	PublishHub(hub models.Hub, userID string) (err error)
 	PublishHubDelete(id string, userID string) error
 
-	PublishConcept(concept model.Concept, userID string) (err error)
+	PublishConcept(concept models.Concept, userID string) (err error)
 	PublishConceptDelete(id string, userID string) error
 
-	PublishCharacteristic(characteristic model.Characteristic, userID string) (err error)
+	PublishCharacteristic(characteristic models.Characteristic, userID string) (err error)
 	PublishCharacteristicDelete(id string, userID string) error
 
-	PublishAspect(device model.Aspect, userID string) (err error)
+	PublishAspect(device models.Aspect, userID string) (err error)
 	PublishAspectDelete(id string, userID string) error
 
-	PublishFunction(device model.Function, userID string) (err error)
+	PublishFunction(device models.Function, userID string) (err error)
 	PublishFunctionDelete(id string, userID string) error
 
-	PublishDeviceClass(device model.DeviceClass, userID string) (err error)
+	PublishDeviceClass(device models.DeviceClass, userID string) (err error)
 	PublishDeviceClassDelete(id string, userID string) error
 
-	PublishLocation(device model.Location, userID string) (err error)
+	PublishLocation(device models.Location, userID string) (err error)
 	PublishLocationDelete(id string, userID string) error
 
 	PublishDeleteUserRights(resource string, id string, userId string) error
@@ -99,49 +99,49 @@ type Publisher interface {
 type Com interface {
 	ResourcesEffectedByUserDelete(token auth.Token, resource string) (deleteResourceIds []string, deleteUserFromResourceIds []string, err error)
 
-	GetTechnicalDeviceGroup(token auth.Token, id string) (dt model.DeviceGroup, err error, code int)
-	ValidateDeviceGroup(token auth.Token, dt model.DeviceGroup) (err error, code int)
+	GetTechnicalDeviceGroup(token auth.Token, id string) (dt models.DeviceGroup, err error, code int)
+	ValidateDeviceGroup(token auth.Token, dt models.DeviceGroup) (err error, code int)
 	PermissionCheckForDeviceGroup(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	GetDeviceType(token auth.Token, id string) (dt model.DeviceType, err error, code int)
-	ValidateDeviceType(token auth.Token, dt model.DeviceType) (err error, code int)
+	GetDeviceType(token auth.Token, id string) (dt models.DeviceType, err error, code int)
+	ValidateDeviceType(token auth.Token, dt models.DeviceType) (err error, code int)
 	PermissionCheckForDeviceType(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	GetProtocol(token auth.Token, id string) (model.Protocol, error, int)
-	ValidateProtocol(token auth.Token, protocol model.Protocol) (err error, code int)
+	GetProtocol(token auth.Token, id string) (models.Protocol, error, int)
+	ValidateProtocol(token auth.Token, protocol models.Protocol) (err error, code int)
 
-	GetDevice(token auth.Token, id string) (model.Device, error, int) //uses internal admin jwt
-	ValidateDevice(token auth.Token, device model.Device) (err error, code int)
+	GetDevice(token auth.Token, id string) (models.Device, error, int) //uses internal admin jwt
+	ValidateDevice(token auth.Token, device models.Device) (err error, code int)
 	PermissionCheckForDevice(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 	PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int)
 
-	GetHub(token auth.Token, id string) (model.Hub, error, int) //uses internal admin jwt
-	ValidateHub(token auth.Token, hub model.Hub) (err error, code int)
+	GetHub(token auth.Token, id string) (models.Hub, error, int) //uses internal admin jwt
+	ValidateHub(token auth.Token, hub models.Hub) (err error, code int)
 	PermissionCheckForHub(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	GetConcept(token auth.Token, id string) (model.Concept, error, int)
-	ValidateConcept(token auth.Token, concept model.Concept) (err error, code int)
+	GetConcept(token auth.Token, id string) (models.Concept, error, int)
+	ValidateConcept(token auth.Token, concept models.Concept) (err error, code int)
 	PermissionCheckForConcept(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
-	ValidateCharacteristic(token auth.Token, concept model.Characteristic) (err error, code int)
+	ValidateCharacteristic(token auth.Token, concept models.Characteristic) (err error, code int)
 	PermissionCheckForCharacteristic(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
-	GetCharacteristic(token auth.Token, id string) (concept model.Characteristic, err error, code int)
+	GetCharacteristic(token auth.Token, id string) (concept models.Characteristic, err error, code int)
 
 	DevicesOfTypeExist(token auth.Token, deviceTypeId string) (result bool, err error, code int)
 
 	DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, code int)
 
-	GetAspect(token auth.Token, id string) (model.Aspect, error, int)
-	ValidateAspect(token auth.Token, aspect model.Aspect) (err error, code int)
+	GetAspect(token auth.Token, id string) (models.Aspect, error, int)
+	ValidateAspect(token auth.Token, aspect models.Aspect) (err error, code int)
 
-	GetFunction(token auth.Token, id string) (model.Function, error, int)
-	ValidateFunction(token auth.Token, function model.Function) (err error, code int)
+	GetFunction(token auth.Token, id string) (models.Function, error, int)
+	ValidateFunction(token auth.Token, function models.Function) (err error, code int)
 
-	GetDeviceClass(token auth.Token, id string) (model.DeviceClass, error, int)
-	ValidateDeviceClass(token auth.Token, deviceClass model.DeviceClass) (err error, code int)
+	GetDeviceClass(token auth.Token, id string) (models.DeviceClass, error, int)
+	ValidateDeviceClass(token auth.Token, deviceClass models.DeviceClass) (err error, code int)
 
-	GetLocation(token auth.Token, id string) (model.Location, error, int)
-	ValidateLocation(token auth.Token, Location model.Location) (err error, code int)
+	GetLocation(token auth.Token, id string) (models.Location, error, int)
+	ValidateLocation(token auth.Token, Location models.Location) (err error, code int)
 	PermissionCheckForLocation(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
 	ValidateAspectDelete(token auth.Token, id string) (err error, code int)

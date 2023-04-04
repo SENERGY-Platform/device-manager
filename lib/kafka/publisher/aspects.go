@@ -19,7 +19,7 @@ package publisher
 import (
 	"context"
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"runtime/debug"
@@ -27,13 +27,13 @@ import (
 )
 
 type AspectCommand struct {
-	Command string       `json:"command"`
-	Id      string       `json:"id"`
-	Owner   string       `json:"owner"`
-	Aspect  model.Aspect `json:"aspect"`
+	Command string        `json:"command"`
+	Id      string        `json:"id"`
+	Owner   string        `json:"owner"`
+	Aspect  models.Aspect `json:"aspect"`
 }
 
-func (this *Publisher) PublishAspect(aspect model.Aspect, userId string) (err error) {
+func (this *Publisher) PublishAspect(aspect models.Aspect, userId string) (err error) {
 	cmd := AspectCommand{Command: "PUT", Id: aspect.Id, Aspect: aspect, Owner: userId}
 	return this.PublishAspectCommand(cmd)
 }

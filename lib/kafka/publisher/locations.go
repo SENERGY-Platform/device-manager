@@ -19,7 +19,7 @@ package publisher
 import (
 	"context"
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"runtime/debug"
@@ -27,13 +27,13 @@ import (
 )
 
 type LocationCommand struct {
-	Command  string         `json:"command"`
-	Id       string         `json:"id"`
-	Owner    string         `json:"owner"`
-	Location model.Location `json:"location"`
+	Command  string          `json:"command"`
+	Id       string          `json:"id"`
+	Owner    string          `json:"owner"`
+	Location models.Location `json:"location"`
 }
 
-func (this *Publisher) PublishLocation(Location model.Location, userId string) (err error) {
+func (this *Publisher) PublishLocation(Location models.Location, userId string) (err error) {
 	cmd := LocationCommand{Command: "PUT", Id: Location.Id, Location: Location, Owner: userId}
 	return this.PublishLocationCommand(cmd)
 }

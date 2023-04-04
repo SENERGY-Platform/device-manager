@@ -20,15 +20,15 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Controller) ReadHub(token auth.Token, id string) (hub model.Hub, err error, code int) {
+func (this *Controller) ReadHub(token auth.Token, id string) (hub models.Hub, err error, code int) {
 	return this.com.GetHub(token, id)
 }
 
-func (this *Controller) PublishHubCreate(token auth.Token, hubEdit model.HubEdit) (model.Hub, error, int) {
+func (this *Controller) PublishHubCreate(token auth.Token, hubEdit models.HubEdit) (models.Hub, error, int) {
 	hub, err, code := this.completeHub(token, hubEdit)
 	if err != nil {
 		return hub, err, code
@@ -45,9 +45,9 @@ func (this *Controller) PublishHubCreate(token auth.Token, hubEdit model.HubEdit
 	return hub, nil, http.StatusOK
 }
 
-func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId string, hubEdit model.HubEdit) (model.Hub, error, int) {
+func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId string, hubEdit models.HubEdit) (models.Hub, error, int) {
 	if hubEdit.Id != id {
-		return model.Hub{}, errors.New("hub id in body unequal to hub id in request endpoint"), http.StatusBadRequest
+		return models.Hub{}, errors.New("hub id in body unequal to hub id in request endpoint"), http.StatusBadRequest
 	}
 	if userId == "" {
 		userId = token.GetUserId()
@@ -99,7 +99,7 @@ type IdWrapper struct {
 	Id string `json:"id"`
 }
 
-func (this *Controller) completeHub(token auth.Token, edit model.HubEdit) (result model.Hub, err error, code int) {
+func (this *Controller) completeHub(token auth.Token, edit models.HubEdit) (result models.Hub, err error, code int) {
 	idWrapperList := []IdWrapper{}
 	err, code = this.com.QueryPermissionsSearch(token.Jwt(), com.QueryMessage{
 		Resource: "devices",

@@ -18,17 +18,17 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
 // expects previous permission check and use own admin jwt to access device
-func (this *Com) GetDevice(token auth.Token, id string) (device model.Device, err error, code int) {
+func (this *Com) GetDevice(token auth.Token, id string) (device models.Device, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/devices", id, &device)
 	return
 }
 
-func (this *Com) ValidateDevice(token auth.Token, device model.Device) (err error, code int) {
+func (this *Com) ValidateDevice(token auth.Token, device models.Device) (err error, code int) {
 	if err = PreventIdModifier(device.Id); err != nil {
 		return err, http.StatusBadRequest
 	}

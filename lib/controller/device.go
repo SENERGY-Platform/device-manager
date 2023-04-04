@@ -21,6 +21,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
@@ -28,11 +29,11 @@ func (this *Controller) DeviceLocalIdToId(token auth.Token, localId string) (id 
 	return this.com.DeviceLocalIdToId(token, localId)
 }
 
-func (this *Controller) ReadDevice(token auth.Token, id string) (device model.Device, err error, code int) {
+func (this *Controller) ReadDevice(token auth.Token, id string) (device models.Device, err error, code int) {
 	return this.com.GetDevice(token, id)
 }
 
-func (this *Controller) PublishDeviceCreate(token auth.Token, device model.Device) (model.Device, error, int) {
+func (this *Controller) PublishDeviceCreate(token auth.Token, device models.Device) (models.Device, error, int) {
 	device.GenerateId()
 	err, code := this.com.ValidateDevice(token, device)
 	if err != nil {
@@ -46,7 +47,7 @@ func (this *Controller) PublishDeviceCreate(token auth.Token, device model.Devic
 }
 
 // admins may create new devices but only without setting options.UpdateOnlySameOriginAttributes
-func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device model.Device, options model.DeviceUpdateOptions) (_ model.Device, err error, code int) {
+func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device models.Device, options model.DeviceUpdateOptions) (_ models.Device, err error, code int) {
 	if device.Id != id {
 		return device, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
@@ -59,7 +60,7 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 	}
 
 	if len(options.UpdateOnlySameOriginAttributes) > 0 {
-		var original model.Device
+		var original models.Device
 		original, err, code = this.com.GetDevice(token, device.Id)
 		if err != nil {
 			return device, err, code

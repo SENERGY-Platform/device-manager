@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -54,7 +54,7 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 	})
 
 	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		characteristic := model.Characteristic{}
+		characteristic := models.Characteristic{}
 		err := json.NewDecoder(request.Body).Decode(&characteristic)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -80,7 +80,7 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 
 	router.PUT(resource+"/:characteristicId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		characteristicId := params.ByName("characteristicId")
-		characteristic := model.Characteristic{}
+		characteristic := models.Characteristic{}
 		err := json.NewDecoder(request.Body).Decode(&characteristic)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

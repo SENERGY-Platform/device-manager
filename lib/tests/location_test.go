@@ -18,8 +18,8 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -28,7 +28,7 @@ import (
 
 func testLocation(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/locations", model.Location{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/locations", models.Location{
 			Name: "foo",
 		})
 		if err != nil {
@@ -41,7 +41,7 @@ func testLocation(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		Location := model.Location{}
+		Location := models.Location{}
 		err = json.NewDecoder(resp.Body).Decode(&Location)
 		if err != nil {
 			t.Fatal(err)
@@ -51,7 +51,7 @@ func testLocation(port string) func(t *testing.T) {
 			t.Fatal(Location)
 		}
 
-		result := model.Location{}
+		result := models.Location{}
 		resp, err = helper.Jwtget(adminjwt, "http://localhost:"+port+"/locations/"+url.PathEscape(Location.Id))
 		if err != nil {
 			t.Fatal(err)
@@ -64,7 +64,7 @@ func testLocation(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		result = model.Location{}
+		result = models.Location{}
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
 			t.Fatal(err)

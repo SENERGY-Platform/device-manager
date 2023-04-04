@@ -18,16 +18,16 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Com) GetConcept(token auth.Token, id string) (concept model.Concept, err error, code int) {
+func (this *Com) GetConcept(token auth.Token, id string) (concept models.Concept, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/concepts", id, &concept)
 	return
 }
 
-func (this *Com) ValidateConcept(token auth.Token, concept model.Concept) (err error, code int) {
+func (this *Com) ValidateConcept(token auth.Token, concept models.Concept) (err error, code int) {
 	if err = PreventIdModifier(concept.Id); err != nil {
 		return err, http.StatusBadRequest
 	}

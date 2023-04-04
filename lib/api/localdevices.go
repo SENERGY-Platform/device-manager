@@ -21,6 +21,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -60,7 +61,7 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 	})
 
 	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		device := model.Device{}
+		device := models.Device{}
 		err := json.NewDecoder(request.Body).Decode(&device)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -97,7 +98,7 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), errCode)
 			return
 		}
-		device := model.Device{}
+		device := models.Device{}
 		err = json.NewDecoder(request.Body).Decode(&device)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

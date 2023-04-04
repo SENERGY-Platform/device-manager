@@ -19,16 +19,15 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
-
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Controller) ReadDeviceClass(token auth.Token, id string) (deviceClass model.DeviceClass, err error, code int) {
+func (this *Controller) ReadDeviceClass(token auth.Token, id string) (deviceClass models.DeviceClass, err error, code int) {
 	return this.com.GetDeviceClass(token, id)
 }
 
-func (this *Controller) PublishDeviceClassCreate(token auth.Token, deviceClass model.DeviceClass) (model.DeviceClass, error, int) {
+func (this *Controller) PublishDeviceClassCreate(token auth.Token, deviceClass models.DeviceClass) (models.DeviceClass, error, int) {
 	if !token.IsAdmin() {
 		return deviceClass, errors.New("access denied"), http.StatusForbidden
 	}
@@ -44,7 +43,7 @@ func (this *Controller) PublishDeviceClassCreate(token auth.Token, deviceClass m
 	return deviceClass, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceClassUpdate(token auth.Token, id string, deviceClass model.DeviceClass) (model.DeviceClass, error, int) {
+func (this *Controller) PublishDeviceClassUpdate(token auth.Token, id string, deviceClass models.DeviceClass) (models.DeviceClass, error, int) {
 	if !token.IsAdmin() {
 		return deviceClass, errors.New("access denied"), http.StatusForbidden
 	}

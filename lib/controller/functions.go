@@ -19,15 +19,15 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Controller) ReadFunction(token auth.Token, id string) (function model.Function, err error, code int) {
+func (this *Controller) ReadFunction(token auth.Token, id string) (function models.Function, err error, code int) {
 	return this.com.GetFunction(token, id)
 }
 
-func (this *Controller) PublishFunctionCreate(token auth.Token, function model.Function) (model.Function, error, int) {
+func (this *Controller) PublishFunctionCreate(token auth.Token, function models.Function) (models.Function, error, int) {
 	if !token.IsAdmin() {
 		return function, errors.New("access denied"), http.StatusForbidden
 	}
@@ -43,7 +43,7 @@ func (this *Controller) PublishFunctionCreate(token auth.Token, function model.F
 	return function, nil, http.StatusOK
 }
 
-func (this *Controller) PublishFunctionUpdate(token auth.Token, id string, function model.Function) (model.Function, error, int) {
+func (this *Controller) PublishFunctionUpdate(token auth.Token, id string, function models.Function) (models.Function, error, int) {
 	if !token.IsAdmin() {
 		return function, errors.New("access denied"), http.StatusForbidden
 	}

@@ -19,7 +19,7 @@ package publisher
 import (
 	"context"
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"runtime/debug"
@@ -27,13 +27,13 @@ import (
 )
 
 type ProtocolCommand struct {
-	Command  string         `json:"command"`
-	Id       string         `json:"id"`
-	Owner    string         `json:"owner"`
-	Protocol model.Protocol `json:"protocol"`
+	Command  string          `json:"command"`
+	Id       string          `json:"id"`
+	Owner    string          `json:"owner"`
+	Protocol models.Protocol `json:"protocol"`
 }
 
-func (this *Publisher) PublishProtocol(protocol model.Protocol, userId string) (err error) {
+func (this *Publisher) PublishProtocol(protocol models.Protocol, userId string) (err error) {
 	cmd := ProtocolCommand{Command: "PUT", Id: protocol.Id, Protocol: protocol, Owner: userId}
 	return this.PublishProtocolCommand(cmd)
 }

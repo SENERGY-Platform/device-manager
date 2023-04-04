@@ -18,8 +18,8 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -29,7 +29,7 @@ import (
 
 func testDeviceGroup(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-groups", model.DeviceGroup{
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-groups", models.DeviceGroup{
 			Name: "dg1",
 		})
 		if err != nil {
@@ -42,7 +42,7 @@ func testDeviceGroup(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		deviceGroup := model.DeviceGroup{}
+		deviceGroup := models.DeviceGroup{}
 		err = json.NewDecoder(resp.Body).Decode(&deviceGroup)
 		if err != nil {
 			t.Fatal(err)
@@ -63,7 +63,7 @@ func testDeviceGroup(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		result := model.DeviceGroup{}
+		result := models.DeviceGroup{}
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
 			t.Fatal(err)
@@ -73,7 +73,7 @@ func testDeviceGroup(port string) func(t *testing.T) {
 			t.Fatal(result)
 		}
 
-		resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id), model.DeviceGroup{
+		resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id), models.DeviceGroup{
 			Id:   deviceGroup.Id,
 			Name: "dg2",
 		})
@@ -87,7 +87,7 @@ func testDeviceGroup(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		deviceGroup = model.DeviceGroup{}
+		deviceGroup = models.DeviceGroup{}
 		err = json.NewDecoder(resp.Body).Decode(&deviceGroup)
 		if err != nil {
 			t.Fatal(err)
@@ -108,7 +108,7 @@ func testDeviceGroup(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode, string(b))
 		}
 
-		result = model.DeviceGroup{}
+		result = models.DeviceGroup{}
 		err = json.NewDecoder(resp.Body).Decode(&result)
 		if err != nil {
 			t.Fatal(err)
@@ -121,41 +121,41 @@ func testDeviceGroup(port string) func(t *testing.T) {
 }
 
 func TestDeviceGroupShortCriteria(t *testing.T) {
-	dg := model.DeviceGroup{Criteria: []model.DeviceGroupFilterCriteria{
+	dg := models.DeviceGroup{Criteria: []models.DeviceGroupFilterCriteria{
 		{
 			FunctionId:  "f1",
 			AspectId:    "a1",
-			Interaction: model.EVENT,
+			Interaction: models.EVENT,
 		},
 		{
 			FunctionId:  "f1",
 			AspectId:    "a2",
-			Interaction: model.EVENT,
+			Interaction: models.EVENT,
 		},
 		{
 			FunctionId:    "f2",
 			DeviceClassId: "dc1",
-			Interaction:   model.REQUEST,
+			Interaction:   models.REQUEST,
 		},
 	}}
 	dg.SetShortCriteria()
 
-	expected := model.DeviceGroup{
-		Criteria: []model.DeviceGroupFilterCriteria{
+	expected := models.DeviceGroup{
+		Criteria: []models.DeviceGroupFilterCriteria{
 			{
 				FunctionId:  "f1",
 				AspectId:    "a1",
-				Interaction: model.EVENT,
+				Interaction: models.EVENT,
 			},
 			{
 				FunctionId:  "f1",
 				AspectId:    "a2",
-				Interaction: model.EVENT,
+				Interaction: models.EVENT,
 			},
 			{
 				FunctionId:    "f2",
 				DeviceClassId: "dc1",
-				Interaction:   model.REQUEST,
+				Interaction:   models.REQUEST,
 			},
 		},
 		CriteriaShort: []string{"f1_a1__event", "f1_a2__event", "f2__dc1_request"},

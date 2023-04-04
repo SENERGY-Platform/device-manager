@@ -20,17 +20,17 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"log"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Controller) ReadDeviceGroup(token auth.Token, id string) (dt model.DeviceGroup, err error, code int) {
+func (this *Controller) ReadDeviceGroup(token auth.Token, id string) (dt models.DeviceGroup, err error, code int) {
 	return this.com.GetTechnicalDeviceGroup(token, id)
 }
 
-func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg model.DeviceGroup) (result model.DeviceGroup, err error, code int) {
+func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg models.DeviceGroup) (result models.DeviceGroup, err error, code int) {
 	dg.GenerateId()
 	dg.SetShortCriteria()
 	dg.DeviceIds, err = this.filterInvalidDeviceIds(token, dg.DeviceIds, "r")
@@ -48,7 +48,7 @@ func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg model.Devi
 	return dg, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg model.DeviceGroup) (result model.DeviceGroup, err error, code int) {
+func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg models.DeviceGroup) (result models.DeviceGroup, err error, code int) {
 	if dg.Id != id {
 		return dg, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}

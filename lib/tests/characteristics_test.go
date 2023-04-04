@@ -19,8 +19,8 @@ package tests
 import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -30,12 +30,12 @@ import (
 )
 
 func testCharacteristics(t *testing.T, conf config.Config) {
-	createCharacteristic := model.Characteristic{
+	createCharacteristic := models.Characteristic{
 		Name: "char1",
-		Type: model.Structure,
-		SubCharacteristics: []model.Characteristic{{
+		Type: models.Structure,
+		SubCharacteristics: []models.Characteristic{{
 			Name:               "char2",
-			Type:               model.Float,
+			Type:               models.Float,
 			SubCharacteristics: nil,
 		}},
 	}
@@ -50,7 +50,7 @@ func testCharacteristics(t *testing.T, conf config.Config) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	characteristic := model.Characteristic{}
+	characteristic := models.Characteristic{}
 	err = json.NewDecoder(resp.Body).Decode(&characteristic)
 	if err != nil {
 		t.Fatal(err)
@@ -69,14 +69,14 @@ func testCharacteristics(t *testing.T, conf config.Config) {
 		checkCharacteristic(t, conf, characteristic.Id, createCharacteristic)
 	})
 
-	updateCharacteristic := model.Characteristic{
+	updateCharacteristic := models.Characteristic{
 		Id:   characteristic.Id,
 		Name: "char3",
-		Type: model.Structure,
-		SubCharacteristics: []model.Characteristic{{
+		Type: models.Structure,
+		SubCharacteristics: []models.Characteristic{{
 			Id:                 "",
 			Name:               "char4",
-			Type:               model.Float,
+			Type:               models.Float,
 			SubCharacteristics: nil,
 		}},
 	}
@@ -91,7 +91,7 @@ func testCharacteristics(t *testing.T, conf config.Config) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	characteristic2 := model.Characteristic{}
+	characteristic2 := models.Characteristic{}
 	err = json.NewDecoder(resp.Body).Decode(&characteristic2)
 	if err != nil {
 		t.Fatal(err)
@@ -132,7 +132,7 @@ func checkCharacteristicDelete(t *testing.T, conf config.Config, id string) {
 	}
 }
 
-func checkCharacteristic(t *testing.T, conf config.Config, id string, expected model.Characteristic) {
+func checkCharacteristic(t *testing.T, conf config.Config, id string, expected models.Characteristic) {
 	resp, err := helper.Jwtget(userjwt, conf.DeviceRepoUrl+"/characteristics/"+url.PathEscape(id))
 	if err != nil {
 		t.Fatal(err)
@@ -144,7 +144,7 @@ func checkCharacteristic(t *testing.T, conf config.Config, id string, expected m
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	characteristic := model.Characteristic{}
+	characteristic := models.Characteristic{}
 	err = json.NewDecoder(resp.Body).Decode(&characteristic)
 	if err != nil {
 		t.Fatal(err)
@@ -155,7 +155,7 @@ func checkCharacteristic(t *testing.T, conf config.Config, id string, expected m
 	})
 }
 
-func characteristicHasStructure(t *testing.T, characteristic model.Characteristic, expected model.Characteristic) {
+func characteristicHasStructure(t *testing.T, characteristic models.Characteristic, expected models.Characteristic) {
 	expected = removeIdsCharacteristic(expected)
 	characteristic = removeIdsCharacteristic(characteristic)
 	if !reflect.DeepEqual(characteristic, expected) {
@@ -163,7 +163,7 @@ func characteristicHasStructure(t *testing.T, characteristic model.Characteristi
 	}
 }
 
-func characteristicWithIds(t *testing.T, char model.Characteristic) {
+func characteristicWithIds(t *testing.T, char models.Characteristic) {
 	if char.Id == "" {
 		t.Fatal(char)
 	}
@@ -180,7 +180,7 @@ func subcharacteristicWithId(t *testing.T, characteristicId string) {
 	}
 }
 
-func removeIdsCharacteristic(characteristic model.Characteristic) model.Characteristic {
+func removeIdsCharacteristic(characteristic models.Characteristic) models.Characteristic {
 	characteristic.Id = ""
 	for i, ch := range characteristic.SubCharacteristics {
 		characteristic.SubCharacteristics[i] = removeIdsCharacteristic(ch)

@@ -19,8 +19,8 @@ package tests
 import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
+	"github.com/SENERGY-Platform/models/go/models"
 	"io"
 	"net/http"
 	"net/url"
@@ -31,11 +31,11 @@ import (
 )
 
 func testConcepts(t *testing.T, conf config.Config) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics", model.Characteristic{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics", models.Characteristic{
 		Id:          "urn:infai:ses:characteristic:4711a",
 		Name:        "urn:infai:ses:characteristic:4711a",
 		DisplayUnit: "urn:infai:ses:characteristic:4711a",
-		Type:        model.String,
+		Type:        models.String,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -48,7 +48,7 @@ func testConcepts(t *testing.T, conf config.Config) {
 
 	time.Sleep(10 * time.Second)
 
-	createConcept := model.Concept{
+	createConcept := models.Concept{
 		Name:                 "c1",
 		CharacteristicIds:    []string{"urn:infai:ses:characteristic:4711a"},
 		BaseCharacteristicId: "urn:infai:ses:characteristic:4711a",
@@ -64,7 +64,7 @@ func testConcepts(t *testing.T, conf config.Config) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	concept := model.Concept{}
+	concept := models.Concept{}
 	err = json.NewDecoder(resp.Body).Decode(&concept)
 	if err != nil {
 		t.Fatal(err)
@@ -82,11 +82,11 @@ func testConcepts(t *testing.T, conf config.Config) {
 		checkConcept(t, conf, concept.Id, createConcept)
 	})
 
-	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics", model.Characteristic{
+	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics", models.Characteristic{
 		Id:          "urn:infai:ses:characteristic:4712322a",
 		Name:        "urn:infai:ses:characteristic:4712322a",
 		DisplayUnit: "urn:infai:ses:characteristic:4712322a",
-		Type:        model.String,
+		Type:        models.String,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -99,7 +99,7 @@ func testConcepts(t *testing.T, conf config.Config) {
 
 	time.Sleep(10 * time.Second)
 
-	updateConcept := model.Concept{
+	updateConcept := models.Concept{
 		Id:                   concept.Id,
 		Name:                 "c2",
 		CharacteristicIds:    []string{"urn:infai:ses:characteristic:4712322a"},
@@ -116,7 +116,7 @@ func testConcepts(t *testing.T, conf config.Config) {
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	concept2 := model.Concept{}
+	concept2 := models.Concept{}
 	err = json.NewDecoder(resp.Body).Decode(&concept2)
 	if err != nil {
 		t.Fatal(err)
@@ -158,7 +158,7 @@ func checkConceptDelete(t *testing.T, conf config.Config, id string) {
 	}
 }
 
-func checkConcept(t *testing.T, conf config.Config, id string, expected model.Concept) {
+func checkConcept(t *testing.T, conf config.Config, id string, expected models.Concept) {
 	resp, err := helper.Jwtget(userjwt, conf.DeviceRepoUrl+"/concepts/"+url.PathEscape(id))
 	if err != nil {
 		t.Fatal(err)
@@ -170,7 +170,7 @@ func checkConcept(t *testing.T, conf config.Config, id string, expected model.Co
 		t.Fatal(resp.Status, resp.StatusCode, string(b))
 	}
 
-	concept := model.Concept{}
+	concept := models.Concept{}
 	err = json.NewDecoder(resp.Body).Decode(&concept)
 	if err != nil {
 		t.Fatal(err)
@@ -181,7 +181,7 @@ func checkConcept(t *testing.T, conf config.Config, id string, expected model.Co
 	})
 }
 
-func conceptHasStructure(t *testing.T, concept model.Concept, expected model.Concept) {
+func conceptHasStructure(t *testing.T, concept models.Concept, expected models.Concept) {
 	expected = removeIdsFromConcept(expected)
 	concept = removeIdsFromConcept(concept)
 	if !reflect.DeepEqual(concept, expected) {
@@ -189,7 +189,7 @@ func conceptHasStructure(t *testing.T, concept model.Concept, expected model.Con
 	}
 }
 
-func conceptWithIds(t *testing.T, concept model.Concept) {
+func conceptWithIds(t *testing.T, concept models.Concept) {
 	if concept.Id == "" {
 		t.Fatal(concept)
 	}
@@ -206,7 +206,7 @@ func characteristicWithId(t *testing.T, characteristicId string) {
 	}
 }
 
-func removeIdsFromConcept(concept model.Concept) model.Concept {
+func removeIdsFromConcept(concept models.Concept) models.Concept {
 	concept.Id = ""
 
 	return concept

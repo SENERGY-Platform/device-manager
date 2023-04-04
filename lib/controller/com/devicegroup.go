@@ -18,19 +18,19 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
 )
 
-func (this *Com) GetTechnicalDeviceGroup(token auth.Token, id string) (dt model.DeviceGroup, err error, code int) {
+func (this *Com) GetTechnicalDeviceGroup(token auth.Token, id string) (dt models.DeviceGroup, err error, code int) {
 	if this.config.DeviceRepoUrl == "" || this.config.DeviceRepoUrl == "-" {
-		return model.DeviceGroup{}, nil, http.StatusOK
+		return models.DeviceGroup{}, nil, http.StatusOK
 	}
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/device-groups", id, &dt)
 	return
 }
 
-func (this *Com) ValidateDeviceGroup(token auth.Token, dg model.DeviceGroup) (err error, code int) {
+func (this *Com) ValidateDeviceGroup(token auth.Token, dg models.DeviceGroup) (err error, code int) {
 	if err = PreventIdModifier(dg.Id); err != nil {
 		return err, http.StatusBadRequest
 	}
