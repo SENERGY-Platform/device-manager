@@ -75,7 +75,7 @@ func TestWithMock(t *testing.T) {
 
 	time.Sleep(200 * time.Millisecond)
 
-	tests(t, conf)
+	tests(t, conf, true)
 }
 
 func TestWithEditRedirect(t *testing.T) {
@@ -130,7 +130,7 @@ func TestWithEditRedirect(t *testing.T) {
 
 	time.Sleep(200 * time.Millisecond)
 
-	tests(t, conf)
+	tests(t, conf, true)
 }
 
 func TestWithDocker(t *testing.T) {
@@ -172,13 +172,15 @@ func TestWithDocker(t *testing.T) {
 	}
 	defer srv.Shutdown(context.Background())
 
-	tests(t, conf)
+	time.Sleep(2 * time.Second)
+
+	tests(t, conf, false)
 }
 
 const a1Id = models.URN_PREFIX + "aspect:a1"
 const f1Id = models.URN_PREFIX + "controlling-function:f1"
 
-func tests(t *testing.T, conf config.Config) {
+func tests(t *testing.T, conf config.Config, mock bool) {
 	t.Run("aspects", testAspect(conf.ServerPort))
 	t.Run("functions", testFunction(conf.ServerPort))
 	t.Run("deviceclasses", testDeviceClass(conf.ServerPort))
@@ -186,6 +188,13 @@ func tests(t *testing.T, conf config.Config) {
 
 	t.Run("testDeviceType", func(t *testing.T) {
 		testDeviceType(t, conf.ServerPort)
+	})
+
+	t.Run("testDeviceTypeWithDistinctAttributes", func(t *testing.T) {
+		if mock {
+			t.Skip("the mocks are not implemented for this test")
+		}
+		testDeviceTypeWithDistinctAttributes(t, conf.ServerPort)
 	})
 
 	t.Run("testDeviceTypeWithServiceGroups", func(t *testing.T) {

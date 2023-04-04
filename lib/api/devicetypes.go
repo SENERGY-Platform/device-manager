@@ -24,6 +24,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func init() {
@@ -65,6 +66,14 @@ func DeviceTypesEndpoints(config config.Config, control Controller, router *http
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
+		distinctAttr := request.URL.Query().Get("distinct_attributes")
+		if distinctAttr != "" {
+			err = control.ValidateDistinctDeviceTypeAttributes(token, devicetype, strings.Split(distinctAttr, ","))
+			if err != nil {
+				http.Error(writer, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
 		result, err, errCode := control.PublishDeviceTypeCreate(token, devicetype)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
@@ -90,6 +99,14 @@ func DeviceTypesEndpoints(config config.Config, control Controller, router *http
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
+		}
+		distinctAttr := request.URL.Query().Get("distinct_attributes")
+		if distinctAttr != "" {
+			err = control.ValidateDistinctDeviceTypeAttributes(token, devicetype, strings.Split(distinctAttr, ","))
+			if err != nil {
+				http.Error(writer, err.Error(), http.StatusBadRequest)
+				return
+			}
 		}
 		result, err, errCode := control.PublishDeviceTypeUpdate(token, id, devicetype)
 		if err != nil {

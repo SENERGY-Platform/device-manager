@@ -79,4 +79,6 @@ type Controller interface {
 	PublishLocationCreate(token auth.Token, dt models.Location) (result models.Location, err error, code int)
 	PublishLocationUpdate(token auth.Token, id string, device models.Location) (result models.Location, err error, code int)
 	PublishLocationDelete(token auth.Token, id string) (err error, code int)
+
+	ValidateDistinctDeviceTypeAttributes(token auth.Token, devicetype models.DeviceType, attributeKeys []string) error
 }

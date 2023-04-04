@@ -28,128 +28,324 @@ import (
 )
 
 func testDeviceType(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
+	t.Run("create empty device-type", func(t *testing.T) {
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
 
-	//expect validation error
-	if resp.StatusCode == http.StatusOK {
-		t.Fatal(resp.Status, resp.StatusCode)
-	}
-
-	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
-		Name:             "pname1",
-		Handler:          "ph1",
-		ProtocolSegments: []models.ProtocolSegment{{Name: "ps1"}},
+		//expect validation error
+		if resp.StatusCode == http.StatusOK {
+			t.Fatal(resp.Status, resp.StatusCode)
+		}
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
-	}
 
 	protocol := models.Protocol{}
-	err = json.NewDecoder(resp.Body).Decode(&protocol)
-	if err != nil {
-		t.Fatal(err)
-	}
+	t.Run("create protocol", func(t *testing.T) {
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
+			Name:             "pname1",
+			Handler:          "ph1",
+			ProtocolSegments: []models.ProtocolSegment{{Name: "ps1"}},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
-		Name:          "foo",
-		DeviceClassId: "dc1",
-		Services: []models.Service{
-			{
-				Name:    "s1name",
-				LocalId: "lid1",
-				Inputs: []models.Content{
-					{
-						ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
-						Serialization:     "json",
-						ContentVariable: models.ContentVariable{
-							Name:       "v1name",
-							Type:       models.String,
-							FunctionId: f1Id,
-							AspectId:   a1Id,
-						},
-					},
-				},
-				ProtocolId: protocol.Id,
-			},
-		},
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&protocol)
+		if err != nil {
+			t.Fatal(err)
+		}
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
-	}
 
 	dt := models.DeviceType{}
-	err = json.NewDecoder(resp.Body).Decode(&dt)
-	if err != nil {
-		t.Fatal(err)
-	}
+	t.Run("create device-type", func(t *testing.T) {
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
+			Name:          "foo",
+			DeviceClassId: "dc1",
+			Services: []models.Service{
+				{
+					Name:    "s1name",
+					LocalId: "lid1",
+					Inputs: []models.Content{
+						{
+							ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
+							Serialization:     "json",
+							ContentVariable: models.ContentVariable{
+								Name:       "v1name",
+								Type:       models.String,
+								FunctionId: f1Id,
+								AspectId:   a1Id,
+							},
+						},
+					},
+					ProtocolId: protocol.Id,
+				},
+			},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
 
-	if dt.Id == "" {
-		t.Fatal(dt)
-	}
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
 
-	result := models.DeviceType{}
-	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
+		err = json.NewDecoder(resp.Body).Decode(&dt)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	if resp.StatusCode != http.StatusOK {
-		b, _ := io.ReadAll(resp.Body)
-		t.Log("http://localhost:" + port + "/device-types/" + url.PathEscape(dt.Id))
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
-	}
+		if dt.Id == "" {
+			t.Fatal(dt)
+		}
+	})
 
-	result = models.DeviceType{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		t.Fatal(err)
-	}
+	t.Run("read device-type", func(t *testing.T) {
+		result := models.DeviceType{}
+		resp, err := helper.Jwtget(userjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
 
-	if result.Name != "foo" ||
-		result.DeviceClassId != "dc1" ||
-		len(result.Services) != 1 ||
-		result.Services[0].Name != "s1name" ||
-		result.Services[0].ProtocolId != protocol.Id ||
-		result.Services[0].Inputs[0].ContentVariable.AspectId != a1Id ||
-		result.Services[0].Inputs[0].ContentVariable.FunctionId != f1Id {
-		t.Fatal(result)
-	}
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Log("http://localhost:" + port + "/device-types/" + url.PathEscape(dt.Id))
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
 
-	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
-	}
+		result = models.DeviceType{}
+		err = json.NewDecoder(resp.Body).Decode(&result)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
-		t.Fatal(resp.Status, resp.StatusCode)
-	}
+		if result.Name != "foo" ||
+			result.DeviceClassId != "dc1" ||
+			len(result.Services) != 1 ||
+			result.Services[0].Name != "s1name" ||
+			result.Services[0].ProtocolId != protocol.Id ||
+			result.Services[0].Inputs[0].ContentVariable.AspectId != a1Id ||
+			result.Services[0].Inputs[0].ContentVariable.FunctionId != f1Id {
+			t.Fatal(result)
+		}
+	})
+
+	t.Run("delete device-type", func(t *testing.T) {
+		resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+
+		resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode == http.StatusOK {
+			t.Fatal(resp.Status, resp.StatusCode)
+		}
+	})
+}
+
+func testDeviceTypeWithDistinctAttributes(t *testing.T, port string) {
+	protocol := models.Protocol{}
+	t.Run("create protocol", func(t *testing.T) {
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
+			Name:             "pname1",
+			Handler:          "ph1",
+			ProtocolSegments: []models.ProtocolSegment{{Name: "ps1"}},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&protocol)
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	dt1 := models.DeviceType{}
+	t.Run("create first device-type", func(t *testing.T) {
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?distinct_attributes="+url.QueryEscape("senergy/vendor,senergy/model"), models.DeviceType{
+			Name:          "foo",
+			DeviceClassId: "dc1",
+			Attributes: []models.Attribute{
+				{Key: "senergy/vendor", Value: "Philips"},
+				{Key: "senergy/model", Value: "model1"},
+			},
+			Services: []models.Service{
+				{
+					Name:    "s1name",
+					LocalId: "lid1",
+					Inputs: []models.Content{
+						{
+							ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
+							Serialization:     "json",
+							ContentVariable: models.ContentVariable{
+								Name:       "v1name",
+								Type:       models.String,
+								FunctionId: f1Id,
+								AspectId:   a1Id,
+							},
+						},
+					},
+					ProtocolId: protocol.Id,
+				},
+			},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&dt1)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if dt1.Id == "" {
+			t.Fatal(dt1)
+		}
+	})
+
+	t.Run("try to create conflicting device-type", func(t *testing.T) {
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?distinct_attributes="+url.QueryEscape("senergy/vendor,senergy/model"), models.DeviceType{
+			Name:          "foo2",
+			DeviceClassId: "dc1",
+			Attributes: []models.Attribute{
+				{Key: "senergy/vendor", Value: "Philips"},
+				{Key: "senergy/model", Value: "model1"},
+			},
+			Services: []models.Service{
+				{
+					Name:    "s1name",
+					LocalId: "lid1",
+					Inputs: []models.Content{
+						{
+							ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
+							Serialization:     "json",
+							ContentVariable: models.ContentVariable{
+								Name:       "v1name",
+								Type:       models.String,
+								FunctionId: f1Id,
+								AspectId:   a1Id,
+							},
+						},
+					},
+					ProtocolId: protocol.Id,
+				},
+			},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode == http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+	})
+
+	dt2 := models.DeviceType{}
+	t.Run("create second device-type", func(t *testing.T) {
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?distinct_attributes="+url.QueryEscape("senergy/vendor,senergy/model"), models.DeviceType{
+			Name:          "foo",
+			DeviceClassId: "dc1",
+			Attributes: []models.Attribute{
+				{Key: "senergy/vendor", Value: "Philips"},
+				{Key: "senergy/model", Value: "model2"},
+			},
+			Services: []models.Service{
+				{
+					Name:    "s1name",
+					LocalId: "lid1",
+					Inputs: []models.Content{
+						{
+							ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
+							Serialization:     "json",
+							ContentVariable: models.ContentVariable{
+								Name:       "v1name",
+								Type:       models.String,
+								FunctionId: f1Id,
+								AspectId:   a1Id,
+							},
+						},
+					},
+					ProtocolId: protocol.Id,
+				},
+			},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&dt2)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if dt2.Id == "" {
+			t.Fatal(dt1)
+		}
+	})
+
+	t.Run("delete device-type 1", func(t *testing.T) {
+		resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt1.Id))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+	})
+
+	t.Run("delete device-type 2", func(t *testing.T) {
+		resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt2.Id))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+	})
 }
 
 func testDeviceTypeWithServiceGroups(t *testing.T, port string) {

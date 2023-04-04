@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"runtime/debug"
 	"sort"
+	"strings"
 )
 
 func (this *Controller) ReadDeviceType(token auth.Token, id string) (dt models.DeviceType, err error, code int) {
@@ -94,4 +95,89 @@ func (this *Controller) PublishDeviceTypeDelete(token auth.Token, id string) (er
 		return err, http.StatusInternalServerError
 	}
 	return nil, http.StatusOK
+}
+
+func (this *Controller) ValidateDistinctDeviceTypeAttributes(token auth.Token, devicetype models.DeviceType, attributeKeys []string) error {
+	dtAttr := map[string]string{}
+	for _, attr := range devicetype.Attributes {
+		dtAttr[strings.TrimSpace(attr.Key)] = strings.TrimSpace(attr.Value)
+	}
+
+	and := []com.Selection{}
+	for _, attrKey := range attributeKeys {
+		attrKey = strings.TrimSpace(attrKey)
+		if value, ok := dtAttr[attrKey]; ok {
+			and = append(and, com.Selection{
+				Condition: com.ConditionConfig{
+					Feature:   "features.attributes.key",
+					Operation: com.QueryEqualOperation,
+					Value:     attrKey,
+				},
+			})
+			if value != "" {
+				and = append(and, com.Selection{
+					Condition: com.ConditionConfig{
+						Feature:   "features.attributes.value",
+						Operation: com.QueryEqualOperation,
+						Value:     strings.TrimSpace(value),
+					},
+				})
+			}
+		} else {
+			return errors.New("distinct attribute not in device-type attributes found")
+		}
+	}
+
+	var filter com.Selection
+	if len(and) == 1 {
+		filter = and[0]
+	} else {
+		filter = com.Selection{
+			And: and,
+		}
+	}
+
+	searchResult := []models.DeviceType{}
+	err, _ := this.com.QueryPermissionsSearch(token.Jwt(), com.QueryMessage{
+		Resource: this.config.DeviceTypeTopic,
+		Find: &com.QueryFind{
+			QueryListCommons: com.QueryListCommons{
+				Limit:  1000,
+				Offset: 0,
+				Rights: "r",
+			},
+			Filter: &filter,
+		},
+	}, &searchResult)
+	if err != nil {
+		return err
+	}
+	for _, element := range searchResult {
+		eAttr := map[string]string{}
+		for _, attr := range element.Attributes {
+			eAttr[attr.Key] = strings.TrimSpace(attr.Value)
+		}
+		if element.Id != devicetype.Id && attributesMatch(dtAttr, eAttr, attributeKeys) {
+			return errors.New("find matching distinct attributes in " + element.Id)
+		}
+	}
+	return nil
+}
+
+func attributesMatch(a, b map[string]string, attributes []string) bool {
+	for _, attrKey := range attributes {
+		attrKey = strings.TrimSpace(attrKey)
+		aValue, ok := a[attrKey]
+		if !ok {
+			return false
+		}
+		bValue, ok := b[attrKey]
+		if !ok {
+			return false
+		}
+		if strings.TrimSpace(aValue) != strings.TrimSpace(bValue) {
+			return false
+		}
+	}
+	return true
 }
