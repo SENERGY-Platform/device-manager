@@ -121,7 +121,7 @@ func (this *Controller) completeHub(token auth.Token, edit models.HubEdit) (resu
 	if err != nil {
 		return result, err, code
 	}
-	result.HubEdit = edit
+	result = edit.ToHub()
 	result.DeviceIds = []string{}
 	for _, id := range idWrapperList {
 		result.DeviceIds = append(result.DeviceIds, id.Id)

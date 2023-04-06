@@ -140,7 +140,7 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 			return
 		}
 		hub.Name = name
-		result, err, errCode := control.PublishHubUpdate(token, id, token.GetUserId(), hub.HubEdit)
+		result, err, errCode := control.PublishHubUpdate(token, id, token.GetUserId(), hub.ToHubEdit())
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
