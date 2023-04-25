@@ -37,6 +37,9 @@ const userjwt = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIzaUta
 const userid = "dd69ea0d-f553-4336-80f3-7f4567f85c7b"
 
 func TestWithMock(t *testing.T) {
+	if testing.Short() {
+		t.Skip("short")
+	}
 	conf, err := config.Load("./../../config.json")
 	if err != nil {
 		t.Fatal("ERROR: unable to load config", err)
@@ -79,6 +82,9 @@ func TestWithMock(t *testing.T) {
 }
 
 func TestWithEditRedirect(t *testing.T) {
+	if testing.Short() {
+		t.Skip("short")
+	}
 	conf, err := config.Load("./../../config.json")
 	if err != nil {
 		t.Fatal("ERROR: unable to load config", err)

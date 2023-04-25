@@ -18,9 +18,10 @@ package docker
 
 import (
 	"context"
+	"fmt"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
-	"github.com/ory/dockertest/v3"
-	"github.com/ory/dockertest/v3/docker"
+	"github.com/testcontainers/testcontainers-go"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -59,29 +60,23 @@ func CreateTestEnv(baseCtx context.Context, wg *sync.WaitGroup, startConfig conf
 	}
 	config.ServerPort = strconv.Itoa(whPort)
 
-	pool, err := dockertest.NewPool("")
-	if err != nil {
-		log.Println("Could not connect to docker:", err)
-		return config, err
-	}
-
-	_, zkIp, err := Zookeeper(pool, ctx, wg)
+	_, zkIp, err := Zookeeper(ctx, wg)
 	if err != nil {
 		return config, err
 	}
 	zookeeperUrl := zkIp + ":2181"
 
-	config.KafkaUrl, err = Kafka(pool, ctx, wg, zookeeperUrl)
+	config.KafkaUrl, err = Kafka(ctx, wg, zookeeperUrl)
 	if err != nil {
 		return config, err
 	}
 
-	_, elasticIp, err := Elasticsearch(pool, ctx, wg)
+	_, elasticIp, err := Elasticsearch(ctx, wg)
 	if err != nil {
 		return config, err
 	}
 
-	_, permIp, err := PermSearch(pool, ctx, wg, config.KafkaUrl, elasticIp)
+	_, permIp, err := PermSearch(ctx, wg, config.KafkaUrl, elasticIp)
 	if err != nil {
 		return config, err
 	}
@@ -90,20 +85,19 @@ func CreateTestEnv(baseCtx context.Context, wg *sync.WaitGroup, startConfig conf
 	return
 }
 
-func Dockerlog(pool *dockertest.Pool, ctx context.Context, repo *dockertest.Resource, name string) {
-	out := &LogWriter{logger: log.New(os.Stdout, "["+name+"]", 0)}
-	err := pool.Client.Logs(docker.LogsOptions{
-		Stdout:       true,
-		Stderr:       true,
-		Context:      ctx,
-		Container:    repo.Container.ID,
-		Follow:       true,
-		OutputStream: out,
-		ErrorStream:  out,
-	})
-	if err != nil && err != context.Canceled {
-		log.Println("DEBUG-ERROR: unable to start docker log", name, err)
+func Dockerlog(ctx context.Context, container testcontainers.Container, name string) error {
+	l, err := container.Logs(ctx)
+	if err != nil {
+		return err
 	}
+	out := &LogWriter{logger: log.New(os.Stdout, "["+name+"] ", log.LstdFlags)}
+	go func() {
+		_, err := io.Copy(out, l)
+		if err != nil {
+			log.Println("ERROR: unable to copy docker log", err)
+		}
+	}()
+	return nil
 }
 
 type LogWriter struct {
@@ -113,4 +107,47 @@ type LogWriter struct {
 func (this *LogWriter) Write(p []byte) (n int, err error) {
 	this.logger.Print(string(p))
 	return len(p), nil
+}
+
+func Forward(ctx context.Context, fromPort int, toAddr string) error {
+	log.Println("forward", fromPort, "to", toAddr)
+	incoming, err := net.Listen("tcp", fmt.Sprintf(":%d", fromPort))
+	if err != nil {
+		return err
+	}
+	go func() {
+		defer log.Println("closed forward incoming")
+		<-ctx.Done()
+		incoming.Close()
+	}()
+	go func() {
+		for {
+			client, err := incoming.Accept()
+			if err != nil {
+				log.Println("FORWARD ERROR:", err)
+				return
+			}
+			go handleForwardClient(client, toAddr)
+		}
+	}()
+	return nil
+}
+
+func handleForwardClient(client net.Conn, addr string) {
+	//log.Println("new forward client")
+	target, err := net.Dial("tcp", addr)
+	if err != nil {
+		log.Println("FORWARD ERROR:", err)
+		return
+	}
+	go func() {
+		defer target.Close()
+		defer client.Close()
+		io.Copy(target, client)
+	}()
+	go func() {
+		defer target.Close()
+		defer client.Close()
+		io.Copy(client, target)
+	}()
 }

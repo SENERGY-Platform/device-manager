@@ -18,9 +18,9 @@ package docker
 
 import (
 	"context"
-	"github.com/ory/dockertest/v3"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 	"log"
-	"net/http"
 	"sync"
 	"time"
 )
@@ -32,42 +32,38 @@ func DeviceRepoWithDependencies(basectx context.Context, wg *sync.WaitGroup) (re
 			cancel()
 		}
 	}()
-	pool, err := dockertest.NewPool("")
-	if err != nil {
-		return "", "", "", err
-	}
 
-	_, zkIp, err := Zookeeper(pool, ctx, wg)
+	_, zkIp, err := Zookeeper(ctx, wg)
 	if err != nil {
 		return repoUrl, searchUrl, kafkaUrl, err
 	}
 	zookeeperUrl := zkIp + ":2181"
 
-	kafkaUrl, err = Kafka(pool, ctx, wg, zookeeperUrl)
+	kafkaUrl, err = Kafka(ctx, wg, zookeeperUrl)
 	if err != nil {
 		return repoUrl, searchUrl, kafkaUrl, err
 	}
 
 	time.Sleep(1 * time.Second)
 
-	_, elasticIp, err := Elasticsearch(pool, ctx, wg)
+	_, elasticIp, err := Elasticsearch(ctx, wg)
 	if err != nil {
 		return repoUrl, searchUrl, kafkaUrl, err
 	}
 
-	_, permIp, err := PermSearch(pool, ctx, wg, kafkaUrl, elasticIp)
+	_, permIp, err := PermSearch(ctx, wg, kafkaUrl, elasticIp)
 	if err != nil {
 		return repoUrl, searchUrl, kafkaUrl, err
 	}
 	searchUrl = "http://" + permIp + ":8080"
 	time.Sleep(10 * time.Second)
 
-	_, mongoIp, err := MongoDB(pool, ctx, wg)
+	_, mongoIp, err := MongoDB(ctx, wg)
 	if err != nil {
 		return repoUrl, searchUrl, kafkaUrl, err
 	}
 
-	_, repoIp, err := DeviceRepo(pool, ctx, wg, kafkaUrl, "mongodb://"+mongoIp+":27017", searchUrl)
+	_, repoIp, err := DeviceRepo(ctx, wg, kafkaUrl, "mongodb://"+mongoIp+":27017", searchUrl)
 	if err != nil {
 		return repoUrl, searchUrl, kafkaUrl, err
 	}
@@ -76,12 +72,21 @@ func DeviceRepoWithDependencies(basectx context.Context, wg *sync.WaitGroup) (re
 	return repoUrl, searchUrl, kafkaUrl, err
 }
 
-func DeviceRepo(pool *dockertest.Pool, ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, mongoUrl string, permsearch string) (hostPort string, ipAddress string, err error) {
+func DeviceRepo(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, mongoUrl string, permsearch string) (hostPort string, ipAddress string, err error) {
 	log.Println("start device-repository")
-	container, err := pool.Run("ghcr.io/senergy-platform/device-repository", "dev", []string{
-		"KAFKA_URL=" + kafkaUrl,
-		"PERMISSIONS_URL=" + permsearch,
-		"MONGO_URL=" + mongoUrl,
+	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image: "ghcr.io/senergy-platform/device-repository:dev",
+			Env: map[string]string{
+				"KAFKA_URL":       kafkaUrl,
+				"PERMISSIONS_URL": permsearch,
+				"MONGO_URL":       mongoUrl,
+			},
+			ExposedPorts:    []string{"8080/tcp"},
+			WaitingFor:      wait.ForListeningPort("8080/tcp"),
+			AlwaysPullImage: true,
+		},
+		Started: true,
 	})
 	if err != nil {
 		return "", "", err
@@ -90,18 +95,25 @@ func DeviceRepo(pool *dockertest.Pool, ctx context.Context, wg *sync.WaitGroup, 
 	go func() {
 		defer wg.Done()
 		<-ctx.Done()
-		log.Println("DEBUG: remove container " + container.Container.Name)
-		container.Close()
+		log.Println("DEBUG: remove container device-repository", c.Terminate(context.Background()))
 	}()
-	go Dockerlog(pool, ctx, container, "DEVICE-REPOSITORY")
-	hostPort = container.GetPort("8080/tcp")
-	err = pool.Retry(func() error {
-		log.Println("try device-repo connection...")
-		_, err := http.Get("http://localhost:" + hostPort)
+
+	/*
+		err = Dockerlog(ctx, c, "DEVICE-REPOSITORY")
 		if err != nil {
-			log.Println(err)
+			return "", "", err
 		}
-		return err
-	})
-	return hostPort, container.Container.NetworkSettings.IPAddress, err
+	*/
+
+	ipAddress, err = c.ContainerIP(ctx)
+	if err != nil {
+		return "", "", err
+	}
+	temp, err := c.MappedPort(ctx, "8080/tcp")
+	if err != nil {
+		return "", "", err
+	}
+	hostPort = temp.Port()
+
+	return hostPort, ipAddress, err
 }
