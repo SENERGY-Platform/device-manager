@@ -55,7 +55,7 @@ func Kafka(pool *dockertest.Pool, ctx context.Context, wg *sync.WaitGroup, zooke
 	log.Println("start kafka with env ", env)
 	container, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "bitnami/kafka",
-		Tag:        "latest",
+		Tag:        "3.4.0-debian-11-r21",
 		Env:        env,
 		PortBindings: map[docker.Port][]docker.PortBinding{
 			"9092/tcp": {{HostIP: "", HostPort: strconv.Itoa(kafkaport)}},

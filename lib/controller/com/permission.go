@@ -137,7 +137,8 @@ func (this *Com) DevicesOfTypeExist(token auth.Token, deviceTypeId string) (resu
 		return false, nil, 200
 	}
 	deviceTypeId = removeIdModifier(deviceTypeId)
-	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/jwt/select/devices/device_type_id/"+url.PathEscape(deviceTypeId)+"/x", nil)
+	endpoint := this.config.PermissionsUrl + "/v3/resources/devices?limit=1&rights=x&filter=" + url.QueryEscape("device_type_id:"+deviceTypeId)
+	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		debug.PrintStack()
 		return result, err, http.StatusInternalServerError
@@ -165,7 +166,8 @@ func (this *Com) DevicesOfTypeExist(token auth.Token, deviceTypeId string) (resu
 }
 
 func (this *Com) DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, code int) {
-	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/jwt/select/devices/local_id/"+url.PathEscape(localId)+"/x", nil)
+	endpoint := this.config.PermissionsUrl + "/v3/resources/devices?limit=1&rights=x&filter=" + url.QueryEscape("local_id:"+localId)
+	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		debug.PrintStack()
 		return "", err, http.StatusInternalServerError
