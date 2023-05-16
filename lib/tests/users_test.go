@@ -27,7 +27,6 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/listener"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
-	"github.com/SENERGY-Platform/device-manager/lib/kafka/util"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/docker"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/servicemocks"
@@ -102,16 +101,6 @@ func TestUserDelete(t *testing.T) {
 		return
 	}
 
-	broker, err := util.GetBroker(conf.KafkaUrl)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	if len(broker) == 0 {
-		t.Error("missing kafka broker")
-		return
-	}
-
 	t.Run("create devices", func(t *testing.T) {
 		for i := 0; i < 20; i++ {
 			id := strconv.Itoa(i)
@@ -150,7 +139,7 @@ func TestUserDelete(t *testing.T) {
 
 	t.Run("change permissions", func(t *testing.T) {
 		permissions := &kafka.Writer{
-			Addr:        kafka.TCP(broker...),
+			Addr:        kafka.TCP(conf.KafkaUrl),
 			Topic:       conf.PermissionsTopic,
 			MaxAttempts: 10,
 			Logger:      log.New(os.Stdout, "[TEST-KAFKA-PRODUCER] ", 0),
@@ -196,7 +185,7 @@ func TestUserDelete(t *testing.T) {
 
 	t.Run("delete user1", func(t *testing.T) {
 		users := &kafka.Writer{
-			Addr:        kafka.TCP(broker...),
+			Addr:        kafka.TCP(conf.KafkaUrl),
 			Topic:       conf.UserTopic,
 			MaxAttempts: 10,
 			Logger:      log.New(os.Stdout, "[TEST-KAFKA-PRODUCER] ", 0),

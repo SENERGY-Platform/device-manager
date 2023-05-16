@@ -18,7 +18,6 @@ package publisher
 
 import (
 	"context"
-	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/util"
 	"github.com/segmentio/kafka-go"
@@ -62,26 +61,20 @@ func New(conf config.Config, ctx context.Context) (*Publisher, error) {
 	if err != nil {
 		return nil, err
 	}
-	broker, err := util.GetBroker(conf.KafkaUrl)
-	if err != nil {
-		return nil, err
-	}
-	if len(broker) == 0 {
-		return nil, errors.New("missing kafka broker")
-	}
+
 	log.Println("Produce to ", conf.DeviceTypeTopic, conf.ProtocolTopic, conf.DeviceTopic, conf.HubTopic, conf.ConceptTopic, conf.CharacteristicTopic, conf.LocationTopic)
-	devicetypes := getProducer(ctx, broker, conf.DeviceTypeTopic, conf.LogLevel == "DEBUG")
-	devicegroups := getProducer(ctx, broker, conf.DeviceGroupTopic, conf.LogLevel == "DEBUG")
-	devices := getProducer(ctx, broker, conf.DeviceTopic, conf.LogLevel == "DEBUG")
-	hubs := getProducer(ctx, broker, conf.HubTopic, conf.LogLevel == "DEBUG")
-	protocol := getProducer(ctx, broker, conf.ProtocolTopic, conf.LogLevel == "DEBUG")
-	concepts := getProducer(ctx, broker, conf.ConceptTopic, conf.LogLevel == "DEBUG")
-	characteristics := getProducer(ctx, broker, conf.CharacteristicTopic, conf.LogLevel == "DEBUG")
-	aspect := getProducer(ctx, broker, conf.AspectTopic, conf.LogLevel == "DEBUG")
-	function := getProducer(ctx, broker, conf.FunctionTopic, conf.LogLevel == "DEBUG")
-	deviceclass := getProducer(ctx, broker, conf.DeviceClassTopic, conf.LogLevel == "DEBUG")
-	location := getProducer(ctx, broker, conf.LocationTopic, conf.LogLevel == "DEBUG")
-	permissions := getProducer(ctx, broker, conf.PermissionsTopic, conf.LogLevel == "DEBUG")
+	devicetypes := getProducer(ctx, conf.KafkaUrl, conf.DeviceTypeTopic, conf.LogLevel == "DEBUG")
+	devicegroups := getProducer(ctx, conf.KafkaUrl, conf.DeviceGroupTopic, conf.LogLevel == "DEBUG")
+	devices := getProducer(ctx, conf.KafkaUrl, conf.DeviceTopic, conf.LogLevel == "DEBUG")
+	hubs := getProducer(ctx, conf.KafkaUrl, conf.HubTopic, conf.LogLevel == "DEBUG")
+	protocol := getProducer(ctx, conf.KafkaUrl, conf.ProtocolTopic, conf.LogLevel == "DEBUG")
+	concepts := getProducer(ctx, conf.KafkaUrl, conf.ConceptTopic, conf.LogLevel == "DEBUG")
+	characteristics := getProducer(ctx, conf.KafkaUrl, conf.CharacteristicTopic, conf.LogLevel == "DEBUG")
+	aspect := getProducer(ctx, conf.KafkaUrl, conf.AspectTopic, conf.LogLevel == "DEBUG")
+	function := getProducer(ctx, conf.KafkaUrl, conf.FunctionTopic, conf.LogLevel == "DEBUG")
+	deviceclass := getProducer(ctx, conf.KafkaUrl, conf.DeviceClassTopic, conf.LogLevel == "DEBUG")
+	location := getProducer(ctx, conf.KafkaUrl, conf.LocationTopic, conf.LogLevel == "DEBUG")
+	permissions := getProducer(ctx, conf.KafkaUrl, conf.PermissionsTopic, conf.LogLevel == "DEBUG")
 	return &Publisher{
 		config:          conf,
 		devicetypes:     devicetypes,
@@ -99,7 +92,7 @@ func New(conf config.Config, ctx context.Context) (*Publisher, error) {
 	}, nil
 }
 
-func getProducer(ctx context.Context, broker []string, topic string, debug bool) (writer *kafka.Writer) {
+func getProducer(ctx context.Context, broker string, topic string, debug bool) (writer *kafka.Writer) {
 	var logger *log.Logger
 	if debug {
 		logger = log.New(os.Stdout, "[KAFKA-PRODUCER] ", 0)
@@ -107,7 +100,7 @@ func getProducer(ctx context.Context, broker []string, topic string, debug bool)
 		logger = log.New(io.Discard, "", 0)
 	}
 	writer = &kafka.Writer{
-		Addr:        kafka.TCP(broker...),
+		Addr:        kafka.TCP(broker),
 		Topic:       topic,
 		MaxAttempts: 10,
 		Logger:      logger,
