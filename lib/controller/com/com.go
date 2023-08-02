@@ -18,12 +18,14 @@ package com
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/permission-search/lib/client"
 )
 
 type Com struct {
 	config config.Config
+	perm   client.Client
 }
 
 func New(config config.Config) *Com {
-	return &Com{config: config}
+	return &Com{config: config, perm: client.NewClient(config.PermissionsUrl)}
 }

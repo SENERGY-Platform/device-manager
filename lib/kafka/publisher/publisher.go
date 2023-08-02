@@ -24,6 +24,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 type Publisher struct {
@@ -39,7 +40,6 @@ type Publisher struct {
 	functions       *kafka.Writer
 	deviceclasses   *kafka.Writer
 	locations       *kafka.Writer
-	permissions     *kafka.Writer
 }
 
 func New(conf config.Config, ctx context.Context) (*Publisher, error) {
@@ -56,8 +56,7 @@ func New(conf config.Config, ctx context.Context) (*Publisher, error) {
 		conf.AspectTopic,
 		conf.FunctionTopic,
 		conf.DeviceClassTopic,
-		conf.LocationTopic,
-		conf.PermissionsTopic)
+		conf.LocationTopic)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +73,6 @@ func New(conf config.Config, ctx context.Context) (*Publisher, error) {
 	function := getProducer(ctx, conf.KafkaUrl, conf.FunctionTopic, conf.LogLevel == "DEBUG")
 	deviceclass := getProducer(ctx, conf.KafkaUrl, conf.DeviceClassTopic, conf.LogLevel == "DEBUG")
 	location := getProducer(ctx, conf.KafkaUrl, conf.LocationTopic, conf.LogLevel == "DEBUG")
-	permissions := getProducer(ctx, conf.KafkaUrl, conf.PermissionsTopic, conf.LogLevel == "DEBUG")
 	return &Publisher{
 		config:          conf,
 		devicetypes:     devicetypes,
@@ -88,7 +86,6 @@ func New(conf config.Config, ctx context.Context) (*Publisher, error) {
 		functions:       function,
 		deviceclasses:   deviceclass,
 		locations:       location,
-		permissions:     permissions,
 	}, nil
 }
 
@@ -105,7 +102,7 @@ func getProducer(ctx context.Context, broker string, topic string, debug bool) (
 		MaxAttempts: 10,
 		Logger:      logger,
 		BatchSize:   1,
-		Balancer:    &kafka.Hash{},
+		Balancer:    &KeySeparationBalancer{SubBalancer: &kafka.Hash{}, Seperator: "/"},
 	}
 	go func() {
 		<-ctx.Done()
@@ -115,4 +112,19 @@ func getProducer(ctx context.Context, broker string, topic string, debug bool) (
 		}
 	}()
 	return writer
+}
+
+type KeySeparationBalancer struct {
+	SubBalancer kafka.Balancer
+	Seperator   string
+}
+
+func (this *KeySeparationBalancer) Balance(msg kafka.Message, partitions ...int) (partition int) {
+	key := string(msg.Key)
+	if this.Seperator != "" {
+		keyParts := strings.Split(key, this.Seperator)
+		key = keyParts[0]
+	}
+	msg.Key = []byte(key)
+	return this.SubBalancer.Balance(msg, partitions...)
 }

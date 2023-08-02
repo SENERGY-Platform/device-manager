@@ -46,12 +46,12 @@ func DeviceRepoWithDependencies(basectx context.Context, wg *sync.WaitGroup) (re
 
 	time.Sleep(1 * time.Second)
 
-	_, elasticIp, err := Elasticsearch(ctx, wg)
+	_, elasticIp, err := OpenSearch(ctx, wg)
 	if err != nil {
 		return repoUrl, searchUrl, kafkaUrl, err
 	}
 
-	_, permIp, err := PermSearch(ctx, wg, kafkaUrl, elasticIp)
+	_, permIp, err := PermSearch(ctx, wg, false, kafkaUrl, elasticIp)
 	if err != nil {
 		return repoUrl, searchUrl, kafkaUrl, err
 	}

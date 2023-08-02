@@ -21,11 +21,16 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
 	"log"
 	"net/http"
 	"net/url"
 	"runtime/debug"
 )
+
+func (this *Com) GetPermissions(token auth.Token, kind string, id string) (permmodel.ResourceRights, error) {
+	return this.perm.GetRights(token.Jwt(), kind, id)
+}
 
 func (this *Com) PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int) {
 	ids = append(ids, removeIdModifiers(ids)...)

@@ -19,6 +19,7 @@ package publisher
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/segmentio/kafka-go"
 	"log"
@@ -46,6 +47,9 @@ func (this *Publisher) PublishDeviceGroupDelete(id string, userId string) error 
 func (this *Publisher) PublishDeviceGroupCommand(cmd DeviceGroupCommand) error {
 	if this.config.LogLevel == "DEBUG" {
 		log.Println("DEBUG: produce deviceGroup", cmd)
+	}
+	if cmd.Owner == "" {
+		return errors.New("missing owner in command")
 	}
 	message, err := json.Marshal(cmd)
 	if err != nil {

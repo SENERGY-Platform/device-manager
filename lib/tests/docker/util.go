@@ -71,12 +71,12 @@ func CreateTestEnv(baseCtx context.Context, wg *sync.WaitGroup, startConfig conf
 		return config, err
 	}
 
-	_, elasticIp, err := Elasticsearch(ctx, wg)
+	_, elasticIp, err := OpenSearch(ctx, wg)
 	if err != nil {
 		return config, err
 	}
 
-	_, permIp, err := PermSearch(ctx, wg, config.KafkaUrl, elasticIp)
+	_, permIp, err := PermSearch(ctx, wg, false, config.KafkaUrl, elasticIp)
 	if err != nil {
 		return config, err
 	}
@@ -85,23 +85,21 @@ func CreateTestEnv(baseCtx context.Context, wg *sync.WaitGroup, startConfig conf
 	return
 }
 
-func Dockerlog(ctx context.Context, container testcontainers.Container, name string) error {
-	l, err := container.Logs(ctx)
+func Dockerlog(container testcontainers.Container, name string) error {
+	container.FollowOutput(&LogWriter{logger: log.New(os.Stdout, "["+name+"] ", log.LstdFlags)})
+	err := container.StartLogProducer(context.Background())
 	if err != nil {
 		return err
 	}
-	out := &LogWriter{logger: log.New(os.Stdout, "["+name+"] ", log.LstdFlags)}
-	go func() {
-		_, err := io.Copy(out, l)
-		if err != nil {
-			log.Println("ERROR: unable to copy docker log", err)
-		}
-	}()
 	return nil
 }
 
 type LogWriter struct {
 	logger *log.Logger
+}
+
+func (this *LogWriter) Accept(l testcontainers.Log) {
+	this.Write(l.Content)
 }
 
 func (this *LogWriter) Write(p []byte) (n int, err error) {

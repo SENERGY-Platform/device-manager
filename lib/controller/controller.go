@@ -24,6 +24,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/listener"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
 	"github.com/SENERGY-Platform/models/go/models"
+	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
 )
 
 type Controller struct {
@@ -93,11 +94,12 @@ type Publisher interface {
 	PublishLocation(device models.Location, userID string) (err error)
 	PublishLocationDelete(id string, userID string) error
 
-	PublishDeleteUserRights(resource string, id string, userId string) error
+	PublishRights(kind string, id string, element permmodel.ResourceRightsBase) error
 }
 
 type Com interface {
 	ResourcesEffectedByUserDelete(token auth.Token, resource string) (deleteResourceIds []string, deleteUserFromResourceIds []string, err error)
+	GetPermissions(token auth.Token, kind string, id string) (permmodel.ResourceRights, error)
 
 	GetTechnicalDeviceGroup(token auth.Token, id string) (dt models.DeviceGroup, err error, code int)
 	ValidateDeviceGroup(token auth.Token, dt models.DeviceGroup) (err error, code int)
@@ -151,4 +153,8 @@ type Com interface {
 	ValidateFunctionDelete(token auth.Token, id string) (err error, code int)
 
 	QueryPermissionsSearch(token string, query com.QueryMessage, result interface{}) (err error, code int)
+}
+
+func (this *Controller) GetPublisher() Publisher {
+	return this.publisher
 }

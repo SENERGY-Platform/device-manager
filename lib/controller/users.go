@@ -16,10 +16,37 @@
 
 package controller
 
-import "github.com/SENERGY-Platform/device-manager/lib/auth"
+import (
+	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
+)
+
+func (this *Controller) deleteUserRights(token auth.Token, kind string, id string, userId string) (err error) {
+	rights, err := this.com.GetPermissions(token, kind, id)
+	if err != nil {
+		return err
+	}
+	userrights := map[string]permmodel.Right{}
+	for user, right := range rights.UserRights {
+		if user != userId {
+			userrights[user] = right
+		}
+	}
+	rights.UserRights = userrights
+
+	err = this.publisher.PublishRights(this.config.DeviceTopic, id, rights.ResourceRightsBase)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func (this *Controller) DeleteUser(userId string) error {
 	token, err := auth.CreateToken("device-manager", userId)
+	if err != nil {
+		return err
+	}
+	admintoken, err := auth.CreateTokenWithRoles("device-manager", userId, []string{"admin", "system", "user"})
 	if err != nil {
 		return err
 	}
@@ -35,7 +62,7 @@ func (this *Controller) DeleteUser(userId string) error {
 		}
 	}
 	for _, id := range userToDeleteFromDevices {
-		err = this.publisher.PublishDeleteUserRights(this.config.DeviceTopic, id, userId)
+		err = this.deleteUserRights(admintoken, this.config.DeviceTopic, id, userId)
 		if err != nil {
 			return err
 		}
@@ -52,7 +79,7 @@ func (this *Controller) DeleteUser(userId string) error {
 		}
 	}
 	for _, id := range userToDeleteFromDeviceGroups {
-		err = this.publisher.PublishDeleteUserRights(this.config.DeviceGroupTopic, id, userId)
+		err = this.deleteUserRights(admintoken, this.config.DeviceGroupTopic, id, userId)
 		if err != nil {
 			return err
 		}
@@ -69,7 +96,7 @@ func (this *Controller) DeleteUser(userId string) error {
 		}
 	}
 	for _, id := range userToDeleteFromHubs {
-		err = this.publisher.PublishDeleteUserRights(this.config.HubTopic, id, userId)
+		err = this.deleteUserRights(admintoken, this.config.HubTopic, id, userId)
 		if err != nil {
 			return err
 		}
@@ -86,7 +113,7 @@ func (this *Controller) DeleteUser(userId string) error {
 		}
 	}
 	for _, id := range userToDeleteFromLocations {
-		err = this.publisher.PublishDeleteUserRights(this.config.LocationTopic, id, userId)
+		err = this.deleteUserRights(admintoken, this.config.LocationTopic, id, userId)
 		if err != nil {
 			return err
 		}

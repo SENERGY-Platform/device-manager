@@ -26,11 +26,11 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/controller"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/listener"
-	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/docker"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/servicemocks"
 	"github.com/SENERGY-Platform/models/go/models"
+	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"net/http"
@@ -101,6 +101,8 @@ func TestUserDelete(t *testing.T) {
 		return
 	}
 
+	cache := &map[string]permmodel.ResourceRightsBase{}
+
 	t.Run("create devices", func(t *testing.T) {
 		for i := 0; i < 20; i++ {
 			id := strconv.Itoa(i)
@@ -115,6 +117,15 @@ func TestUserDelete(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 				return
+			}
+			(*cache)[conf.DeviceTopic+"."+device.Id] = permmodel.ResourceRightsBase{
+				UserRights: map[string]permmodel.Right{user1a.GetUserId(): {
+					Read:         true,
+					Write:        true,
+					Execute:      true,
+					Administrate: true,
+				}},
+				GroupRights: map[string]permmodel.Right{"admin": {Read: true, Write: true, Execute: true, Administrate: true}},
 			}
 		}
 		for i := 20; i < 40; i++ {
@@ -132,21 +143,22 @@ func TestUserDelete(t *testing.T) {
 				t.Error(err)
 				return
 			}
+			(*cache)[conf.DeviceTopic+"."+device.Id] = permmodel.ResourceRightsBase{
+				UserRights: map[string]permmodel.Right{user2a.GetUserId(): {
+					Read:         true,
+					Write:        true,
+					Execute:      true,
+					Administrate: true,
+				}},
+				GroupRights: map[string]permmodel.Right{"admin": {Read: true, Write: true, Execute: true, Administrate: true}},
+			}
 		}
 	})
 
-	time.Sleep(10 * time.Second)
-
 	t.Run("change permissions", func(t *testing.T) {
-		permissions := &kafka.Writer{
-			Addr:        kafka.TCP(conf.KafkaUrl),
-			Topic:       conf.PermissionsTopic,
-			MaxAttempts: 10,
-			Logger:      log.New(os.Stdout, "[TEST-KAFKA-PRODUCER] ", 0),
-		}
 		for i := 0; i < 10; i++ {
 			id := strconv.Itoa(i)
-			err = setPermission(permissions, conf, user2.GetUserId(), id, "rwxa")
+			err = setPermission(ctrl.GetPublisher(), user2.GetUserId(), conf.DeviceTopic, id, "rwxa", cache)
 			if err != nil {
 				t.Error(err)
 				return
@@ -154,7 +166,7 @@ func TestUserDelete(t *testing.T) {
 		}
 		for i := 20; i < 30; i++ {
 			id := strconv.Itoa(i)
-			err = setPermission(permissions, conf, user1.GetUserId(), id, "rwxa")
+			err = setPermission(ctrl.GetPublisher(), user1.GetUserId(), conf.DeviceTopic, id, "rwxa", cache)
 			if err != nil {
 				t.Error(err)
 				return
@@ -162,7 +174,7 @@ func TestUserDelete(t *testing.T) {
 		}
 		for i := 5; i < 10; i++ {
 			id := strconv.Itoa(i)
-			err = setPermission(permissions, conf, user1.GetUserId(), id, "rx")
+			err = setPermission(ctrl.GetPublisher(), user1.GetUserId(), conf.DeviceTopic, id, "rx", cache)
 			if err != nil {
 				t.Error(err)
 				return
@@ -170,7 +182,7 @@ func TestUserDelete(t *testing.T) {
 		}
 		for i := 25; i < 30; i++ {
 			id := strconv.Itoa(i)
-			err = setPermission(permissions, conf, user2.GetUserId(), id, "rx")
+			err = setPermission(ctrl.GetPublisher(), user2.GetUserId(), conf.DeviceTopic, id, "rx", cache)
 			if err != nil {
 				t.Error(err)
 				return
@@ -265,31 +277,43 @@ func checkUserDevices(conf config.Config, token auth.Token, expectedDeviceIdsAsI
 		sort.Strings(expectedIds)
 
 		if !reflect.DeepEqual(actualIds, expectedIds) {
-			t.Error(actualIds, expectedIds)
+			t.Errorf("\n%#v\n%#v\n", actualIds, expectedIds)
 			return
 		}
 	}
 }
 
-func setPermission(permissions *kafka.Writer, conf config.Config, userId string, deviceId string, right string) error {
-	cmd := publisher.PermCommandMsg{
-		Command:  "PUT",
-		Kind:     conf.DeviceTopic,
-		Resource: deviceId,
-		User:     userId,
-		Right:    right,
+func setPermission(publisher controller.Publisher, userId string, kind string, id string, right string, cache *map[string]permmodel.ResourceRightsBase) error {
+	userRight := permmodel.Right{
+		Read:         false,
+		Write:        false,
+		Execute:      false,
+		Administrate: false,
 	}
-	message, err := json.Marshal(cmd)
-	if err != nil {
-		return err
+	for _, r := range right {
+		switch r {
+		case 'r':
+			userRight.Read = true
+		case 'w':
+			userRight.Write = true
+		case 'a':
+			userRight.Administrate = true
+		case 'x':
+			userRight.Execute = true
+		default:
+			return errors.New("unknown right in " + right)
+		}
 	}
-	err = permissions.WriteMessages(
-		context.Background(),
-		kafka.Message{
-			Key:   []byte(userId + "_" + conf.DeviceTopic + "_" + deviceId),
-			Value: message,
-			Time:  time.Now(),
-		},
-	)
-	return err
+	cacheKey := kind + "." + id
+	msg, ok := (*cache)[cacheKey]
+	if !ok {
+		msg = permmodel.ResourceRightsBase{
+			UserRights:  map[string]permmodel.Right{},
+			GroupRights: map[string]permmodel.Right{"admin": {Read: true, Write: true, Execute: true, Administrate: true}},
+		}
+	}
+	msg.UserRights[userId] = userRight
+	(*cache)[cacheKey] = msg
+
+	return publisher.PublishRights(kind, id, msg)
 }

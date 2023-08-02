@@ -19,6 +19,7 @@ package publisher
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/segmentio/kafka-go"
 	"log"
@@ -46,6 +47,9 @@ func (this *Publisher) PublishProtocolDelete(id string, userId string) error {
 func (this *Publisher) PublishProtocolCommand(cmd ProtocolCommand) error {
 	if this.config.LogLevel == "DEBUG" {
 		log.Println("DEBUG: produce protocol", cmd)
+	}
+	if cmd.Owner == "" {
+		return errors.New("missing owner in command")
 	}
 	message, err := json.Marshal(cmd)
 	if err != nil {

@@ -19,40 +19,49 @@ package publisher
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"runtime/debug"
 	"time"
 )
 
-type PermCommandMsg struct {
-	Command  string `json:"command"`
-	Kind     string
-	Resource string
-	User     string
-	Group    string
-	Right    string
-}
+type CommandWithRights = permmodel.CommandWithRights
 
-func (this *Publisher) PublishDeleteUserRights(resource string, id string, userId string) error {
-	cmd := PermCommandMsg{
-		Command:  "DELETE",
-		Kind:     resource,
-		Resource: id,
-		User:     userId,
+func (this *Publisher) PublishRights(kind string, id string, element permmodel.ResourceRightsBase) error {
+	cmd := CommandWithRights{
+		Command: "RIGHTS",
+		Id:      id,
+		Rights:  &element,
 	}
-	if this.config.LogLevel == "DEBUG" {
-		log.Println("DEBUG: produce Location", cmd)
-	}
+	key := id + "/rights"
 	message, err := json.Marshal(cmd)
 	if err != nil {
 		debug.PrintStack()
 		return err
 	}
-	err = this.permissions.WriteMessages(
+	if this.config.LogLevel == "DEBUG" || this.config.Debug {
+		log.Printf("DEBUG: produce rights: topic=%v, key=%v message=%v", kind, key, string(message))
+	}
+	var writer *kafka.Writer
+	switch kind {
+	case this.config.DeviceTopic:
+		writer = this.devices
+	case this.config.DeviceGroupTopic:
+		writer = this.devicegroups
+	case this.config.HubTopic:
+		writer = this.hubs
+	case this.config.LocationTopic:
+		writer = this.locations
+	default:
+		debug.PrintStack()
+		return errors.New("unknown kind for PublishDeleteUserRights()")
+	}
+	err = writer.WriteMessages(
 		context.Background(),
 		kafka.Message{
-			Key:   []byte(userId + "_" + resource + "_" + id),
+			Key:   []byte(key),
 			Value: message,
 			Time:  time.Now(),
 		},

@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
 	"github.com/SENERGY-Platform/models/go/models"
+	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
 )
 
 var DtTopic = "devicetype"
@@ -33,7 +34,6 @@ var AspectTopic = "aspcet"
 var FunctionTopic = "function"
 var DeviceClassTopic = "function"
 var LocationTopic = "locations"
-var PermissionsTopic = "permissions"
 
 type Publisher struct {
 	listener map[string][]func(msg []byte)
@@ -252,16 +252,15 @@ func (this *Publisher) PublishLocationDelete(id string, userId string) error {
 	return this.send(LocationTopic, message)
 }
 
-func (this *Publisher) PublishDeleteUserRights(resource string, id string, userId string) error {
-	cmd := publisher.PermCommandMsg{
-		Command:  "DELETE",
-		Kind:     resource,
-		Resource: id,
-		User:     userId,
+func (this *Publisher) PublishRights(kind string, id string, element permmodel.ResourceRightsBase) error {
+	cmd := publisher.CommandWithRights{
+		Command: "RIGHTS",
+		Id:      id,
+		Rights:  &element,
 	}
 	message, err := json.Marshal(cmd)
 	if err != nil {
 		return err
 	}
-	return this.send(PermissionsTopic, message)
+	return this.send(kind, message)
 }
