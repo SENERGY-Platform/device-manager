@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	"github.com/SENERGY-Platform/permission-search/lib/client"
 	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
 	"log"
 	"net/http"
@@ -30,6 +31,31 @@ import (
 
 func (this *Com) GetPermissions(token auth.Token, kind string, id string) (permmodel.ResourceRights, error) {
 	return this.perm.GetRights(token.Jwt(), kind, id)
+}
+
+// GetResourceOwner queries the permission-search service for the entity identified by kind and id and extracts its owner
+// the rights parameter is a mandatory part of the permission-search api
+// it is used to identify which rights the user (token) must have for the entity, to get the entity as a result
+// for example, if a user has 'r' rights to an entity, the query will find the entity, if requested with rights="r" but not with rights="w" or rights="rw"
+func (this *Com) GetResourceOwner(token auth.Token, kind string, id string, rights string) (owner string, found bool, err error) {
+	temp, _, err := client.Query[[]permmodel.EntryResult](this.perm, token.Jwt(), client.QueryMessage{
+		Resource: kind,
+		ListIds: &permmodel.QueryListIds{
+			QueryListCommons: permmodel.QueryListCommons{
+				Limit:  1,
+				Offset: 0,
+				Rights: rights,
+			},
+			Ids: []string{id},
+		},
+	})
+	if err != nil {
+		return owner, false, err
+	}
+	if len(temp) == 0 {
+		return owner, false, nil
+	}
+	return temp[0].Creator, true, nil
 }
 
 func (this *Com) PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int) {

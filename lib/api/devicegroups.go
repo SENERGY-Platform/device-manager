@@ -65,6 +65,10 @@ func DeviceGroupsEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
+		if deviceGroup.Id != "" {
+			http.Error(writer, "device-group may not contain a preset id. please use PUT to update a device-group", http.StatusBadRequest)
+			return
+		}
 		result, err, errCode := control.PublishDeviceGroupCreate(token, deviceGroup)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)

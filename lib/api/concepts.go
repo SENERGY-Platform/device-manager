@@ -65,6 +65,12 @@ func ConceptsEndpoints(config config.Config, control Controller, router *httprou
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		if concept.Id != "" {
+			http.Error(writer, "body may not contain a preset id. please use the PUT method for updates", http.StatusBadRequest)
+			return
+		}
+
 		result, err, errCode := control.PublishConceptCreate(token, concept)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)

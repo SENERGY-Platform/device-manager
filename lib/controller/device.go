@@ -22,7 +22,9 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"log"
 	"net/http"
+	"runtime/debug"
 )
 
 func (this *Controller) DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, errCode int) {
@@ -72,7 +74,19 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 	if err != nil {
 		return device, err, code
 	}
-	err = this.publisher.PublishDevice(device, token.GetUserId())
+
+	//ensure retention of original owner
+	owner, found, err := this.com.GetResourceOwner(token, this.config.DeviceTopic, device.Id, "w")
+	if err != nil {
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return device, err, http.StatusInternalServerError
+	}
+	if !found || owner == "" {
+		owner = token.GetUserId()
+	}
+
+	err = this.publisher.PublishDevice(device, owner)
 	if err != nil {
 		return device, err, http.StatusInternalServerError
 	}

@@ -21,7 +21,9 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/models/go/models"
+	"log"
 	"net/http"
+	"runtime/debug"
 )
 
 func (this *Controller) ReadLocation(token auth.Token, id string) (location models.Location, err error, code int) {
@@ -29,6 +31,10 @@ func (this *Controller) ReadLocation(token auth.Token, id string) (location mode
 }
 
 func (this *Controller) PublishLocationCreate(token auth.Token, location models.Location) (result models.Location, err error, code int) {
+	if location.Id != "" {
+		return result, errors.New("expect empty location id"), http.StatusBadRequest
+	}
+
 	location.GenerateId()
 	location.DeviceIds, err = this.filterInvalidDeviceIds(token, location.DeviceIds, "r")
 	if err != nil {
@@ -50,10 +56,6 @@ func (this *Controller) PublishLocationUpdate(token auth.Token, id string, locat
 		return location, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
 
-	//replace sub ids and create new ones for new sub elements
-	location.GenerateId()
-	location.Id = id
-
 	err, code := this.com.PermissionCheckForLocation(token, id, "w")
 	if err != nil {
 		return location, err, code
@@ -68,7 +70,19 @@ func (this *Controller) PublishLocationUpdate(token auth.Token, id string, locat
 	if err != nil {
 		return location, err, code
 	}
-	err = this.publisher.PublishLocation(location, token.GetUserId())
+
+	//ensure retention of original owner
+	owner, found, err := this.com.GetResourceOwner(token, this.config.LocationTopic, location.Id, "w")
+	if err != nil {
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return location, err, http.StatusInternalServerError
+	}
+	if !found || owner == "" {
+		owner = token.GetUserId()
+	}
+
+	err = this.publisher.PublishLocation(location, owner)
 	if err != nil {
 		return location, err, http.StatusInternalServerError
 	}

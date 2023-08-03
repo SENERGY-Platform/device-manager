@@ -31,7 +31,7 @@ import (
 )
 
 func testConcepts(t *testing.T, conf config.Config) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics", models.Characteristic{
+	resp, err := helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/urn:infai:ses:characteristic:4711a", models.Characteristic{
 		Id:          "urn:infai:ses:characteristic:4711a",
 		Name:        "urn:infai:ses:characteristic:4711a",
 		DisplayUnit: "urn:infai:ses:characteristic:4711a",
@@ -82,7 +82,7 @@ func testConcepts(t *testing.T, conf config.Config) {
 		checkConcept(t, conf, concept.Id, createConcept)
 	})
 
-	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics", models.Characteristic{
+	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/urn:infai:ses:characteristic:4712322a", models.Characteristic{
 		Id:          "urn:infai:ses:characteristic:4712322a",
 		Name:        "urn:infai:ses:characteristic:4712322a",
 		DisplayUnit: "urn:infai:ses:characteristic:4712322a",

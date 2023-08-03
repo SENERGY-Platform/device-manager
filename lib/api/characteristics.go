@@ -65,6 +65,12 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		if characteristic.Id != "" {
+			http.Error(writer, "body may not contain a preset id. please use the PUT method for updates", http.StatusBadRequest)
+			return
+		}
+
 		result, err, errCode := control.PublishCharacteristicCreate(token, characteristic)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)

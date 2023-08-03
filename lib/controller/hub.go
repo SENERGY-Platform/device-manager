@@ -21,7 +21,9 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/models/go/models"
+	"log"
 	"net/http"
+	"runtime/debug"
 )
 
 func (this *Controller) ReadHub(token auth.Token, id string) (hub models.Hub, err error, code int) {
@@ -49,18 +51,11 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 	if hubEdit.Id != id {
 		return models.Hub{}, errors.New("hub id in body unequal to hub id in request endpoint"), http.StatusBadRequest
 	}
-	if userId == "" {
-		userId = token.GetUserId()
-	}
 
 	hub, err, code := this.completeHub(token, hubEdit)
 	if err != nil {
 		return hub, err, code
 	}
-
-	//replace sub ids and create new ones for new sub elements
-	hub.GenerateId()
-	hub.Id = id
 
 	if !token.IsAdmin() {
 		err, code := this.com.PermissionCheckForHub(token, id, "w")
@@ -73,6 +68,21 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 	if err != nil {
 		return hub, err, code
 	}
+
+	//ensure retention of original owner
+	owner, found, err := this.com.GetResourceOwner(token, this.config.HubTopic, hub.Id, "w")
+	if err != nil {
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return hub, err, http.StatusInternalServerError
+	}
+	if found && owner != "" {
+		userId = owner
+	}
+	if userId == "" {
+		userId = token.GetUserId()
+	}
+
 	err = this.publisher.PublishHub(hub, userId)
 	if err != nil {
 		return hub, err, http.StatusInternalServerError

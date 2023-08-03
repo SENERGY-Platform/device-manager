@@ -54,8 +54,8 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 	})
 
 	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		Location := models.Location{}
-		err := json.NewDecoder(request.Body).Decode(&Location)
+		location := models.Location{}
+		err := json.NewDecoder(request.Body).Decode(&location)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
@@ -65,7 +65,11 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishLocationCreate(token, Location)
+		if location.Id != "" {
+			http.Error(writer, "location may not contain a preset id. please use PUT to update a location", http.StatusBadRequest)
+			return
+		}
+		result, err, errCode := control.PublishLocationCreate(token, location)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

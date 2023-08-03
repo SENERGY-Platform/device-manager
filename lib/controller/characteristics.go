@@ -25,6 +25,10 @@ import (
 )
 
 func (this *Controller) PublishCharacteristicCreate(token auth.Token, characteristic models.Characteristic) (models.Characteristic, error, int) {
+	if characteristic.Id != "" {
+		return characteristic, errors.New("expect empty id"), http.StatusBadRequest
+	}
+
 	characteristic.GenerateId()
 	err, code := this.com.ValidateCharacteristic(token, characteristic)
 	if err != nil {

@@ -29,6 +29,9 @@ func (this *Controller) ReadConcept(token auth.Token, id string) (concept models
 }
 
 func (this *Controller) PublishConceptCreate(token auth.Token, concept models.Concept) (models.Concept, error, int) {
+	if concept.Id != "" {
+		return concept, errors.New("expect empty id"), http.StatusBadRequest
+	}
 	concept.GenerateId()
 	err, code := this.com.ValidateConcept(token, concept)
 	if err != nil {

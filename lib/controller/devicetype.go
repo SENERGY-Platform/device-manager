@@ -36,6 +36,9 @@ func (this *Controller) ReadDeviceType(token auth.Token, id string) (dt models.D
 }
 
 func (this *Controller) PublishDeviceTypeCreate(token auth.Token, dt models.DeviceType) (models.DeviceType, error, int) {
+	if dt.Id != "" {
+		return dt, errors.New("expect empty id"), http.StatusBadRequest
+	}
 	dt.GenerateId()
 	err, code := this.com.ValidateDeviceType(token, dt)
 	if err != nil {

@@ -72,6 +72,12 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		if device.Id != "" {
+			http.Error(writer, "body may not contain a preset id. please use the PUT method for updates", http.StatusBadRequest)
+			return
+		}
+
 		result, err, errCode := control.PublishDeviceCreate(token, device)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)

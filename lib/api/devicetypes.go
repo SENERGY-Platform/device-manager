@@ -66,6 +66,12 @@ func DeviceTypesEndpoints(config config.Config, control Controller, router *http
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		if devicetype.Id != "" {
+			http.Error(writer, "body may not contain a preset id. please use the PUT method for updates", http.StatusBadRequest)
+			return
+		}
+
 		distinctAttr := request.URL.Query().Get("distinct_attributes")
 		if distinctAttr != "" {
 			err = control.ValidateDistinctDeviceTypeAttributes(token, devicetype, strings.Split(distinctAttr, ","))

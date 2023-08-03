@@ -64,6 +64,14 @@ func NewPermSearch() *PermSearch {
 		} else if message.Find != nil {
 			json.NewEncoder(writer).Encode([]map[string]interface{}{})
 			return
+		} else if message.ListIds != nil {
+			if len(message.ListIds.Ids) == 1 {
+				//used for Com.GetResourceOwner()
+				json.NewEncoder(writer).Encode([]map[string]interface{}{{"creator": "testowner"}})
+			} else {
+				json.NewEncoder(writer).Encode([]map[string]interface{}{})
+			}
+			return
 		} else {
 			temp, _ := json.Marshal(message)
 			log.Println("ERROR: ", string(temp))

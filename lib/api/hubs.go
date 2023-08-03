@@ -77,6 +77,12 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		if hub.Id != "" {
+			http.Error(writer, "body may not contain a preset id. please use the PUT method for updates", http.StatusBadRequest)
+			return
+		}
+
 		result, err, errCode := control.PublishHubCreate(token, hub)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)

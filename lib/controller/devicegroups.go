@@ -31,6 +31,10 @@ func (this *Controller) ReadDeviceGroup(token auth.Token, id string) (dt models.
 }
 
 func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg models.DeviceGroup) (result models.DeviceGroup, err error, code int) {
+	if dg.Id != "" {
+		return result, errors.New("expect empty device-group id"), http.StatusBadRequest
+	}
+
 	dg.GenerateId()
 	dg.SetShortCriteria()
 	dg.DeviceIds, err = this.filterInvalidDeviceIds(token, dg.DeviceIds, "r")
@@ -73,7 +77,19 @@ func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg
 		debug.PrintStack()
 		return dg, err, code
 	}
-	err = this.publisher.PublishDeviceGroup(dg, token.GetUserId())
+
+	//ensure retention of original owner
+	owner, found, err := this.com.GetResourceOwner(token, this.config.DeviceGroupTopic, dg.Id, "w")
+	if err != nil {
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return dg, err, http.StatusInternalServerError
+	}
+	if !found || owner == "" {
+		owner = token.GetUserId()
+	}
+
+	err = this.publisher.PublishDeviceGroup(dg, owner)
 	if err != nil {
 		debug.PrintStack()
 		return dg, err, http.StatusInternalServerError
