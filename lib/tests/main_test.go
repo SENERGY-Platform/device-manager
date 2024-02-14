@@ -185,6 +185,9 @@ const a1Id = models.URN_PREFIX + "aspect:a1"
 const f1Id = models.URN_PREFIX + "controlling-function:f1"
 
 func tests(t *testing.T, conf config.Config, mock bool) {
+	t.Run("id helper", func(t *testing.T) {
+		testHelperId(t, conf.ServerPort)
+	})
 	t.Run("aspects", testAspect(conf.ServerPort))
 	t.Run("functions", testFunction(conf.ServerPort))
 	t.Run("deviceclasses", testDeviceClass(conf.ServerPort))
