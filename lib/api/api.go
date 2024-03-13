@@ -19,6 +19,7 @@ package api
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/api/util"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/service-commons/pkg/accesslog"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -37,7 +38,7 @@ func Start(config config.Config, control Controller) (srv *http.Server, err erro
 	}
 	log.Println("add logging and cors")
 	corsHandler := util.NewCors(router)
-	logger := util.NewLogger(corsHandler, config.LogLevel)
+	logger := accesslog.New(corsHandler)
 	var handler http.Handler
 	if config.EditForward == "" || config.EditForward == "-" {
 		handler = logger
