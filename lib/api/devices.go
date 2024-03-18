@@ -33,6 +33,8 @@ func init() {
 }
 
 const UpdateOnlySameOriginAttributesKey = "update-only-same-origin-attributes"
+const DisplayNameAttributeKey = "shared/nickname"
+const DisplayNameAttributeOrigin = "shared"
 
 func DevicesEndpoints(config config.Config, control Controller, router *httprouter.Router) {
 	resource := "/devices"
@@ -110,6 +112,94 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 		}
 
 		result, err, errCode := control.PublishDeviceUpdate(token, id, device, options)
+		if err != nil {
+			http.Error(writer, err.Error(), errCode)
+			return
+		}
+
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(writer).Encode(result)
+		if err != nil {
+			log.Println("ERROR: unable to encode response", err)
+		}
+		return
+	})
+
+	router.PUT(resource+"/:id/attributes", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		id := params.ByName("id")
+		attributes := []models.Attribute{}
+		err := json.NewDecoder(request.Body).Decode(&attributes)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		options := model.DeviceUpdateOptions{}
+		if request.URL.Query().Has(UpdateOnlySameOriginAttributesKey) {
+			temp := request.URL.Query().Get(UpdateOnlySameOriginAttributesKey)
+			options.UpdateOnlySameOriginAttributes = strings.Split(temp, ",")
+		}
+
+		device, err, errCode := control.ReadDevice(token, id)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		device.Attributes = attributes
+
+		result, err, errCode := control.PublishDeviceUpdate(token, id, device, options)
+		if err != nil {
+			http.Error(writer, err.Error(), errCode)
+			return
+		}
+
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(writer).Encode(result)
+		if err != nil {
+			log.Println("ERROR: unable to encode response", err)
+		}
+		return
+	})
+
+	router.PUT(resource+"/:id/display_name", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		id := params.ByName("id")
+		displayName := ""
+
+		err := json.NewDecoder(request.Body).Decode(&displayName)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+		token, err := auth.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		device, err, errCode := control.ReadDevice(token, id)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		displayNameAttrFound := false
+		for i, attr := range device.Attributes {
+			if attr.Key == DisplayNameAttributeKey {
+				attr.Value = displayName
+				device.Attributes[i] = attr
+				displayNameAttrFound = true
+			}
+		}
+		if !displayNameAttrFound {
+			device.Attributes = append(device.Attributes, models.Attribute{Key: DisplayNameAttributeKey, Value: displayName, Origin: DisplayNameAttributeOrigin})
+		}
+
+		result, err, errCode := control.PublishDeviceUpdate(token, id, device, model.DeviceUpdateOptions{})
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

@@ -29,7 +29,7 @@ import (
 type DeviceRepo struct {
 	db              map[string]interface{}
 	ts              *httptest.Server
-	localIds        map[string]bool
+	localIds        map[string]models.Device
 	concepts        map[string]models.Concept
 	characteristics map[string]models.Characteristic
 	aspects         map[string]models.Aspect
@@ -43,7 +43,7 @@ func NewDeviceRepo(producer interface {
 }) *DeviceRepo {
 	repo := &DeviceRepo{
 		db:              map[string]interface{}{},
-		localIds:        map[string]bool{},
+		localIds:        map[string]models.Device{},
 		concepts:        map[string]models.Concept{},
 		characteristics: map[string]models.Characteristic{},
 		aspects:         map[string]models.Aspect{},
@@ -67,7 +67,7 @@ func NewDeviceRepo(producer interface {
 		cmd := publisher.DeviceCommand{}
 		json.Unmarshal(msg, &cmd)
 		if cmd.Command == "PUT" {
-			repo.localIds[cmd.Device.LocalId] = true
+			repo.localIds[cmd.Device.LocalId] = cmd.Device
 			repo.db[cmd.Id] = cmd.Device
 		} else if cmd.Command == "DELETE" {
 			delete(repo.db, cmd.Id)
@@ -273,7 +273,7 @@ func NewDeviceRepo(producer interface {
 			http.Error(writer, "missing device-type id", http.StatusBadRequest)
 			return
 		}
-		if _, ok := repo.localIds[device.LocalId]; ok {
+		if existing, ok := repo.localIds[device.LocalId]; ok && existing.Id != device.Id {
 			http.Error(writer, "expect local id to be globally unique", http.StatusBadRequest)
 			return
 		}
