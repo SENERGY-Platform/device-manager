@@ -20,7 +20,9 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"net/http"
 	"runtime/debug"
 	"sort"
@@ -35,7 +37,7 @@ func (this *Controller) ReadDeviceType(token auth.Token, id string) (dt models.D
 	return dt, err, code
 }
 
-func (this *Controller) PublishDeviceTypeCreate(token auth.Token, dt models.DeviceType) (models.DeviceType, error, int) {
+func (this *Controller) PublishDeviceTypeCreate(token auth.Token, dt models.DeviceType, options model.DeviceTypeUpdateOptions) (models.DeviceType, error, int) {
 	if dt.Id != "" {
 		return dt, errors.New("expect empty id"), http.StatusBadRequest
 	}
@@ -44,14 +46,27 @@ func (this *Controller) PublishDeviceTypeCreate(token auth.Token, dt models.Devi
 	if err != nil {
 		return dt, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.DeviceTypeTopic,
+		ResourceId:   dt.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishDeviceType(dt, token.GetUserId())
 	if err != nil {
 		return dt, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return dt, err, http.StatusInternalServerError
+	}
+
 	return dt, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceTypeUpdate(token auth.Token, id string, dt models.DeviceType) (models.DeviceType, error, int) {
+func (this *Controller) PublishDeviceTypeUpdate(token auth.Token, id string, dt models.DeviceType, options model.DeviceTypeUpdateOptions) (models.DeviceType, error, int) {
 	if dt.Id != id {
 		return dt, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
@@ -70,11 +85,24 @@ func (this *Controller) PublishDeviceTypeUpdate(token auth.Token, id string, dt 
 		debug.PrintStack()
 		return dt, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.DeviceTypeTopic,
+		ResourceId:   dt.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishDeviceType(dt, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return dt, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return dt, err, http.StatusInternalServerError
+	}
+
 	return dt, nil, http.StatusOK
 }
 

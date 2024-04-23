@@ -18,4 +18,17 @@ package model
 
 type DeviceUpdateOptions struct {
 	UpdateOnlySameOriginAttributes []string
+	Wait                           bool
+}
+
+type DeviceCreateOptions struct {
+	Wait bool
+}
+
+type DeviceTypeUpdateOptions struct {
+	Wait bool
+}
+
+type HubUpdateOptions struct {
+	Wait bool
 }

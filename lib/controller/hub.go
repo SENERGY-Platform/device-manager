@@ -20,7 +20,9 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -30,7 +32,7 @@ func (this *Controller) ReadHub(token auth.Token, id string) (hub models.Hub, er
 	return this.com.GetHub(token, id)
 }
 
-func (this *Controller) PublishHubCreate(token auth.Token, hubEdit models.HubEdit) (models.Hub, error, int) {
+func (this *Controller) PublishHubCreate(token auth.Token, hubEdit models.HubEdit, options model.HubUpdateOptions) (models.Hub, error, int) {
 	hub, err, code := this.completeHub(token, hubEdit)
 	if err != nil {
 		return hub, err, code
@@ -40,14 +42,27 @@ func (this *Controller) PublishHubCreate(token auth.Token, hubEdit models.HubEdi
 	if err != nil {
 		return hub, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.HubTopic,
+		ResourceId:   hub.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishHub(hub, token.GetUserId())
 	if err != nil {
 		return hub, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return hub, err, http.StatusInternalServerError
+	}
+
 	return hub, nil, http.StatusOK
 }
 
-func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId string, hubEdit models.HubEdit) (models.Hub, error, int) {
+func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId string, hubEdit models.HubEdit, options model.HubUpdateOptions) (models.Hub, error, int) {
 	if hubEdit.Id != id {
 		return models.Hub{}, errors.New("hub id in body unequal to hub id in request endpoint"), http.StatusBadRequest
 	}
@@ -83,10 +98,22 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 		userId = token.GetUserId()
 	}
 
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.HubTopic,
+		ResourceId:   hub.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishHub(hub, userId)
 	if err != nil {
 		return hub, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return hub, err, http.StatusInternalServerError
+	}
+
 	return hub, nil, http.StatusOK
 }
 

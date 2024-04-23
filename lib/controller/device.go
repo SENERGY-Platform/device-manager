@@ -22,6 +22,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -35,16 +36,29 @@ func (this *Controller) ReadDevice(token auth.Token, id string) (device models.D
 	return this.com.GetDevice(token, id)
 }
 
-func (this *Controller) PublishDeviceCreate(token auth.Token, device models.Device) (models.Device, error, int) {
+func (this *Controller) PublishDeviceCreate(token auth.Token, device models.Device, options model.DeviceCreateOptions) (models.Device, error, int) {
 	device.GenerateId()
 	err, code := this.com.ValidateDevice(token, device)
 	if err != nil {
 		return device, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.DeviceTopic,
+		ResourceId:   device.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishDevice(device, token.GetUserId())
 	if err != nil {
 		return device, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return device, err, http.StatusInternalServerError
+	}
+
 	return device, nil, http.StatusOK
 }
 
@@ -86,10 +100,22 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 		owner = token.GetUserId()
 	}
 
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.DeviceTopic,
+		ResourceId:   device.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishDevice(device, owner)
 	if err != nil {
 		return device, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return device, err, http.StatusInternalServerError
+	}
+
 	return device, nil, http.StatusOK
 }
 

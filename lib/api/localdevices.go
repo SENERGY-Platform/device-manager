@@ -18,6 +18,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
@@ -25,6 +26,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -78,7 +80,16 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 			return
 		}
 
-		result, err, errCode := control.PublishDeviceCreate(token, device)
+		options := model.DeviceCreateOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		result, err, errCode := control.PublishDeviceCreate(token, device, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -121,6 +132,14 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 		if request.URL.Query().Has(UpdateOnlySameOriginAttributesKey) {
 			temp := request.URL.Query().Get(UpdateOnlySameOriginAttributesKey)
 			options.UpdateOnlySameOriginAttributes = strings.Split(temp, ",")
+		}
+
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
 		}
 
 		result, err, errCode := control.PublishDeviceUpdate(token, id, device, options)

@@ -25,6 +25,9 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
 	"github.com/SENERGY-Platform/models/go/models"
 	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
+	"github.com/SENERGY-Platform/service-commons/pkg/kafka"
+	"time"
 )
 
 type Controller struct {
@@ -40,6 +43,11 @@ func New(basectx context.Context, conf config.Config) (ctrl *Controller, err err
 			cancel()
 		}
 	}()
+
+	if conf.EditForward != "" && conf.EditForward != "-" {
+		conf.HandleDoneWait = false
+	}
+
 	var publ Publisher
 	if conf.EditForward == "" || conf.EditForward == "-" {
 		publ, err = publisher.New(conf, ctx)
@@ -49,11 +57,43 @@ func New(basectx context.Context, conf config.Config) (ctrl *Controller, err err
 	} else {
 		publ = publisher.Void{}
 	}
+
 	ctrl = &Controller{com: com.New(conf), publisher: publ, config: conf}
 	if conf.EditForward == "" || conf.EditForward == "-" {
 		err = listener.Start(ctx, conf, ctrl)
+		if err != nil {
+			return ctrl, err
+		}
 	}
+
+	if conf.HandleDoneWait {
+		err = donewait.StartDoneWaitListener(ctx, kafka.Config{
+			KafkaUrl:    conf.KafkaUrl,
+			StartOffset: kafka.LastOffset,
+			Debug:       conf.Debug,
+		}, []string{
+			conf.DeviceTopic,
+			conf.DeviceTypeTopic,
+			conf.HubTopic,
+		}, nil)
+		if err != nil {
+			return ctrl, err
+		}
+	}
+	return ctrl, err
+}
+
+func getWaitContext() (ctx context.Context) {
+	ctx, _ = context.WithTimeout(context.Background(), time.Minute)
 	return
+}
+
+func (this *Controller) optionalWait(wait bool, msg donewait.DoneMsg) func() error {
+	f := func() error { return nil }
+	if wait && this.config.HandleDoneWait {
+		f = donewait.AsyncWait(getWaitContext(), msg, nil)
+	}
+	return f
 }
 
 func NewWithPublisher(conf config.Config, publisher Publisher) (*Controller, error) {

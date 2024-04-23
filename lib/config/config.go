@@ -56,6 +56,7 @@ type Config struct {
 
 	DisableValidation bool   `json:"disable_validation"`
 	ConverterUrl      string `json:"converter_url"` //to validate concept conversions, may be empty to disable concept conversion validation
+	HandleDoneWait    bool   `json:"handle_done_wait"`
 }
 
 // loads config from json in location and used environment variables (e.g KafkaUrl --> KAFKA_URL)

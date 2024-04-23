@@ -18,12 +18,15 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func init() {
@@ -83,7 +86,16 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 			return
 		}
 
-		result, err, errCode := control.PublishHubCreate(token, hub)
+		options := model.HubUpdateOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		result, err, errCode := control.PublishHubCreate(token, hub, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -114,7 +126,17 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 			http.Error(writer, "only admins may set user_id", http.StatusForbidden)
 			return
 		}
-		result, err, errCode := control.PublishHubUpdate(token, id, userId, hub)
+
+		options := model.HubUpdateOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		result, err, errCode := control.PublishHubUpdate(token, id, userId, hub, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -146,7 +168,17 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 			return
 		}
 		hub.Name = name
-		result, err, errCode := control.PublishHubUpdate(token, id, token.GetUserId(), hub.ToHubEdit())
+
+		options := model.HubUpdateOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		result, err, errCode := control.PublishHubUpdate(token, id, token.GetUserId(), hub.ToHubEdit(), options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
