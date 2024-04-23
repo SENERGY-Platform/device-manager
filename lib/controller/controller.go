@@ -71,11 +71,7 @@ func New(basectx context.Context, conf config.Config) (ctrl *Controller, err err
 			KafkaUrl:    conf.KafkaUrl,
 			StartOffset: kafka.LastOffset,
 			Debug:       conf.Debug,
-		}, []string{
-			conf.DeviceTopic,
-			conf.DeviceTypeTopic,
-			conf.HubTopic,
-		}, nil)
+		}, conf.DoneTopics, nil)
 		if err != nil {
 			return ctrl, err
 		}
@@ -91,7 +87,16 @@ func getWaitContext() (ctx context.Context) {
 func (this *Controller) optionalWait(wait bool, msg donewait.DoneMsg) func() error {
 	f := func() error { return nil }
 	if wait && this.config.HandleDoneWait {
-		f = donewait.AsyncWait(getWaitContext(), msg, nil)
+		list := []donewait.DoneMsg{}
+		for _, handler := range this.config.DoneHandler {
+			list = append(list, donewait.DoneMsg{
+				ResourceKind: msg.ResourceKind,
+				ResourceId:   msg.ResourceId,
+				Command:      msg.Command,
+				Handler:      handler,
+			})
+		}
+		f = donewait.AsyncWaitMultiple(getWaitContext(), list, nil)
 	}
 	return f
 }

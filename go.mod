@@ -14,7 +14,7 @@ require (
 require (
 	github.com/SENERGY-Platform/models/go v0.0.0-20230824080159-16585960df38
 	github.com/SENERGY-Platform/permission-search v0.0.9
-	github.com/SENERGY-Platform/service-commons v0.0.0-20240423075736-0c66be6b5102
+	github.com/SENERGY-Platform/service-commons v0.0.0-20240423132428-8eccbc027e71
 	github.com/testcontainers/testcontainers-go v0.30.0
 )
 

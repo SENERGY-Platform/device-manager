@@ -54,9 +54,11 @@ type Config struct {
 	GroupId             string `json:"group_id"`
 	HttpClientTimeout   string `json:"http_client_timeout"`
 
-	DisableValidation bool   `json:"disable_validation"`
-	ConverterUrl      string `json:"converter_url"` //to validate concept conversions, may be empty to disable concept conversion validation
-	HandleDoneWait    bool   `json:"handle_done_wait"`
+	DisableValidation bool     `json:"disable_validation"`
+	ConverterUrl      string   `json:"converter_url"` //to validate concept conversions, may be empty to disable concept conversion validation
+	HandleDoneWait    bool     `json:"handle_done_wait"`
+	DoneTopics        []string `json:"done_topics"`
+	DoneHandler       []string `json:"done_handler"`
 }
 
 // loads config from json in location and used environment variables (e.g KafkaUrl --> KAFKA_URL)
