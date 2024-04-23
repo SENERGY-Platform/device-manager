@@ -136,5 +136,8 @@ func (this *Controller) completeHub(token auth.Token, edit models.HubEdit) (resu
 	for _, id := range idWrapperList {
 		result.DeviceIds = append(result.DeviceIds, id.Id)
 	}
+	if len(result.DeviceIds) != len(result.DeviceLocalIds) {
+		return result, errors.New("not all local device ids found"), http.StatusBadRequest
+	}
 	return result, err, code
 }

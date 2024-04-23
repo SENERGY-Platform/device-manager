@@ -222,6 +222,9 @@ func tests(t *testing.T, conf config.Config, mock bool) {
 	})
 
 	t.Run("testHub", func(t *testing.T) {
+		if mock {
+			t.Skip("the mocks are not implemented for this test (completeHub() wont find devices)")
+		}
 		testHub(t, conf.ServerPort)
 	})
 
