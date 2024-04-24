@@ -117,7 +117,7 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 	return hub, nil, http.StatusOK
 }
 
-func (this *Controller) PublishHubDelete(token auth.Token, id string) (error, int) {
+func (this *Controller) PublishHubDelete(token auth.Token, id string, options model.HubDeleteOptions) (error, int) {
 	if err := com.PreventIdModifier(id); err != nil {
 		return err, http.StatusBadRequest
 	}
@@ -125,10 +125,23 @@ func (this *Controller) PublishHubDelete(token auth.Token, id string) (error, in
 	if err != nil {
 		return err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.HubTopic,
+		ResourceId:   id,
+		Command:      "DELETE",
+	})
+
 	err = this.publisher.PublishHubDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
 	return nil, http.StatusOK
 }
 

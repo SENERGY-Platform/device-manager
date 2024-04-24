@@ -106,7 +106,7 @@ func (this *Controller) PublishDeviceTypeUpdate(token auth.Token, id string, dt 
 	return dt, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceTypeDelete(token auth.Token, id string) (error, int) {
+func (this *Controller) PublishDeviceTypeDelete(token auth.Token, id string, options model.DeviceTypeDeleteOptions) (error, int) {
 	if err := com.PreventIdModifier(id); err != nil {
 		return err, http.StatusBadRequest
 	}
@@ -121,10 +121,23 @@ func (this *Controller) PublishDeviceTypeDelete(token auth.Token, id string) (er
 	if err != nil {
 		return err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.DeviceTypeTopic,
+		ResourceId:   id,
+		Command:      "DELETE",
+	})
+
 	err = this.publisher.PublishDeviceTypeDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
 	return nil, http.StatusOK
 }
 

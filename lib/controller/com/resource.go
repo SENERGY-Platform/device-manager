@@ -33,7 +33,7 @@ func getResourceFromService(token auth.Token, endpoint string, id string, result
 		buf.ReadFrom(resp.Body)
 		err = errors.New(buf.String())
 		log.Println("WARNING: unable to get resource", endpoint, id, resp.StatusCode, err)
-		debug.PrintStack()
+		//debug.PrintStack()
 		return err, resp.StatusCode
 	}
 	err = json.NewDecoder(resp.Body).Decode(result)

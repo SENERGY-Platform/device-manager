@@ -157,7 +157,17 @@ func DeviceTypesEndpoints(config config.Config, control Controller, router *http
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err, errCode := control.PublishDeviceTypeDelete(token, id)
+
+		options := model.DeviceTypeDeleteOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		err, errCode := control.PublishDeviceTypeDelete(token, id, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

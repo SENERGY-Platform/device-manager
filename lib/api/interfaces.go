@@ -31,17 +31,17 @@ type Controller interface {
 	ReadDeviceType(token auth.Token, id string) (device models.DeviceType, err error, code int)
 	PublishDeviceTypeCreate(token auth.Token, dt models.DeviceType, options model.DeviceTypeUpdateOptions) (result models.DeviceType, err error, code int)
 	PublishDeviceTypeUpdate(token auth.Token, id string, dt models.DeviceType, options model.DeviceTypeUpdateOptions) (result models.DeviceType, err error, code int)
-	PublishDeviceTypeDelete(token auth.Token, id string) (err error, code int)
+	PublishDeviceTypeDelete(token auth.Token, id string, options model.DeviceTypeDeleteOptions) (err error, code int)
 
 	ReadDevice(token auth.Token, id string) (device models.Device, err error, code int)
 	PublishDeviceCreate(token auth.Token, device models.Device, options model.DeviceCreateOptions) (result models.Device, err error, code int)
 	PublishDeviceUpdate(token auth.Token, id string, device models.Device, options model.DeviceUpdateOptions) (result models.Device, err error, code int)
-	PublishDeviceDelete(token auth.Token, id string) (err error, code int)
+	PublishDeviceDelete(token auth.Token, id string, options model.DeviceDeleteOptions) (err error, code int)
 
 	ReadHub(token auth.Token, id string) (hub models.Hub, err error, code int)
 	PublishHubCreate(token auth.Token, hub models.HubEdit, options model.HubUpdateOptions) (result models.Hub, err error, code int)
 	PublishHubUpdate(token auth.Token, id string, userId string, hub models.HubEdit, options model.HubUpdateOptions) (result models.Hub, err error, code int)
-	PublishHubDelete(token auth.Token, id string) (err error, code int)
+	PublishHubDelete(token auth.Token, id string, options model.HubDeleteOptions) (err error, code int)
 
 	ReadProtocol(token auth.Token, id string) (device models.Protocol, err error, code int)
 	PublishProtocolCreate(token auth.Token, protocol models.Protocol) (result models.Protocol, err error, code int)

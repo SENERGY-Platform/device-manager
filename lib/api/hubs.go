@@ -198,7 +198,17 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err, errCode := control.PublishHubDelete(token, id)
+
+		options := model.HubDeleteOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		err, errCode := control.PublishHubDelete(token, id, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

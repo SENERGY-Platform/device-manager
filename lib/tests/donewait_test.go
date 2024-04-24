@@ -26,7 +26,9 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/tests/docker"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/signal"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -70,6 +72,10 @@ func TestWaitDone(t *testing.T) {
 	defer srv.Shutdown(context.Background())
 
 	time.Sleep(2 * time.Second)
+
+	signal.Sub("", signal.Known.UpdateDone, func(value string, wg *sync.WaitGroup) {
+		log.Printf("TEST-DEBUG: received update done %#v\n", value)
+	})
 
 	t.Run("aspects", func(t *testing.T) {
 		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/aspects", models.Aspect{Id: a1Id, Name: a1Id})
@@ -198,6 +204,32 @@ func TestWaitDone(t *testing.T) {
 						t.Fatal(result)
 					}
 				})
+
+				t.Run(fmt.Sprintf("delete device-type %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/device-types/"+url.PathEscape(dt.Id)+"?wait=true")
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+
+				t.Run(fmt.Sprintf("read device-type %v after delete", i), func(t *testing.T) {
+					resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/device-types/"+url.PathEscape(dt.Id))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusNotFound && resp.StatusCode != http.StatusForbidden {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
 			})
 
 		}
@@ -280,6 +312,417 @@ func TestWaitDone(t *testing.T) {
 						result.Services[0].Inputs[0].ContentVariable.AspectId != a1Id ||
 						result.Services[0].Inputs[0].ContentVariable.FunctionId != f1Id {
 						t.Fatal(result)
+					}
+				})
+
+				t.Run(fmt.Sprintf("delete device-type %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/device-types/"+url.PathEscape(dt.Id)+"?wait=true")
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+
+				t.Run(fmt.Sprintf("read device-type %v after delete", i), func(t *testing.T) {
+					resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/device-types/"+url.PathEscape(dt.Id))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusNotFound && resp.StatusCode != http.StatusForbidden {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+			})
+
+		}
+	})
+
+	dt := models.DeviceType{}
+	t.Run(fmt.Sprintf("create device-type for device test"), func(t *testing.T) {
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/device-types?wait=true", models.DeviceType{
+			Name:          "foo",
+			DeviceClassId: "dc1",
+			Services: []models.Service{
+				{
+					Name:    "s1name",
+					LocalId: "lid1",
+					Inputs: []models.Content{
+						{
+							ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
+							Serialization:     "json",
+							ContentVariable: models.ContentVariable{
+								Name:       "v1name",
+								Type:       models.String,
+								FunctionId: f1Id,
+								AspectId:   a1Id,
+							},
+						},
+					},
+					ProtocolId: protocol.Id,
+				},
+			},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&dt)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if dt.Id == "" {
+			t.Fatal(dt)
+		}
+	})
+
+	t.Run("create devices parallel", func(t *testing.T) {
+		for i := range 20 {
+			t.Run(fmt.Sprintf("check device %v", i), func(t *testing.T) {
+				t.Parallel()
+				device := models.DeviceType{}
+				t.Run(fmt.Sprintf("create device %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/devices?wait=true", models.Device{
+						LocalId:      fmt.Sprintf("foo-%v", i),
+						Name:         fmt.Sprintf("foo-%v", i),
+						DeviceTypeId: dt.Id,
+					})
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+
+					err = json.NewDecoder(resp.Body).Decode(&device)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if device.Id == "" {
+						t.Fatal(device)
+					}
+				})
+
+				t.Run(fmt.Sprintf("read device %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device.Id))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+
+					result := models.Device{}
+					err = json.NewDecoder(resp.Body).Decode(&result)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if result.Name != fmt.Sprintf("foo-%v", i) {
+						t.Fatal(result)
+					}
+				})
+
+				t.Run(fmt.Sprintf("delete device-type %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device.Id)+"?wait=true")
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+
+				t.Run(fmt.Sprintf("read device %v after delete", i), func(t *testing.T) {
+					resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device.Id))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusNotFound && resp.StatusCode != http.StatusForbidden {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+			})
+
+		}
+	})
+
+	t.Run("create devices", func(t *testing.T) {
+		for i := range 20 {
+			i = i + 20
+			t.Run(fmt.Sprintf("check device %v", i), func(t *testing.T) {
+				device := models.DeviceType{}
+				t.Run(fmt.Sprintf("create device %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/devices?wait=true", models.Device{
+						LocalId:      fmt.Sprintf("foo-%v", i),
+						Name:         fmt.Sprintf("foo-%v", i),
+						DeviceTypeId: dt.Id,
+					})
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+
+					err = json.NewDecoder(resp.Body).Decode(&device)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if device.Id == "" {
+						t.Fatal(device)
+					}
+				})
+
+				t.Run(fmt.Sprintf("read device %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device.Id))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+
+					result := models.Device{}
+					err = json.NewDecoder(resp.Body).Decode(&result)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if result.Name != fmt.Sprintf("foo-%v", i) {
+						t.Fatal(result)
+					}
+				})
+
+				t.Run(fmt.Sprintf("delete device-type %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device.Id)+"?wait=true")
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+
+				t.Run(fmt.Sprintf("read device %v after delete", i), func(t *testing.T) {
+					resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device.Id))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusNotFound && resp.StatusCode != http.StatusForbidden {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+			})
+
+		}
+	})
+
+	t.Run("create hubs parallel", func(t *testing.T) {
+		for i := range 20 {
+			t.Run(fmt.Sprintf("check hub %v", i), func(t *testing.T) {
+				t.Parallel()
+				hub := models.HubEdit{}
+				t.Run(fmt.Sprintf("create hub %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/hubs?wait=true", models.HubEdit{
+						Name: fmt.Sprintf("foo-%v", i),
+						Hash: fmt.Sprintf("foo-%v", i),
+					})
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+
+					err = json.NewDecoder(resp.Body).Decode(&hub)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if hub.Id == "" {
+						t.Fatal(hub)
+					}
+				})
+
+				t.Run(fmt.Sprintf("read hub %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub.Id))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+
+					result := models.Hub{}
+					err = json.NewDecoder(resp.Body).Decode(&result)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if result.Name != fmt.Sprintf("foo-%v", i) {
+						t.Fatal(result)
+					}
+					if result.Hash != fmt.Sprintf("foo-%v", i) {
+						t.Fatal(result)
+					}
+				})
+
+				t.Run(fmt.Sprintf("delete hub %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub.Id)+"?wait=true")
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+
+				t.Run(fmt.Sprintf("read hub %v after delete", i), func(t *testing.T) {
+					resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub.Id))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusNotFound && resp.StatusCode != http.StatusForbidden {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+			})
+
+		}
+	})
+
+	t.Run("create hubs", func(t *testing.T) {
+		for i := range 20 {
+			i = i + 20
+			t.Run(fmt.Sprintf("check hub %v", i), func(t *testing.T) {
+				hub := models.HubEdit{}
+				t.Run(fmt.Sprintf("create hub %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/hubs?wait=true", models.HubEdit{
+						Name: fmt.Sprintf("foo-%v", i),
+						Hash: fmt.Sprintf("foo-%v", i),
+					})
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+
+					err = json.NewDecoder(resp.Body).Decode(&hub)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if hub.Id == "" {
+						t.Fatal(hub)
+					}
+				})
+
+				t.Run(fmt.Sprintf("read hub %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub.Id))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+
+					result := models.Hub{}
+					err = json.NewDecoder(resp.Body).Decode(&result)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if result.Name != fmt.Sprintf("foo-%v", i) {
+						t.Fatal(result)
+					}
+					if result.Hash != fmt.Sprintf("foo-%v", i) {
+						t.Fatal(result)
+					}
+				})
+
+				t.Run(fmt.Sprintf("delete hub %v", i), func(t *testing.T) {
+					resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub.Id)+"?wait=true")
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+
+				t.Run(fmt.Sprintf("read hub %v after delete", i), func(t *testing.T) {
+					resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub.Id))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusNotFound && resp.StatusCode != http.StatusForbidden {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
 					}
 				})
 			})

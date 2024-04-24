@@ -259,7 +259,17 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err, errCode := control.PublishDeviceDelete(token, id)
+
+		options := model.DeviceDeleteOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		err, errCode := control.PublishDeviceDelete(token, id, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -284,11 +294,29 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		for _, id := range ids {
-			err, errCode := control.PublishDeviceDelete(token, id)
+
+		options := model.DeviceDeleteOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
 			if err != nil {
-				http.Error(writer, err.Error(), errCode)
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
 				return
+			}
+		}
+
+		for i, id := range ids {
+			if i < len(ids)-1 {
+				err, errCode := control.PublishDeviceDelete(token, id, model.DeviceDeleteOptions{})
+				if err != nil {
+					http.Error(writer, err.Error(), errCode)
+					return
+				}
+			} else {
+				err, errCode := control.PublishDeviceDelete(token, id, options)
+				if err != nil {
+					http.Error(writer, err.Error(), errCode)
+					return
+				}
 			}
 		}
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")

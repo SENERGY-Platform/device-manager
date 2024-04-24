@@ -25,10 +25,22 @@ type DeviceCreateOptions struct {
 	Wait bool
 }
 
+type DeviceDeleteOptions struct {
+	Wait bool
+}
+
 type DeviceTypeUpdateOptions struct {
 	Wait bool
 }
 
+type DeviceTypeDeleteOptions struct {
+	Wait bool
+}
+
 type HubUpdateOptions struct {
+	Wait bool
+}
+
+type HubDeleteOptions struct {
 	Wait bool
 }

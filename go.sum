@@ -12,8 +12,8 @@ github.com/Microsoft/hcsshim v0.12.3 h1:LS9NXqXhMoqNCplK1ApmVSfB4UnVLRDWRapB6EIl
 github.com/Microsoft/hcsshim v0.12.3/go.mod h1:Iyl1WVpZzr+UkzjekHZbV8o5Z9ZkxNGx6CtY2Qg/JVQ=
 github.com/SENERGY-Platform/models/go v0.0.0-20230824080159-16585960df38 h1:PDvFwIJBnFyKt1KeepkABNIS57+WhVj4vBw7X5JGZJw=
 github.com/SENERGY-Platform/models/go v0.0.0-20230824080159-16585960df38/go.mod h1:bCREPNRN4P8oxLgpC3/ZKK4jXSy4MSPXoiomhohE+aw=
-github.com/SENERGY-Platform/permission-search v0.0.9 h1:p/k9I739e49K60Mr8rTnk9aKjtWCA4kP7DpxLgpukcA=
-github.com/SENERGY-Platform/permission-search v0.0.9/go.mod h1:TL+tg9zvYGjBWmdjOhfT10oRBnbdDvHSml1p1U/eeNI=
+github.com/SENERGY-Platform/permission-search v0.0.10 h1:Nnah96aUoR1HzR4OTm2+kEwhVhcfCQAIA9KZc9+wFmc=
+github.com/SENERGY-Platform/permission-search v0.0.10/go.mod h1:TL+tg9zvYGjBWmdjOhfT10oRBnbdDvHSml1p1U/eeNI=
 github.com/SENERGY-Platform/service-commons v0.0.0-20240423132428-8eccbc027e71 h1:Z3Vj9ImRERXQE5fprE/KGkAsS/dgX0dMesM/cDSN9Tw=
 github.com/SENERGY-Platform/service-commons v0.0.0-20240423132428-8eccbc027e71/go.mod h1:1p2CQPNtler5leXqNgaOfr7DlgZUydrQlQYA97ycm4k=
 github.com/aws/aws-sdk-go v1.42.27/go.mod h1:OGr6lGMAKGlG9CVrYnWYDKIyb829c6EVBRjxqjmPepc=
