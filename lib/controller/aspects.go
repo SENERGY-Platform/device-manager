@@ -19,7 +19,9 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"net/http"
 )
 
@@ -27,7 +29,7 @@ func (this *Controller) ReadAspect(token auth.Token, id string) (aspect models.A
 	return this.com.GetAspect(token, id)
 }
 
-func (this *Controller) PublishAspectCreate(token auth.Token, aspect models.Aspect) (models.Aspect, error, int) {
+func (this *Controller) PublishAspectCreate(token auth.Token, aspect models.Aspect, options model.AspectUpdateOptions) (models.Aspect, error, int) {
 	if !token.IsAdmin() {
 		return aspect, errors.New("access denied"), http.StatusForbidden
 	}
@@ -36,14 +38,27 @@ func (this *Controller) PublishAspectCreate(token auth.Token, aspect models.Aspe
 	if err != nil {
 		return aspect, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.AspectTopic,
+		ResourceId:   aspect.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishAspect(aspect, token.GetUserId())
 	if err != nil {
 		return aspect, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return aspect, err, http.StatusInternalServerError
+	}
+
 	return aspect, nil, http.StatusOK
 }
 
-func (this *Controller) PublishAspectUpdate(token auth.Token, id string, aspect models.Aspect) (models.Aspect, error, int) {
+func (this *Controller) PublishAspectUpdate(token auth.Token, id string, aspect models.Aspect, options model.AspectUpdateOptions) (models.Aspect, error, int) {
 	if !token.IsAdmin() {
 		return aspect, errors.New("access denied"), http.StatusForbidden
 	}
@@ -59,14 +74,27 @@ func (this *Controller) PublishAspectUpdate(token auth.Token, id string, aspect 
 	if err != nil {
 		return aspect, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.AspectTopic,
+		ResourceId:   aspect.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishAspect(aspect, token.GetUserId())
 	if err != nil {
 		return aspect, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return aspect, err, http.StatusInternalServerError
+	}
+
 	return aspect, nil, http.StatusOK
 }
 
-func (this *Controller) PublishAspectDelete(token auth.Token, id string) (error, int) {
+func (this *Controller) PublishAspectDelete(token auth.Token, id string, options model.AspectDeleteOptions) (error, int) {
 	if !token.IsAdmin() {
 		return errors.New("access denied"), http.StatusForbidden
 	}
@@ -74,9 +102,22 @@ func (this *Controller) PublishAspectDelete(token auth.Token, id string) (error,
 	if err != nil {
 		return err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.AspectTopic,
+		ResourceId:   id,
+		Command:      "DELETE",
+	})
+
 	err = this.publisher.PublishAspectDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
 	return nil, http.StatusOK
 }

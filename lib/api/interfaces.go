@@ -34,6 +34,7 @@ type Controller interface {
 	PublishDeviceTypeDelete(token auth.Token, id string, options model.DeviceTypeDeleteOptions) (err error, code int)
 
 	ReadDevice(token auth.Token, id string) (device models.Device, err error, code int)
+	ReadDeviceByLocalId(token auth.Token, localId string) (device models.Device, err error, errCode int)
 	PublishDeviceCreate(token auth.Token, device models.Device, options model.DeviceCreateOptions) (result models.Device, err error, code int)
 	PublishDeviceUpdate(token auth.Token, id string, device models.Device, options model.DeviceUpdateOptions) (result models.Device, err error, code int)
 	PublishDeviceDelete(token auth.Token, id string, options model.DeviceDeleteOptions) (err error, code int)
@@ -61,9 +62,9 @@ type Controller interface {
 	DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, errCode int)
 
 	ReadAspect(token auth.Token, id string) (device models.Aspect, err error, code int)
-	PublishAspectCreate(token auth.Token, aspect models.Aspect) (result models.Aspect, err error, code int)
-	PublishAspectUpdate(token auth.Token, id string, device models.Aspect) (result models.Aspect, err error, code int)
-	PublishAspectDelete(token auth.Token, id string) (err error, code int)
+	PublishAspectCreate(token auth.Token, aspect models.Aspect, options model.AspectUpdateOptions) (result models.Aspect, err error, code int)
+	PublishAspectUpdate(token auth.Token, id string, aspect models.Aspect, options model.AspectUpdateOptions) (result models.Aspect, err error, code int)
+	PublishAspectDelete(token auth.Token, id string, options model.AspectDeleteOptions) (err error, code int)
 
 	ReadFunction(token auth.Token, id string) (device models.Function, err error, code int)
 	PublishFunctionCreate(token auth.Token, f models.Function) (result models.Function, err error, code int)

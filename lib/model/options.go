@@ -44,3 +44,11 @@ type HubUpdateOptions struct {
 type HubDeleteOptions struct {
 	Wait bool
 }
+
+type AspectUpdateOptions struct {
+	Wait bool
+}
+
+type AspectDeleteOptions struct {
+	Wait bool
+}

@@ -29,7 +29,12 @@ import (
 )
 
 func (this *Controller) DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, errCode int) {
-	return this.com.DeviceLocalIdToId(token, localId)
+	device, err, code := this.com.GetDeviceByLocalId(token, localId)
+	return device.Id, err, code
+}
+
+func (this *Controller) ReadDeviceByLocalId(token auth.Token, localId string) (device models.Device, err error, errCode int) {
+	return this.com.GetDeviceByLocalId(token, localId)
 }
 
 func (this *Controller) ReadDevice(token auth.Token, id string) (device models.Device, err error, code int) {

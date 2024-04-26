@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 InfAI (CC SES)
+ * Copyright waitDoneTrys24 InfAI (CC SES)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ import (
 	"testing"
 	"time"
 )
+
+const waitDoneTrys = 20
 
 func TestWaitDone(t *testing.T) {
 	wg := &sync.WaitGroup{}
@@ -126,7 +128,7 @@ func TestWaitDone(t *testing.T) {
 	time.Sleep(2 * time.Second)
 
 	t.Run("create device-types parallel", func(t *testing.T) {
-		for i := range 20 {
+		for i := range waitDoneTrys {
 			t.Run(fmt.Sprintf("check device-type %v", i), func(t *testing.T) {
 				t.Parallel()
 				dt := models.DeviceType{}
@@ -236,8 +238,8 @@ func TestWaitDone(t *testing.T) {
 	})
 
 	t.Run("create device-types", func(t *testing.T) {
-		for i := range 20 {
-			i = i + 20
+		for i := range waitDoneTrys {
+			i = i + waitDoneTrys
 			t.Run(fmt.Sprintf("check device-type %v", i), func(t *testing.T) {
 				dt := models.DeviceType{}
 				t.Run(fmt.Sprintf("create device-type %v", i), func(t *testing.T) {
@@ -391,7 +393,7 @@ func TestWaitDone(t *testing.T) {
 	})
 
 	t.Run("create devices parallel", func(t *testing.T) {
-		for i := range 20 {
+		for i := range waitDoneTrys {
 			t.Run(fmt.Sprintf("check device %v", i), func(t *testing.T) {
 				t.Parallel()
 				device := models.DeviceType{}
@@ -475,8 +477,8 @@ func TestWaitDone(t *testing.T) {
 	})
 
 	t.Run("create devices", func(t *testing.T) {
-		for i := range 20 {
-			i = i + 20
+		for i := range waitDoneTrys {
+			i = i + waitDoneTrys
 			t.Run(fmt.Sprintf("check device %v", i), func(t *testing.T) {
 				device := models.DeviceType{}
 				t.Run(fmt.Sprintf("create device %v", i), func(t *testing.T) {
@@ -559,7 +561,7 @@ func TestWaitDone(t *testing.T) {
 	})
 
 	t.Run("create hubs parallel", func(t *testing.T) {
-		for i := range 20 {
+		for i := range waitDoneTrys {
 			t.Run(fmt.Sprintf("check hub %v", i), func(t *testing.T) {
 				t.Parallel()
 				hub := models.HubEdit{}
@@ -645,8 +647,8 @@ func TestWaitDone(t *testing.T) {
 	})
 
 	t.Run("create hubs", func(t *testing.T) {
-		for i := range 20 {
-			i = i + 20
+		for i := range waitDoneTrys {
+			i = i + waitDoneTrys
 			t.Run(fmt.Sprintf("check hub %v", i), func(t *testing.T) {
 				hub := models.HubEdit{}
 				t.Run(fmt.Sprintf("create hub %v", i), func(t *testing.T) {
@@ -730,4 +732,454 @@ func TestWaitDone(t *testing.T) {
 		}
 	})
 
+	t.Run("create local-devices parallel", testWait(conf, "local-devices", true, userjwt, func(i int) models.Device {
+		return models.Device{
+			Name:         fmt.Sprintf("l-foo-%v", i),
+			LocalId:      fmt.Sprintf("l-foo-%v", i),
+			DeviceTypeId: dt.Id,
+		}
+	}, func(e models.Device) string {
+		return e.LocalId
+	}, func(e models.Device, i int) error {
+		if e.Name != fmt.Sprintf("l-foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("l-foo-%v", i))
+		}
+		return nil
+	}))
+
+	t.Run("create local-devices", testWait(conf, "local-devices", false, userjwt, func(i int) models.Device {
+		return models.Device{
+			Name:         fmt.Sprintf("l-foo-%v", i),
+			LocalId:      fmt.Sprintf("l-foo-%v", i),
+			DeviceTypeId: dt.Id,
+		}
+	}, func(e models.Device) string {
+		return e.LocalId
+	}, func(e models.Device, i int) error {
+		if e.Name != fmt.Sprintf("l-foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("l-foo-%v", i))
+		}
+		return nil
+	}))
+
+	t.Run("create aspects", testWait(conf, "aspects", false, adminjwt, func(i int) models.Aspect {
+		return models.Aspect{
+			Name: fmt.Sprintf("foo-%v", i),
+			SubAspects: []models.Aspect{
+				{
+					Name: fmt.Sprintf("foo-%v-0", i),
+					SubAspects: []models.Aspect{
+						{
+							Name: fmt.Sprintf("foo-%v-0-1", i),
+						},
+						{
+							Name: fmt.Sprintf("foo-%v-0-2", i),
+						},
+					},
+				},
+				{
+					Name: fmt.Sprintf("foo-%v-1", i),
+					SubAspects: []models.Aspect{
+						{
+							Name: fmt.Sprintf("foo-%v-1-1", i),
+						},
+						{
+							Name: fmt.Sprintf("foo-%v-1-2", i),
+						},
+					},
+				},
+			},
+		}
+	}, func(aspect models.Aspect) string {
+		return aspect.Id
+	}, func(aspect models.Aspect, i int) error {
+		if aspect.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", aspect.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if len(aspect.SubAspects) != 2 {
+			return fmt.Errorf("len SubAspects does not match expected")
+		}
+		return nil
+	}))
+
+	t.Run("create aspects parallel", testWait(conf, "aspects", true, adminjwt, func(i int) models.Aspect {
+		return models.Aspect{
+			Name: fmt.Sprintf("foo-%v", i),
+			SubAspects: []models.Aspect{
+				{
+					Name: fmt.Sprintf("foo-%v-0", i),
+					SubAspects: []models.Aspect{
+						{
+							Name: fmt.Sprintf("foo-%v-0-1", i),
+						},
+						{
+							Name: fmt.Sprintf("foo-%v-0-2", i),
+						},
+					},
+				},
+				{
+					Name: fmt.Sprintf("foo-%v-1", i),
+					SubAspects: []models.Aspect{
+						{
+							Name: fmt.Sprintf("foo-%v-1-1", i),
+						},
+						{
+							Name: fmt.Sprintf("foo-%v-1-2", i),
+						},
+					},
+				},
+			},
+		}
+	}, func(aspect models.Aspect) string {
+		return aspect.Id
+	}, func(aspect models.Aspect, i int) error {
+		if aspect.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", aspect.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if len(aspect.SubAspects) != 2 {
+			return fmt.Errorf("len SubAspects does not match expected")
+		}
+		return nil
+	}))
+
+	t.Run("create functions parallel", testWait(conf, "functions", true, adminjwt, func(i int) models.Function {
+		return models.Function{
+			Id:          fmt.Sprintf("%vcontrolling-function:foo-%v", models.URN_PREFIX, i),
+			Name:        fmt.Sprintf("foo-%v", i),
+			Description: fmt.Sprintf("foo-%v", i),
+		}
+	}, func(e models.Function) string {
+		return e.Id
+	}, func(e models.Function, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if e.Description != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("description %v does not match expected %v", e.Description, fmt.Sprintf("foo-%v", i))
+		}
+		return nil
+	}))
+
+	t.Run("create functions", testWait(conf, "functions", false, adminjwt, func(i int) models.Function {
+		return models.Function{
+			Id:          fmt.Sprintf("%vcontrolling-function:foo-%v", models.URN_PREFIX, i),
+			Name:        fmt.Sprintf("foo-%v", i),
+			Description: fmt.Sprintf("foo-%v", i),
+		}
+	}, func(e models.Function) string {
+		return e.Id
+	}, func(e models.Function, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if e.Description != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("description %v does not match expected %v", e.Description, fmt.Sprintf("foo-%v", i))
+		}
+		return nil
+	}))
+
+	t.Run("create concepts parallel", testWait(conf, "concepts", true, adminjwt, func(i int) models.Concept {
+		return models.Concept{
+			Name: fmt.Sprintf("foo-%v", i),
+		}
+	}, func(e models.Concept) string {
+		return e.Id
+	}, func(e models.Concept, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		return nil
+	}))
+
+	t.Run("create concepts", testWait(conf, "concepts", false, adminjwt, func(i int) models.Concept {
+		return models.Concept{
+			Name: fmt.Sprintf("foo-%v", i),
+		}
+	}, func(e models.Concept) string {
+		return e.Id
+	}, func(e models.Concept, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		return nil
+	}))
+
+	t.Run("create characteristics parallel", testWait(conf, "characteristics", true, adminjwt, func(i int) models.Characteristic {
+		return models.Characteristic{
+			Name: fmt.Sprintf("foo-%v", i),
+			Type: models.Structure,
+			SubCharacteristics: []models.Characteristic{
+				{
+					Name: "foo",
+					Type: models.String,
+				},
+				{
+					Name: "bar",
+					Type: models.String,
+				},
+			},
+		}
+	}, func(e models.Characteristic) string {
+		return e.Id
+	}, func(e models.Characteristic, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if len(e.SubCharacteristics) != 2 {
+			return fmt.Errorf("len SubCharacteristics does not match expected")
+		}
+		return nil
+	}))
+
+	t.Run("create characteristics", testWait(conf, "characteristics", false, adminjwt, func(i int) models.Characteristic {
+		return models.Characteristic{
+			Name: fmt.Sprintf("foo-%v", i),
+			Type: models.Structure,
+			SubCharacteristics: []models.Characteristic{
+				{
+					Name: "foo",
+					Type: models.String,
+				},
+				{
+					Name: "bar",
+					Type: models.String,
+				},
+			},
+		}
+	}, func(e models.Characteristic) string {
+		return e.Id
+	}, func(e models.Characteristic, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if len(e.SubCharacteristics) != 2 {
+			return fmt.Errorf("len SubCharacteristics does not match expected")
+		}
+		return nil
+	}))
+
+	t.Run("create device-classes parallel", testWait(conf, "device-classes", true, adminjwt, func(i int) models.DeviceClass {
+		return models.DeviceClass{
+			Name:  fmt.Sprintf("foo-%v", i),
+			Image: "http://foobar.foo/foo.jpg",
+		}
+	}, func(e models.DeviceClass) string {
+		return e.Id
+	}, func(e models.DeviceClass, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if e.Image != "http://foobar.foo/foo.jpg" {
+			return fmt.Errorf("image %v does not match expected %v", e.Image, "http://foobar.foo/foo.jpg")
+		}
+		return nil
+	}))
+
+	t.Run("create device-classes", testWait(conf, "device-classes", false, adminjwt, func(i int) models.DeviceClass {
+		return models.DeviceClass{
+			Name:  fmt.Sprintf("foo-%v", i),
+			Image: "http://foobar.foo/foo.jpg",
+		}
+	}, func(e models.DeviceClass) string {
+		return e.Id
+	}, func(e models.DeviceClass, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if e.Image != "foobar" {
+			return fmt.Errorf("image %v does not match expected %v", e.Image, "http://foobar.foo/foo.jpg")
+		}
+		return nil
+	}))
+
+	t.Run("create device-groups parallel", testWait(conf, "device-groups", true, adminjwt, func(i int) models.DeviceGroup {
+		return models.DeviceGroup{
+			Name:  fmt.Sprintf("foo-%v", i),
+			Image: "http://foobar.foo/foo.jpg",
+		}
+	}, func(e models.DeviceGroup) string {
+		return e.Id
+	}, func(e models.DeviceGroup, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if e.Image != "http://foobar.foo/foo.jpg" {
+			return fmt.Errorf("image %v does not match expected %v", e.Image, "http://foobar.foo/foo.jpg")
+		}
+		return nil
+	}))
+
+	t.Run("create device-groups", testWait(conf, "device-groups", false, adminjwt, func(i int) models.DeviceGroup {
+		return models.DeviceGroup{
+			Name:  fmt.Sprintf("foo-%v", i),
+			Image: "http://foobar.foo/foo.jpg",
+		}
+	}, func(e models.DeviceGroup) string {
+		return e.Id
+	}, func(e models.DeviceGroup, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if e.Image != "http://foobar.foo/foo.jpg" {
+			return fmt.Errorf("image %v does not match expected %v", e.Image, "http://foobar.foo/foo.jpg")
+		}
+		return nil
+	}))
+
+	t.Run("create locations parallel", testWait(conf, "locations", true, adminjwt, func(i int) models.Location {
+		return models.Location{
+			Name:  fmt.Sprintf("foo-%v", i),
+			Image: "http://foobar.foo/foo.jpg",
+		}
+	}, func(e models.Location) string {
+		return e.Id
+	}, func(e models.Location, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if e.Image != "http://foobar.foo/foo.jpg" {
+			return fmt.Errorf("image %v does not match expected %v", e.Image, "http://foobar.foo/foo.jpg")
+		}
+		return nil
+	}))
+
+	t.Run("create locations", testWait(conf, "locations", false, adminjwt, func(i int) models.Location {
+		return models.Location{
+			Name:  fmt.Sprintf("foo-%v", i),
+			Image: "http://foobar.foo/foo.jpg",
+		}
+	}, func(e models.Location) string {
+		return e.Id
+	}, func(e models.Location, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		if e.Image != "foobar" {
+			return fmt.Errorf("image %v does not match expected %v", e.Image, "http://foobar.foo/foo.jpg")
+		}
+		return nil
+	}))
+
+	t.Run("create protocols parallel", testWait(conf, "protocols", true, adminjwt, func(i int) models.Protocol {
+		return models.Protocol{
+			Name:    fmt.Sprintf("foo-%v", i),
+			Handler: "ph1",
+			ProtocolSegments: []models.ProtocolSegment{
+				{Name: fmt.Sprintf("ps1-foo-%v", i)},
+			},
+		}
+	}, func(e models.Protocol) string {
+		return e.Id
+	}, func(e models.Protocol, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		return nil
+	}))
+
+	t.Run("create protocols", testWait(conf, "protocols", false, adminjwt, func(i int) models.Protocol {
+		return models.Protocol{
+			Name:    fmt.Sprintf("foo-%v", i),
+			Handler: "ph1",
+			ProtocolSegments: []models.ProtocolSegment{
+				{Name: fmt.Sprintf("ps1-foo-%v", i)},
+			},
+		}
+	}, func(e models.Protocol) string {
+		return e.Id
+	}, func(e models.Protocol, i int) error {
+		if e.Name != fmt.Sprintf("foo-%v", i) {
+			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
+		}
+		return nil
+	}))
+}
+
+func testWait[T any](conf config.Config, resource string, parallel bool, token string, create func(i int) T, getId func(T) string, check func(T, int) error) func(t *testing.T) {
+	return func(t *testing.T) {
+		for i := range waitDoneTrys {
+			if !parallel {
+				i = i + waitDoneTrys
+			}
+			t.Run(fmt.Sprintf("check %v %v", resource, i), func(t *testing.T) {
+				if parallel {
+					t.Parallel()
+				}
+				element := create(i)
+				t.Run(fmt.Sprintf("create %v %v", resource, i), func(t *testing.T) {
+					resp, err := helper.Jwtpost(token, "http://localhost:"+conf.ServerPort+"/"+resource+"?wait=true", element)
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+
+					err = json.NewDecoder(resp.Body).Decode(&element)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					err = check(element, i)
+					if err != nil {
+						t.Fatal(err)
+					}
+				})
+
+				t.Run(fmt.Sprintf("read %v %v", resource, i), func(t *testing.T) {
+					resp, err := helper.Jwtget(token, "http://localhost:"+conf.ServerPort+"/"+resource+"/"+url.PathEscape(getId(element)))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+
+					var element T
+					err = json.NewDecoder(resp.Body).Decode(&element)
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					err = check(element, i)
+					if err != nil {
+						t.Fatal(err)
+					}
+				})
+
+				t.Run(fmt.Sprintf("delete %v %v", resource, i), func(t *testing.T) {
+					resp, err := helper.Jwtdelete(token, "http://localhost:"+conf.ServerPort+"/"+resource+"/"+url.PathEscape(getId(element))+"?wait=true")
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusOK {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+
+				t.Run(fmt.Sprintf("read %v %v after delete", resource, i), func(t *testing.T) {
+					resp, err := helper.Jwtget(token, "http://localhost:"+conf.ServerPort+"/"+resource+"/"+url.PathEscape(getId(element)))
+					if err != nil {
+						t.Fatal(err)
+					}
+					defer resp.Body.Close()
+
+					if resp.StatusCode != http.StatusNotFound && resp.StatusCode != http.StatusForbidden {
+						b, _ := io.ReadAll(resp.Body)
+						t.Fatal(resp.Status, resp.StatusCode, string(b))
+					}
+				})
+			})
+
+		}
+	}
 }

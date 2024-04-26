@@ -18,12 +18,15 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func init() {
@@ -65,7 +68,17 @@ func AspectsEndpoints(config config.Config, control Controller, router *httprout
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishAspectCreate(token, aspect)
+
+		options := model.AspectUpdateOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		result, err, errCode := control.PublishAspectCreate(token, aspect, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -91,11 +104,22 @@ func AspectsEndpoints(config config.Config, control Controller, router *httprout
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishAspectUpdate(token, id, aspect)
+
+		options := model.AspectUpdateOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		result, err, errCode := control.PublishAspectUpdate(token, id, aspect, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
 		}
+
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 		err = json.NewEncoder(writer).Encode(result)
 		if err != nil {
@@ -111,7 +135,17 @@ func AspectsEndpoints(config config.Config, control Controller, router *httprout
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err, errCode := control.PublishAspectDelete(token, id)
+
+		options := model.AspectDeleteOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		err, errCode := control.PublishAspectDelete(token, id, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

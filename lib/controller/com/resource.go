@@ -44,6 +44,35 @@ func getResourceFromService(token auth.Token, endpoint string, id string, result
 	return nil, http.StatusOK
 }
 
+func getResourceFromServiceWithQueryParam(token auth.Token, endpoint string, id string, query url.Values, result interface{}) (err error, code int) {
+	req, err := http.NewRequest("GET", endpoint+"/"+url.PathEscape(id)+"?"+query.Encode(), nil)
+	if err != nil {
+		debug.PrintStack()
+		return err, http.StatusInternalServerError
+	}
+	req.Header.Set("Authorization", token.Token)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		debug.PrintStack()
+		return err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		err = errors.New(buf.String())
+		log.Println("WARNING: unable to get resource", endpoint, id, resp.StatusCode, err)
+		//debug.PrintStack()
+		return err, resp.StatusCode
+	}
+	err = json.NewDecoder(resp.Body).Decode(result)
+	if err != nil {
+		debug.PrintStack()
+		return err, http.StatusInternalServerError
+	}
+	return nil, http.StatusOK
+}
+
 func validateResources(token auth.Token, config config.Config, endpoints []string, resource interface{}) (err error, code int) {
 	if config.DisableValidation {
 		return nil, http.StatusOK

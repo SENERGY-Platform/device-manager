@@ -20,11 +20,18 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/models/go/models"
 	"net/http"
+	"net/url"
 )
 
 // expects previous permission check and use own admin jwt to access device
 func (this *Com) GetDevice(token auth.Token, id string) (device models.Device, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/devices", id, &device)
+	return
+}
+
+// expects previous permission check and use own admin jwt to access device
+func (this *Com) GetDeviceByLocalId(token auth.Token, localid string) (device models.Device, err error, code int) {
+	err, code = getResourceFromServiceWithQueryParam(token, this.config.DeviceRepoUrl+"/devices", localid, url.Values{"as": {"local_id"}}, &device)
 	return
 }
 

@@ -158,7 +158,8 @@ type Com interface {
 	GetProtocol(token auth.Token, id string) (models.Protocol, error, int)
 	ValidateProtocol(token auth.Token, protocol models.Protocol) (err error, code int)
 
-	GetDevice(token auth.Token, id string) (models.Device, error, int) //uses internal admin jwt
+	GetDevice(token auth.Token, id string) (models.Device, error, int)               //uses internal admin jwt
+	GetDeviceByLocalId(token auth.Token, localid string) (models.Device, error, int) //uses internal admin jwt
 	ValidateDevice(token auth.Token, device models.Device) (err error, code int)
 	PermissionCheckForDevice(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 	PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int)

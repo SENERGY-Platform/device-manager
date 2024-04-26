@@ -44,12 +44,7 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		id, err, errCode := control.DeviceLocalIdToId(token, id)
-		if err != nil {
-			http.Error(writer, err.Error(), errCode)
-			return
-		}
-		result, err, errCode := control.ReadDevice(token, id)
+		result, err, errCode := control.ReadDeviceByLocalId(token, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
