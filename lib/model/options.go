@@ -52,3 +52,59 @@ type AspectUpdateOptions struct {
 type AspectDeleteOptions struct {
 	Wait bool
 }
+
+type CharacteristicUpdateOptions struct {
+	Wait bool
+}
+
+type CharacteristicDeleteOptions struct {
+	Wait bool
+}
+
+type ConceptUpdateOptions struct {
+	Wait bool
+}
+
+type ConceptDeleteOptions struct {
+	Wait bool
+}
+
+type DeviceClassUpdateOptions struct {
+	Wait bool
+}
+
+type DeviceClassDeleteOptions struct {
+	Wait bool
+}
+
+type DeviceGroupUpdateOptions struct {
+	Wait bool
+}
+
+type DeviceGroupDeleteOptions struct {
+	Wait bool
+}
+
+type FunctionUpdateOptions struct {
+	Wait bool
+}
+
+type FunctionDeleteOptions struct {
+	Wait bool
+}
+
+type LocationUpdateOptions struct {
+	Wait bool
+}
+
+type LocationDeleteOptions struct {
+	Wait bool
+}
+
+type ProtocolUpdateOptions struct {
+	Wait bool
+}
+
+type ProtocolDeleteOptions struct {
+	Wait bool
+}

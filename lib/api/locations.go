@@ -18,12 +18,15 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func init() {
@@ -69,7 +72,17 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 			http.Error(writer, "location may not contain a preset id. please use PUT to update a location", http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishLocationCreate(token, location)
+
+		options := model.LocationUpdateOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		result, err, errCode := control.PublishLocationCreate(token, location, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -84,8 +97,8 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
-		Location := models.Location{}
-		err := json.NewDecoder(request.Body).Decode(&Location)
+		location := models.Location{}
+		err := json.NewDecoder(request.Body).Decode(&location)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
@@ -95,7 +108,17 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishLocationUpdate(token, id, Location)
+
+		options := model.LocationUpdateOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		result, err, errCode := control.PublishLocationUpdate(token, id, location, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -115,7 +138,17 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err, errCode := control.PublishLocationDelete(token, id)
+
+		options := model.LocationDeleteOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		err, errCode := control.PublishLocationDelete(token, id, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

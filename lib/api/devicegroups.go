@@ -18,12 +18,15 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func init() {
@@ -69,7 +72,17 @@ func DeviceGroupsEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, "device-group may not contain a preset id. please use PUT to update a device-group", http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceGroupCreate(token, deviceGroup)
+
+		options := model.DeviceGroupUpdateOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		result, err, errCode := control.PublishDeviceGroupCreate(token, deviceGroup, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -95,7 +108,17 @@ func DeviceGroupsEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.PublishDeviceGroupUpdate(token, id, deviceGroup)
+
+		options := model.DeviceGroupUpdateOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		result, err, errCode := control.PublishDeviceGroupUpdate(token, id, deviceGroup, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -115,7 +138,17 @@ func DeviceGroupsEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err, errCode := control.PublishDeviceGroupDelete(token, id)
+
+		options := model.DeviceGroupDeleteOptions{}
+		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
+			options.Wait, err = strconv.ParseBool(waitQueryParam)
+			if err != nil {
+				http.Error(writer, fmt.Sprintf("invalid %v query parameter %v", WaitQueryParamName, err.Error()), http.StatusBadRequest)
+				return
+			}
+		}
+
+		err, errCode := control.PublishDeviceGroupDelete(token, id, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

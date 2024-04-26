@@ -20,7 +20,9 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -30,7 +32,7 @@ func (this *Controller) ReadLocation(token auth.Token, id string) (location mode
 	return this.com.GetLocation(token, id)
 }
 
-func (this *Controller) PublishLocationCreate(token auth.Token, location models.Location) (result models.Location, err error, code int) {
+func (this *Controller) PublishLocationCreate(token auth.Token, location models.Location, options model.LocationUpdateOptions) (result models.Location, err error, code int) {
 	if location.Id != "" {
 		return result, errors.New("expect empty location id"), http.StatusBadRequest
 	}
@@ -44,14 +46,27 @@ func (this *Controller) PublishLocationCreate(token auth.Token, location models.
 	if err != nil {
 		return location, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.LocationTopic,
+		ResourceId:   location.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishLocation(location, token.GetUserId())
 	if err != nil {
 		return location, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return location, err, http.StatusInternalServerError
+	}
+
 	return location, nil, http.StatusOK
 }
 
-func (this *Controller) PublishLocationUpdate(token auth.Token, id string, location models.Location) (models.Location, error, int) {
+func (this *Controller) PublishLocationUpdate(token auth.Token, id string, location models.Location, options model.LocationUpdateOptions) (models.Location, error, int) {
 	if location.Id != id {
 		return location, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
@@ -82,14 +97,26 @@ func (this *Controller) PublishLocationUpdate(token auth.Token, id string, locat
 		owner = token.GetUserId()
 	}
 
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.LocationTopic,
+		ResourceId:   location.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishLocation(location, owner)
 	if err != nil {
 		return location, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return location, err, http.StatusInternalServerError
+	}
+
 	return location, nil, http.StatusOK
 }
 
-func (this *Controller) PublishLocationDelete(token auth.Token, id string) (error, int) {
+func (this *Controller) PublishLocationDelete(token auth.Token, id string, options model.LocationDeleteOptions) (error, int) {
 	if err := com.PreventIdModifier(id); err != nil {
 		return err, http.StatusBadRequest
 	}
@@ -97,9 +124,22 @@ func (this *Controller) PublishLocationDelete(token auth.Token, id string) (erro
 	if err != nil {
 		return err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.LocationTopic,
+		ResourceId:   id,
+		Command:      "DELETE",
+	})
+
 	err = this.publisher.PublishLocationDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
 	return nil, http.StatusOK
 }

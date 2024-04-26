@@ -986,7 +986,7 @@ func TestWaitDone(t *testing.T) {
 		if e.Name != fmt.Sprintf("foo-%v", i) {
 			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
 		}
-		if e.Image != "foobar" {
+		if e.Image != "http://foobar.foo/foo.jpg" {
 			return fmt.Errorf("image %v does not match expected %v", e.Image, "http://foobar.foo/foo.jpg")
 		}
 		return nil
@@ -1054,7 +1054,7 @@ func TestWaitDone(t *testing.T) {
 		if e.Name != fmt.Sprintf("foo-%v", i) {
 			return fmt.Errorf("name %v does not match expected %v", e.Name, fmt.Sprintf("foo-%v", i))
 		}
-		if e.Image != "foobar" {
+		if e.Image != "http://foobar.foo/foo.jpg" {
 			return fmt.Errorf("image %v does not match expected %v", e.Image, "http://foobar.foo/foo.jpg")
 		}
 		return nil

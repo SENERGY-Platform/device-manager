@@ -19,7 +19,9 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"net/http"
 )
 
@@ -27,7 +29,7 @@ func (this *Controller) ReadFunction(token auth.Token, id string) (function mode
 	return this.com.GetFunction(token, id)
 }
 
-func (this *Controller) PublishFunctionCreate(token auth.Token, function models.Function) (models.Function, error, int) {
+func (this *Controller) PublishFunctionCreate(token auth.Token, function models.Function, options model.FunctionUpdateOptions) (models.Function, error, int) {
 	if !token.IsAdmin() {
 		return function, errors.New("access denied"), http.StatusForbidden
 	}
@@ -36,14 +38,27 @@ func (this *Controller) PublishFunctionCreate(token auth.Token, function models.
 	if err != nil {
 		return function, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.FunctionTopic,
+		ResourceId:   function.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishFunction(function, token.GetUserId())
 	if err != nil {
 		return function, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return function, err, http.StatusInternalServerError
+	}
+
 	return function, nil, http.StatusOK
 }
 
-func (this *Controller) PublishFunctionUpdate(token auth.Token, id string, function models.Function) (models.Function, error, int) {
+func (this *Controller) PublishFunctionUpdate(token auth.Token, id string, function models.Function, options model.FunctionUpdateOptions) (models.Function, error, int) {
 	if !token.IsAdmin() {
 		return function, errors.New("access denied"), http.StatusForbidden
 	}
@@ -59,14 +74,27 @@ func (this *Controller) PublishFunctionUpdate(token auth.Token, id string, funct
 	if err != nil {
 		return function, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.FunctionTopic,
+		ResourceId:   function.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishFunction(function, token.GetUserId())
 	if err != nil {
 		return function, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return function, err, http.StatusInternalServerError
+	}
+
 	return function, nil, http.StatusOK
 }
 
-func (this *Controller) PublishFunctionDelete(token auth.Token, id string) (error, int) {
+func (this *Controller) PublishFunctionDelete(token auth.Token, id string, options model.FunctionDeleteOptions) (error, int) {
 	if !token.IsAdmin() {
 		return errors.New("access denied"), http.StatusForbidden
 	}
@@ -74,9 +102,22 @@ func (this *Controller) PublishFunctionDelete(token auth.Token, id string) (erro
 	if err != nil {
 		return err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.FunctionTopic,
+		ResourceId:   id,
+		Command:      "DELETE",
+	})
+
 	err = this.publisher.PublishFunctionDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
 	return nil, http.StatusOK
 }

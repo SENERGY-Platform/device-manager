@@ -19,12 +19,14 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"net/http"
 	"runtime/debug"
 )
 
-func (this *Controller) PublishCharacteristicCreate(token auth.Token, characteristic models.Characteristic) (models.Characteristic, error, int) {
+func (this *Controller) PublishCharacteristicCreate(token auth.Token, characteristic models.Characteristic, options model.CharacteristicUpdateOptions) (models.Characteristic, error, int) {
 	if characteristic.Id != "" {
 		return characteristic, errors.New("expect empty id"), http.StatusBadRequest
 	}
@@ -34,14 +36,27 @@ func (this *Controller) PublishCharacteristicCreate(token auth.Token, characteri
 	if err != nil {
 		return characteristic, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.CharacteristicTopic,
+		ResourceId:   characteristic.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishCharacteristic(characteristic, token.GetUserId())
 	if err != nil {
 		return characteristic, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return characteristic, err, http.StatusInternalServerError
+	}
+
 	return characteristic, nil, http.StatusOK
 }
 
-func (this *Controller) PublishCharacteristicUpdate(token auth.Token, characteristicId string, characteristic models.Characteristic) (models.Characteristic, error, int) {
+func (this *Controller) PublishCharacteristicUpdate(token auth.Token, characteristicId string, characteristic models.Characteristic, options model.CharacteristicUpdateOptions) (models.Characteristic, error, int) {
 	if characteristic.Id != characteristicId {
 		return characteristic, errors.New("characteristic id in body unequal to characteristic id in request endpoint"), http.StatusBadRequest
 	}
@@ -60,15 +75,28 @@ func (this *Controller) PublishCharacteristicUpdate(token auth.Token, characteri
 		debug.PrintStack()
 		return characteristic, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.CharacteristicTopic,
+		ResourceId:   characteristic.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishCharacteristic(characteristic, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return characteristic, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return characteristic, err, http.StatusInternalServerError
+	}
+
 	return characteristic, nil, http.StatusOK
 }
 
-func (this *Controller) PublishCharacteristicDelete(token auth.Token, id string) (error, int) {
+func (this *Controller) PublishCharacteristicDelete(token auth.Token, id string, options model.CharacteristicDeleteOptions) (error, int) {
 	err, code := this.com.PermissionCheckForCharacteristic(token, id, "a")
 	if err != nil {
 		return err, code
@@ -77,10 +105,23 @@ func (this *Controller) PublishCharacteristicDelete(token auth.Token, id string)
 	if err != nil {
 		return err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.CharacteristicTopic,
+		ResourceId:   id,
+		Command:      "DELETE",
+	})
+
 	err = this.publisher.PublishCharacteristicDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
 	return nil, http.StatusOK
 }
 

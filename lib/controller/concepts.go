@@ -19,7 +19,9 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"net/http"
 	"runtime/debug"
 )
@@ -28,7 +30,7 @@ func (this *Controller) ReadConcept(token auth.Token, id string) (concept models
 	return this.com.GetConcept(token, id)
 }
 
-func (this *Controller) PublishConceptCreate(token auth.Token, concept models.Concept) (models.Concept, error, int) {
+func (this *Controller) PublishConceptCreate(token auth.Token, concept models.Concept, options model.ConceptUpdateOptions) (models.Concept, error, int) {
 	if concept.Id != "" {
 		return concept, errors.New("expect empty id"), http.StatusBadRequest
 	}
@@ -37,14 +39,27 @@ func (this *Controller) PublishConceptCreate(token auth.Token, concept models.Co
 	if err != nil {
 		return concept, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.ConceptTopic,
+		ResourceId:   concept.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishConcept(concept, token.GetUserId())
 	if err != nil {
 		return concept, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return concept, err, http.StatusInternalServerError
+	}
+
 	return concept, nil, http.StatusOK
 }
 
-func (this *Controller) PublishConceptUpdate(token auth.Token, id string, concept models.Concept) (models.Concept, error, int) {
+func (this *Controller) PublishConceptUpdate(token auth.Token, id string, concept models.Concept, options model.ConceptUpdateOptions) (models.Concept, error, int) {
 	if concept.Id != id {
 		return concept, errors.New("concept id in body unequal to concept id in request endpoint"), http.StatusBadRequest
 	}
@@ -63,15 +78,28 @@ func (this *Controller) PublishConceptUpdate(token auth.Token, id string, concep
 		debug.PrintStack()
 		return concept, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.ConceptTopic,
+		ResourceId:   concept.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishConcept(concept, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return concept, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return concept, err, http.StatusInternalServerError
+	}
+
 	return concept, nil, http.StatusOK
 }
 
-func (this *Controller) PublishConceptDelete(token auth.Token, id string) (error, int) {
+func (this *Controller) PublishConceptDelete(token auth.Token, id string, options model.ConceptDeleteOptions) (error, int) {
 	err, code := this.com.PermissionCheckForConcept(token, id, "a")
 	if err != nil {
 		return err, code
@@ -80,9 +108,22 @@ func (this *Controller) PublishConceptDelete(token auth.Token, id string) (error
 	if err != nil {
 		return err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.ConceptTopic,
+		ResourceId:   id,
+		Command:      "DELETE",
+	})
+
 	err = this.publisher.PublishConceptDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
 	return nil, http.StatusOK
 }

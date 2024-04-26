@@ -19,7 +19,9 @@ package controller
 import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"net/http"
 )
 
@@ -27,7 +29,7 @@ func (this *Controller) ReadDeviceClass(token auth.Token, id string) (deviceClas
 	return this.com.GetDeviceClass(token, id)
 }
 
-func (this *Controller) PublishDeviceClassCreate(token auth.Token, deviceClass models.DeviceClass) (models.DeviceClass, error, int) {
+func (this *Controller) PublishDeviceClassCreate(token auth.Token, deviceClass models.DeviceClass, options model.DeviceClassUpdateOptions) (models.DeviceClass, error, int) {
 	if !token.IsAdmin() {
 		return deviceClass, errors.New("access denied"), http.StatusForbidden
 	}
@@ -36,14 +38,27 @@ func (this *Controller) PublishDeviceClassCreate(token auth.Token, deviceClass m
 	if err != nil {
 		return deviceClass, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.DeviceClassTopic,
+		ResourceId:   deviceClass.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishDeviceClass(deviceClass, token.GetUserId())
 	if err != nil {
 		return deviceClass, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return deviceClass, err, http.StatusInternalServerError
+	}
+
 	return deviceClass, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceClassUpdate(token auth.Token, id string, deviceClass models.DeviceClass) (models.DeviceClass, error, int) {
+func (this *Controller) PublishDeviceClassUpdate(token auth.Token, id string, deviceClass models.DeviceClass, options model.DeviceClassUpdateOptions) (models.DeviceClass, error, int) {
 	if !token.IsAdmin() {
 		return deviceClass, errors.New("access denied"), http.StatusForbidden
 	}
@@ -59,14 +74,27 @@ func (this *Controller) PublishDeviceClassUpdate(token auth.Token, id string, de
 	if err != nil {
 		return deviceClass, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.DeviceClassTopic,
+		ResourceId:   deviceClass.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishDeviceClass(deviceClass, token.GetUserId())
 	if err != nil {
 		return deviceClass, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return deviceClass, err, http.StatusInternalServerError
+	}
+
 	return deviceClass, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceClassDelete(token auth.Token, id string) (error, int) {
+func (this *Controller) PublishDeviceClassDelete(token auth.Token, id string, options model.DeviceClassDeleteOptions) (error, int) {
 	if !token.IsAdmin() {
 		return errors.New("access denied"), http.StatusForbidden
 	}
@@ -74,9 +102,22 @@ func (this *Controller) PublishDeviceClassDelete(token auth.Token, id string) (e
 	if err != nil {
 		return err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.DeviceClassTopic,
+		ResourceId:   id,
+		Command:      "DELETE",
+	})
+
 	err = this.publisher.PublishDeviceClassDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
 	return nil, http.StatusOK
 }

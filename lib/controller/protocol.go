@@ -20,7 +20,9 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"net/http"
 )
 
@@ -28,7 +30,7 @@ func (this *Controller) ReadProtocol(token auth.Token, id string) (protocol mode
 	return this.com.GetProtocol(token, id)
 }
 
-func (this *Controller) PublishProtocolCreate(token auth.Token, protocol models.Protocol) (models.Protocol, error, int) {
+func (this *Controller) PublishProtocolCreate(token auth.Token, protocol models.Protocol, options model.ProtocolUpdateOptions) (models.Protocol, error, int) {
 	if !token.IsAdmin() {
 		return protocol, errors.New("access denied"), http.StatusForbidden
 	}
@@ -37,14 +39,27 @@ func (this *Controller) PublishProtocolCreate(token auth.Token, protocol models.
 	if err != nil {
 		return protocol, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.ProtocolTopic,
+		ResourceId:   protocol.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishProtocol(protocol, token.GetUserId())
 	if err != nil {
 		return protocol, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return protocol, err, http.StatusInternalServerError
+	}
+
 	return protocol, nil, http.StatusOK
 }
 
-func (this *Controller) PublishProtocolUpdate(token auth.Token, id string, protocol models.Protocol) (models.Protocol, error, int) {
+func (this *Controller) PublishProtocolUpdate(token auth.Token, id string, protocol models.Protocol, options model.ProtocolUpdateOptions) (models.Protocol, error, int) {
 	if !token.IsAdmin() {
 		return protocol, errors.New("access denied"), http.StatusForbidden
 	}
@@ -60,23 +75,49 @@ func (this *Controller) PublishProtocolUpdate(token auth.Token, id string, proto
 	if err != nil {
 		return protocol, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.ProtocolTopic,
+		ResourceId:   protocol.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishProtocol(protocol, token.GetUserId())
 	if err != nil {
 		return protocol, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return protocol, err, http.StatusInternalServerError
+	}
+
 	return protocol, nil, http.StatusOK
 }
 
-func (this *Controller) PublishProtocolDelete(token auth.Token, id string) (error, int) {
+func (this *Controller) PublishProtocolDelete(token auth.Token, id string, options model.ProtocolDeleteOptions) (error, int) {
 	if !token.IsAdmin() {
 		return errors.New("access denied"), http.StatusForbidden
 	}
 	if err := com.PreventIdModifier(id); err != nil {
 		return err, http.StatusBadRequest
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.ProtocolTopic,
+		ResourceId:   id,
+		Command:      "DELETE",
+	})
+
 	err := this.publisher.PublishProtocolDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
 	return nil, http.StatusOK
 }

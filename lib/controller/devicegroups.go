@@ -20,7 +20,9 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
+	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -30,7 +32,7 @@ func (this *Controller) ReadDeviceGroup(token auth.Token, id string) (dt models.
 	return this.com.GetTechnicalDeviceGroup(token, id)
 }
 
-func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg models.DeviceGroup) (result models.DeviceGroup, err error, code int) {
+func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg models.DeviceGroup, options model.DeviceGroupUpdateOptions) (result models.DeviceGroup, err error, code int) {
 	if dg.Id != "" {
 		return result, errors.New("expect empty device-group id"), http.StatusBadRequest
 	}
@@ -45,14 +47,27 @@ func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg models.Dev
 	if err != nil {
 		return dg, err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.DeviceGroupTopic,
+		ResourceId:   dg.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishDeviceGroup(dg, token.GetUserId())
 	if err != nil {
 		return dg, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return dg, err, http.StatusInternalServerError
+	}
+
 	return dg, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg models.DeviceGroup) (result models.DeviceGroup, err error, code int) {
+func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg models.DeviceGroup, options model.DeviceGroupUpdateOptions) (result models.DeviceGroup, err error, code int) {
 	if dg.Id != id {
 		return dg, errors.New("id in body unequal to id in request endpoint"), http.StatusBadRequest
 	}
@@ -89,15 +104,27 @@ func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg
 		owner = token.GetUserId()
 	}
 
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.DeviceGroupTopic,
+		ResourceId:   dg.Id,
+		Command:      "PUT",
+	})
+
 	err = this.publisher.PublishDeviceGroup(dg, owner)
 	if err != nil {
 		debug.PrintStack()
 		return dg, err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return dg, err, http.StatusInternalServerError
+	}
+
 	return dg, nil, http.StatusOK
 }
 
-func (this *Controller) PublishDeviceGroupDelete(token auth.Token, id string) (error, int) {
+func (this *Controller) PublishDeviceGroupDelete(token auth.Token, id string, options model.DeviceGroupDeleteOptions) (error, int) {
 	if err := com.PreventIdModifier(id); err != nil {
 		return err, http.StatusBadRequest
 	}
@@ -105,10 +132,23 @@ func (this *Controller) PublishDeviceGroupDelete(token auth.Token, id string) (e
 	if err != nil {
 		return err, code
 	}
+
+	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
+		ResourceKind: this.config.DeviceGroupTopic,
+		ResourceId:   id,
+		Command:      "DELETE",
+	})
+
 	err = this.publisher.PublishDeviceGroupDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
+
+	err = wait()
+	if err != nil {
+		return err, http.StatusInternalServerError
+	}
+
 	return nil, http.StatusOK
 }
 
