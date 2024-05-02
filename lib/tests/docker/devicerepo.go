@@ -73,15 +73,19 @@ func DeviceRepoWithDependencies(basectx context.Context, wg *sync.WaitGroup) (re
 }
 
 func DeviceRepo(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, mongoUrl string, permsearch string) (hostPort string, ipAddress string, err error) {
+	return DeviceRepoWithEnv(ctx, wg, kafkaUrl, mongoUrl, permsearch, map[string]string{})
+}
+
+func DeviceRepoWithEnv(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, mongoUrl string, permsearch string, env map[string]string) (hostPort string, ipAddress string, err error) {
 	log.Println("start device-repository")
+	env["KAFKA_URL"] = kafkaUrl
+	env["PERMISSIONS_URL"] = permsearch
+	env["MONGO_URL"] = mongoUrl
+	//env["DEBUG"] = "true"
 	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
-			Image: "ghcr.io/senergy-platform/device-repository:dev",
-			Env: map[string]string{
-				"KAFKA_URL":       kafkaUrl,
-				"PERMISSIONS_URL": permsearch,
-				"MONGO_URL":       mongoUrl,
-			},
+			Image:           "ghcr.io/senergy-platform/device-repository:dev",
+			Env:             env,
 			ExposedPorts:    []string{"8080/tcp"},
 			WaitingFor:      wait.ForListeningPort("8080/tcp"),
 			AlwaysPullImage: true,
@@ -99,7 +103,7 @@ func DeviceRepo(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, mongoU
 	}()
 
 	/*
-		err = Dockerlog(ctx, c, "DEVICE-REPOSITORY")
+		err = Dockerlog(c, "DEVICE-REPOSITORY")
 		if err != nil {
 			return "", "", err
 		}
