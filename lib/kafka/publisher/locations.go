@@ -28,19 +28,20 @@ import (
 )
 
 type LocationCommand struct {
-	Command  string          `json:"command"`
-	Id       string          `json:"id"`
-	Owner    string          `json:"owner"`
-	Location models.Location `json:"location"`
+	Command              string          `json:"command"`
+	Id                   string          `json:"id"`
+	Owner                string          `json:"owner"`
+	StrictWaitBeforeDone bool            `json:"strict_wait_before_done"`
+	Location             models.Location `json:"location"`
 }
 
-func (this *Publisher) PublishLocation(Location models.Location, userId string) (err error) {
-	cmd := LocationCommand{Command: "PUT", Id: Location.Id, Location: Location, Owner: userId}
+func (this *Publisher) PublishLocation(Location models.Location, userId string, strictWaitBeforeDone bool) (err error) {
+	cmd := LocationCommand{Command: "PUT", Id: Location.Id, Location: Location, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
 	return this.PublishLocationCommand(cmd)
 }
 
-func (this *Publisher) PublishLocationDelete(id string, userId string) error {
-	cmd := LocationCommand{Command: "DELETE", Id: id, Owner: userId}
+func (this *Publisher) PublishLocationDelete(id string, userId string, strictWaitBeforeDone bool) error {
+	cmd := LocationCommand{Command: "DELETE", Id: id, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
 	return this.PublishLocationCommand(cmd)
 }
 

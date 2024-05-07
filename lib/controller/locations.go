@@ -53,7 +53,7 @@ func (this *Controller) PublishLocationCreate(token auth.Token, location models.
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishLocation(location, token.GetUserId())
+	err = this.publisher.PublishLocation(location, token.GetUserId(), options.Wait)
 	if err != nil {
 		return location, err, http.StatusInternalServerError
 	}
@@ -103,7 +103,7 @@ func (this *Controller) PublishLocationUpdate(token auth.Token, id string, locat
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishLocation(location, owner)
+	err = this.publisher.PublishLocation(location, owner, options.Wait)
 	if err != nil {
 		return location, err, http.StatusInternalServerError
 	}
@@ -131,7 +131,7 @@ func (this *Controller) PublishLocationDelete(token auth.Token, id string, optio
 		Command:      "DELETE",
 	})
 
-	err = this.publisher.PublishLocationDelete(id, token.GetUserId())
+	err = this.publisher.PublishLocationDelete(id, token.GetUserId(), options.Wait)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

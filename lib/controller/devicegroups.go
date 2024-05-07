@@ -54,7 +54,7 @@ func (this *Controller) PublishDeviceGroupCreate(token auth.Token, dg models.Dev
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishDeviceGroup(dg, token.GetUserId())
+	err = this.publisher.PublishDeviceGroup(dg, token.GetUserId(), options.Wait)
 	if err != nil {
 		return dg, err, http.StatusInternalServerError
 	}
@@ -110,7 +110,7 @@ func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishDeviceGroup(dg, owner)
+	err = this.publisher.PublishDeviceGroup(dg, owner, options.Wait)
 	if err != nil {
 		debug.PrintStack()
 		return dg, err, http.StatusInternalServerError
@@ -139,7 +139,7 @@ func (this *Controller) PublishDeviceGroupDelete(token auth.Token, id string, op
 		Command:      "DELETE",
 	})
 
-	err = this.publisher.PublishDeviceGroupDelete(id, token.GetUserId())
+	err = this.publisher.PublishDeviceGroupDelete(id, token.GetUserId(), options.Wait)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

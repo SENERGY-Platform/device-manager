@@ -28,19 +28,20 @@ import (
 )
 
 type DeviceTypeCommand struct {
-	Command    string            `json:"command"`
-	Id         string            `json:"id"`
-	Owner      string            `json:"owner"`
-	DeviceType models.DeviceType `json:"device_type"`
+	Command              string            `json:"command"`
+	Id                   string            `json:"id"`
+	Owner                string            `json:"owner"`
+	StrictWaitBeforeDone bool              `json:"strict_wait_before_done"`
+	DeviceType           models.DeviceType `json:"device_type"`
 }
 
-func (this *Publisher) PublishDeviceType(device models.DeviceType, userId string) (err error) {
-	cmd := DeviceTypeCommand{Command: "PUT", Id: device.Id, DeviceType: device, Owner: userId}
+func (this *Publisher) PublishDeviceType(device models.DeviceType, userId string, strictWaitBeforeDone bool) (err error) {
+	cmd := DeviceTypeCommand{Command: "PUT", Id: device.Id, DeviceType: device, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
 	return this.PublishDeviceTypeCommand(cmd)
 }
 
-func (this *Publisher) PublishDeviceTypeDelete(id string, userId string) error {
-	cmd := DeviceTypeCommand{Command: "DELETE", Id: id, Owner: userId}
+func (this *Publisher) PublishDeviceTypeDelete(id string, userId string, strictWaitBeforeDone bool) error {
+	cmd := DeviceTypeCommand{Command: "DELETE", Id: id, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
 	return this.PublishDeviceTypeCommand(cmd)
 }
 

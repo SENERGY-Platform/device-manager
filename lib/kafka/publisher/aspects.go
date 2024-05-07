@@ -28,19 +28,20 @@ import (
 )
 
 type AspectCommand struct {
-	Command string        `json:"command"`
-	Id      string        `json:"id"`
-	Owner   string        `json:"owner"`
-	Aspect  models.Aspect `json:"aspect"`
+	Command              string        `json:"command"`
+	Id                   string        `json:"id"`
+	Owner                string        `json:"owner"`
+	StrictWaitBeforeDone bool          `json:"strict_wait_before_done"`
+	Aspect               models.Aspect `json:"aspect"`
 }
 
-func (this *Publisher) PublishAspect(aspect models.Aspect, userId string) (err error) {
-	cmd := AspectCommand{Command: "PUT", Id: aspect.Id, Aspect: aspect, Owner: userId}
+func (this *Publisher) PublishAspect(aspect models.Aspect, userId string, strictWaitBeforeDone bool) (err error) {
+	cmd := AspectCommand{Command: "PUT", Id: aspect.Id, Aspect: aspect, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
 	return this.PublishAspectCommand(cmd)
 }
 
-func (this *Publisher) PublishAspectDelete(id string, userId string) error {
-	cmd := AspectCommand{Command: "DELETE", Id: id, Owner: userId}
+func (this *Publisher) PublishAspectDelete(id string, userId string, strictWaitBeforeDone bool) error {
+	cmd := AspectCommand{Command: "DELETE", Id: id, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
 	return this.PublishAspectCommand(cmd)
 }
 

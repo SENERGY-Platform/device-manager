@@ -106,38 +106,38 @@ func NewWithPublisher(conf config.Config, publisher Publisher) (*Controller, err
 }
 
 type Publisher interface {
-	PublishDevice(device models.Device, userID string) (err error)
-	PublishDeviceDelete(id string, userID string) error
+	PublishDevice(device models.Device, userID string, strictWaitBeforeDone bool) (err error)
+	PublishDeviceDelete(id string, userID string, strictWaitBeforeDone bool) error
 
-	PublishDeviceType(device models.DeviceType, userID string) (err error)
-	PublishDeviceTypeDelete(id string, userID string) error
+	PublishDeviceType(device models.DeviceType, userID string, strictWaitBeforeDone bool) (err error)
+	PublishDeviceTypeDelete(id string, userID string, strictWaitBeforeDone bool) error
 
-	PublishDeviceGroup(device models.DeviceGroup, userID string) (err error)
-	PublishDeviceGroupDelete(id string, userID string) error
+	PublishDeviceGroup(device models.DeviceGroup, userID string, strictWaitBeforeDone bool) (err error)
+	PublishDeviceGroupDelete(id string, userID string, strictWaitBeforeDone bool) error
 
-	PublishProtocol(device models.Protocol, userID string) (err error)
-	PublishProtocolDelete(id string, userID string) error
+	PublishProtocol(device models.Protocol, userID string, strictWaitBeforeDone bool) (err error)
+	PublishProtocolDelete(id string, userID string, strictWaitBeforeDone bool) error
 
-	PublishHub(hub models.Hub, userID string) (err error)
-	PublishHubDelete(id string, userID string) error
+	PublishHub(hub models.Hub, userID string, strictWaitBeforeDone bool) (err error)
+	PublishHubDelete(id string, userID string, strictWaitBeforeDone bool) error
 
-	PublishConcept(concept models.Concept, userID string) (err error)
-	PublishConceptDelete(id string, userID string) error
+	PublishConcept(concept models.Concept, userID string, strictWaitBeforeDone bool) (err error)
+	PublishConceptDelete(id string, userID string, strictWaitBeforeDone bool) error
 
-	PublishCharacteristic(characteristic models.Characteristic, userID string) (err error)
-	PublishCharacteristicDelete(id string, userID string) error
+	PublishCharacteristic(characteristic models.Characteristic, userID string, strictWaitBeforeDone bool) (err error)
+	PublishCharacteristicDelete(id string, userID string, strictWaitBeforeDone bool) error
 
-	PublishAspect(device models.Aspect, userID string) (err error)
-	PublishAspectDelete(id string, userID string) error
+	PublishAspect(device models.Aspect, userID string, strictWaitBeforeDone bool) (err error)
+	PublishAspectDelete(id string, userID string, strictWaitBeforeDone bool) error
 
-	PublishFunction(device models.Function, userID string) (err error)
-	PublishFunctionDelete(id string, userID string) error
+	PublishFunction(device models.Function, userID string, strictWaitBeforeDone bool) (err error)
+	PublishFunctionDelete(id string, userID string, strictWaitBeforeDone bool) error
 
-	PublishDeviceClass(device models.DeviceClass, userID string) (err error)
-	PublishDeviceClassDelete(id string, userID string) error
+	PublishDeviceClass(device models.DeviceClass, userID string, strictWaitBeforeDone bool) (err error)
+	PublishDeviceClassDelete(id string, userID string, strictWaitBeforeDone bool) error
 
-	PublishLocation(device models.Location, userID string) (err error)
-	PublishLocationDelete(id string, userID string) error
+	PublishLocation(device models.Location, userID string, strictWaitBeforeDone bool) (err error)
+	PublishLocationDelete(id string, userID string, strictWaitBeforeDone bool) error
 
 	PublishRights(kind string, id string, element permmodel.ResourceRightsBase) error
 }

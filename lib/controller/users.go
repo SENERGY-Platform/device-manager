@@ -56,7 +56,7 @@ func (this *Controller) DeleteUser(userId string) error {
 		return err
 	}
 	for _, id := range devicesToDelete {
-		err = this.publisher.PublishDeviceDelete(id, userId)
+		err = this.publisher.PublishDeviceDelete(id, userId, false)
 		if err != nil {
 			return err
 		}
@@ -73,7 +73,7 @@ func (this *Controller) DeleteUser(userId string) error {
 		return err
 	}
 	for _, id := range deviceGroupToDelete {
-		err = this.publisher.PublishDeviceGroupDelete(id, userId)
+		err = this.publisher.PublishDeviceGroupDelete(id, userId, false)
 		if err != nil {
 			return err
 		}
@@ -90,7 +90,7 @@ func (this *Controller) DeleteUser(userId string) error {
 		return err
 	}
 	for _, id := range hubToDelete {
-		err = this.publisher.PublishHubDelete(id, userId)
+		err = this.publisher.PublishHubDelete(id, userId, false)
 		if err != nil {
 			return err
 		}
@@ -107,7 +107,7 @@ func (this *Controller) DeleteUser(userId string) error {
 		return err
 	}
 	for _, id := range locationToDelete {
-		err = this.publisher.PublishLocationDelete(id, userId)
+		err = this.publisher.PublishLocationDelete(id, userId, false)
 		if err != nil {
 			return err
 		}

@@ -46,7 +46,7 @@ func (this *Controller) PublishProtocolCreate(token auth.Token, protocol models.
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishProtocol(protocol, token.GetUserId())
+	err = this.publisher.PublishProtocol(protocol, token.GetUserId(), options.Wait)
 	if err != nil {
 		return protocol, err, http.StatusInternalServerError
 	}
@@ -82,7 +82,7 @@ func (this *Controller) PublishProtocolUpdate(token auth.Token, id string, proto
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishProtocol(protocol, token.GetUserId())
+	err = this.publisher.PublishProtocol(protocol, token.GetUserId(), options.Wait)
 	if err != nil {
 		return protocol, err, http.StatusInternalServerError
 	}
@@ -109,7 +109,7 @@ func (this *Controller) PublishProtocolDelete(token auth.Token, id string, optio
 		Command:      "DELETE",
 	})
 
-	err := this.publisher.PublishProtocolDelete(id, token.GetUserId())
+	err := this.publisher.PublishProtocolDelete(id, token.GetUserId(), options.Wait)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

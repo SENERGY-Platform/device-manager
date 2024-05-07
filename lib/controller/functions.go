@@ -45,7 +45,7 @@ func (this *Controller) PublishFunctionCreate(token auth.Token, function models.
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishFunction(function, token.GetUserId())
+	err = this.publisher.PublishFunction(function, token.GetUserId(), options.Wait)
 	if err != nil {
 		return function, err, http.StatusInternalServerError
 	}
@@ -81,7 +81,7 @@ func (this *Controller) PublishFunctionUpdate(token auth.Token, id string, funct
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishFunction(function, token.GetUserId())
+	err = this.publisher.PublishFunction(function, token.GetUserId(), options.Wait)
 	if err != nil {
 		return function, err, http.StatusInternalServerError
 	}
@@ -109,7 +109,7 @@ func (this *Controller) PublishFunctionDelete(token auth.Token, id string, optio
 		Command:      "DELETE",
 	})
 
-	err = this.publisher.PublishFunctionDelete(id, token.GetUserId())
+	err = this.publisher.PublishFunctionDelete(id, token.GetUserId(), options.Wait)
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

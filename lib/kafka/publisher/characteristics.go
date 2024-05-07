@@ -28,19 +28,20 @@ import (
 )
 
 type CharacteristicCommand struct {
-	Command        string                `json:"command"`
-	Id             string                `json:"id"`
-	Owner          string                `json:"owner"`
-	Characteristic models.Characteristic `json:"characteristic"`
+	Command              string                `json:"command"`
+	Id                   string                `json:"id"`
+	Owner                string                `json:"owner"`
+	StrictWaitBeforeDone bool                  `json:"strict_wait_before_done"`
+	Characteristic       models.Characteristic `json:"characteristic"`
 }
 
-func (this *Publisher) PublishCharacteristic(characteristic models.Characteristic, userId string) (err error) {
-	cmd := CharacteristicCommand{Command: "PUT", Id: characteristic.Id, Owner: userId, Characteristic: characteristic}
+func (this *Publisher) PublishCharacteristic(characteristic models.Characteristic, userId string, strictWaitBeforeDone bool) (err error) {
+	cmd := CharacteristicCommand{Command: "PUT", Id: characteristic.Id, Owner: userId, Characteristic: characteristic, StrictWaitBeforeDone: strictWaitBeforeDone}
 	return this.PublishCharacteristicCommand(cmd)
 }
 
-func (this *Publisher) PublishCharacteristicDelete(id string, userId string) error {
-	cmd := CharacteristicCommand{Command: "DELETE", Id: id, Owner: userId}
+func (this *Publisher) PublishCharacteristicDelete(id string, userId string, strictWaitBeforeDone bool) error {
+	cmd := CharacteristicCommand{Command: "DELETE", Id: id, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
 	return this.PublishCharacteristicCommand(cmd)
 }
 
