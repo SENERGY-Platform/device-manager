@@ -26,91 +26,91 @@ type Void struct{}
 
 var VoidPublisherError = errors.New("try to use void publisher")
 
-func (this Void) PublishDevice(device models.Device, userID string, strictWaitBeforeDone bool) (err error) {
+func (this Void) PublishDevice(device models.Device, userID string) (err error) {
 	return VoidPublisherError
 }
 
-func (this Void) PublishDeviceDelete(id string, userID string, strictWaitBeforeDone bool) error {
+func (this Void) PublishDeviceDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 
-func (this Void) PublishDeviceType(device models.DeviceType, userID string, strictWaitBeforeDone bool) (err error) {
+func (this Void) PublishDeviceType(device models.DeviceType, userID string) (err error) {
 	return VoidPublisherError
 }
 
-func (this Void) PublishDeviceTypeDelete(id string, userID string, strictWaitBeforeDone bool) error {
+func (this Void) PublishDeviceTypeDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 
-func (this Void) PublishDeviceGroup(device models.DeviceGroup, userID string, strictWaitBeforeDone bool) (err error) {
+func (this Void) PublishDeviceGroup(device models.DeviceGroup, userID string) (err error) {
 	return VoidPublisherError
 }
 
-func (this Void) PublishDeviceGroupDelete(id string, userID string, strictWaitBeforeDone bool) error {
+func (this Void) PublishDeviceGroupDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 
-func (this Void) PublishProtocol(device models.Protocol, userID string, strictWaitBeforeDone bool) (err error) {
+func (this Void) PublishProtocol(device models.Protocol, userID string) (err error) {
 	return VoidPublisherError
 }
 
-func (this Void) PublishProtocolDelete(id string, userID string, strictWaitBeforeDone bool) error {
+func (this Void) PublishProtocolDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 
-func (this Void) PublishHub(hub models.Hub, userID string, strictWaitBeforeDone bool) (err error) {
+func (this Void) PublishHub(hub models.Hub, userID string) (err error) {
 	return VoidPublisherError
 }
 
-func (this Void) PublishHubDelete(id string, userID string, strictWaitBeforeDone bool) error {
+func (this Void) PublishHubDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 
-func (this Void) PublishConcept(concept models.Concept, userID string, strictWaitBeforeDone bool) (err error) {
+func (this Void) PublishConcept(concept models.Concept, userID string) (err error) {
 	return VoidPublisherError
 }
 
-func (this Void) PublishConceptDelete(id string, userID string, strictWaitBeforeDone bool) error {
+func (this Void) PublishConceptDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 
-func (this Void) PublishCharacteristic(characteristic models.Characteristic, userID string, strictWaitBeforeDone bool) (err error) {
+func (this Void) PublishCharacteristic(characteristic models.Characteristic, userID string) (err error) {
 	return VoidPublisherError
 }
 
-func (this Void) PublishCharacteristicDelete(id string, userID string, strictWaitBeforeDone bool) error {
+func (this Void) PublishCharacteristicDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 
-func (this Void) PublishAspect(device models.Aspect, userID string, strictWaitBeforeDone bool) (err error) {
+func (this Void) PublishAspect(device models.Aspect, userID string) (err error) {
 	return VoidPublisherError
 }
 
-func (this Void) PublishAspectDelete(id string, userID string, strictWaitBeforeDone bool) error {
+func (this Void) PublishAspectDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 
-func (this Void) PublishFunction(device models.Function, userID string, strictWaitBeforeDone bool) (err error) {
+func (this Void) PublishFunction(device models.Function, userID string) (err error) {
 	return VoidPublisherError
 }
 
-func (this Void) PublishFunctionDelete(id string, userID string, strictWaitBeforeDone bool) error {
+func (this Void) PublishFunctionDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 
-func (this Void) PublishDeviceClass(device models.DeviceClass, userID string, strictWaitBeforeDone bool) (err error) {
+func (this Void) PublishDeviceClass(device models.DeviceClass, userID string) (err error) {
 	return VoidPublisherError
 }
 
-func (this Void) PublishDeviceClassDelete(id string, userID string, strictWaitBeforeDone bool) error {
+func (this Void) PublishDeviceClassDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 
-func (this Void) PublishLocation(device models.Location, userID string, strictWaitBeforeDone bool) (err error) {
+func (this Void) PublishLocation(device models.Location, userID string) (err error) {
 	return VoidPublisherError
 }
 
-func (this Void) PublishLocationDelete(id string, userID string, strictWaitBeforeDone bool) error {
+func (this Void) PublishLocationDelete(id string, userID string) error {
 	return VoidPublisherError
 }
 

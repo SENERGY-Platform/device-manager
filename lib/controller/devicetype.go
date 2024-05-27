@@ -53,7 +53,7 @@ func (this *Controller) PublishDeviceTypeCreate(token auth.Token, dt models.Devi
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishDeviceType(dt, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishDeviceType(dt, token.GetUserId())
 	if err != nil {
 		return dt, err, http.StatusInternalServerError
 	}
@@ -92,7 +92,7 @@ func (this *Controller) PublishDeviceTypeUpdate(token auth.Token, id string, dt 
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishDeviceType(dt, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishDeviceType(dt, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return dt, err, http.StatusInternalServerError
@@ -128,7 +128,7 @@ func (this *Controller) PublishDeviceTypeDelete(token auth.Token, id string, opt
 		Command:      "DELETE",
 	})
 
-	err = this.publisher.PublishDeviceTypeDelete(id, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishDeviceTypeDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

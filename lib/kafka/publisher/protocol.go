@@ -28,20 +28,22 @@ import (
 )
 
 type ProtocolCommand struct {
-	Command              string          `json:"command"`
-	Id                   string          `json:"id"`
-	Owner                string          `json:"owner"`
-	StrictWaitBeforeDone bool            `json:"strict_wait_before_done"`
-	Protocol             models.Protocol `json:"protocol"`
+	Command  string          `json:"command"`
+	Id       string          `json:"id"`
+	Owner    string          `json:"owner"`
+	Protocol models.Protocol `json:"protocol"`
+
+	//field has been removed but can still exist as value in kafka
+	//StrictWaitBeforeDone bool          `json:"strict_wait_before_done"`
 }
 
-func (this *Publisher) PublishProtocol(protocol models.Protocol, userId string, strictWaitBeforeDone bool) (err error) {
-	cmd := ProtocolCommand{Command: "PUT", Id: protocol.Id, Protocol: protocol, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishProtocol(protocol models.Protocol, userId string) (err error) {
+	cmd := ProtocolCommand{Command: "PUT", Id: protocol.Id, Protocol: protocol, Owner: userId}
 	return this.PublishProtocolCommand(cmd)
 }
 
-func (this *Publisher) PublishProtocolDelete(id string, userId string, strictWaitBeforeDone bool) error {
-	cmd := ProtocolCommand{Command: "DELETE", Id: id, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishProtocolDelete(id string, userId string) error {
+	cmd := ProtocolCommand{Command: "DELETE", Id: id, Owner: userId}
 	return this.PublishProtocolCommand(cmd)
 }
 

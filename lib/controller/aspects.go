@@ -45,7 +45,7 @@ func (this *Controller) PublishAspectCreate(token auth.Token, aspect models.Aspe
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishAspect(aspect, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishAspect(aspect, token.GetUserId())
 	if err != nil {
 		return aspect, err, http.StatusInternalServerError
 	}
@@ -81,7 +81,7 @@ func (this *Controller) PublishAspectUpdate(token auth.Token, id string, aspect 
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishAspect(aspect, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishAspect(aspect, token.GetUserId())
 	if err != nil {
 		return aspect, err, http.StatusInternalServerError
 	}
@@ -109,7 +109,7 @@ func (this *Controller) PublishAspectDelete(token auth.Token, id string, options
 		Command:      "DELETE",
 	})
 
-	err = this.publisher.PublishAspectDelete(id, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishAspectDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

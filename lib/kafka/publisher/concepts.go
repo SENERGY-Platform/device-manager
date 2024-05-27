@@ -28,20 +28,22 @@ import (
 )
 
 type ConceptCommand struct {
-	Command              string         `json:"command"`
-	Id                   string         `json:"id"`
-	Owner                string         `json:"owner"`
-	StrictWaitBeforeDone bool           `json:"strict_wait_before_done"`
-	Concept              models.Concept `json:"concept"`
+	Command string         `json:"command"`
+	Id      string         `json:"id"`
+	Owner   string         `json:"owner"`
+	Concept models.Concept `json:"concept"`
+
+	//field has been removed but can still exist as value in kafka
+	//StrictWaitBeforeDone bool          `json:"strict_wait_before_done"`
 }
 
-func (this *Publisher) PublishConcept(concept models.Concept, userId string, strictWaitBeforeDone bool) (err error) {
-	cmd := ConceptCommand{Command: "PUT", Id: concept.Id, Concept: concept, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishConcept(concept models.Concept, userId string) (err error) {
+	cmd := ConceptCommand{Command: "PUT", Id: concept.Id, Concept: concept, Owner: userId}
 	return this.PublishConceptCommand(cmd)
 }
 
-func (this *Publisher) PublishConceptDelete(id string, userId string, strictWaitBeforeDone bool) error {
-	cmd := ConceptCommand{Command: "DELETE", Id: id, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishConceptDelete(id string, userId string) error {
+	cmd := ConceptCommand{Command: "DELETE", Id: id, Owner: userId}
 	return this.PublishConceptCommand(cmd)
 }
 

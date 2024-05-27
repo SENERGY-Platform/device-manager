@@ -28,20 +28,22 @@ import (
 )
 
 type HubCommand struct {
-	Command              string     `json:"command"`
-	Id                   string     `json:"id"`
-	Owner                string     `json:"owner"`
-	StrictWaitBeforeDone bool       `json:"strict_wait_before_done"`
-	Hub                  models.Hub `json:"hub"`
+	Command string     `json:"command"`
+	Id      string     `json:"id"`
+	Owner   string     `json:"owner"`
+	Hub     models.Hub `json:"hub"`
+
+	//field has been removed but can still exist as value in kafka
+	//StrictWaitBeforeDone bool          `json:"strict_wait_before_done"`
 }
 
-func (this *Publisher) PublishHub(hub models.Hub, userId string, strictWaitBeforeDone bool) (err error) {
-	cmd := HubCommand{Command: "PUT", Id: hub.Id, Hub: hub, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishHub(hub models.Hub, userId string) (err error) {
+	cmd := HubCommand{Command: "PUT", Id: hub.Id, Hub: hub, Owner: userId}
 	return this.PublishHubCommand(cmd)
 }
 
-func (this *Publisher) PublishHubDelete(id string, userId string, strictWaitBeforeDone bool) error {
-	cmd := HubCommand{Command: "DELETE", Id: id, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishHubDelete(id string, userId string) error {
+	cmd := HubCommand{Command: "DELETE", Id: id, Owner: userId}
 	return this.PublishHubCommand(cmd)
 }
 

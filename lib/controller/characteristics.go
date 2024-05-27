@@ -43,7 +43,7 @@ func (this *Controller) PublishCharacteristicCreate(token auth.Token, characteri
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishCharacteristic(characteristic, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishCharacteristic(characteristic, token.GetUserId())
 	if err != nil {
 		return characteristic, err, http.StatusInternalServerError
 	}
@@ -82,7 +82,7 @@ func (this *Controller) PublishCharacteristicUpdate(token auth.Token, characteri
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishCharacteristic(characteristic, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishCharacteristic(characteristic, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return characteristic, err, http.StatusInternalServerError
@@ -112,7 +112,7 @@ func (this *Controller) PublishCharacteristicDelete(token auth.Token, id string,
 		Command:      "DELETE",
 	})
 
-	err = this.publisher.PublishCharacteristicDelete(id, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishCharacteristicDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

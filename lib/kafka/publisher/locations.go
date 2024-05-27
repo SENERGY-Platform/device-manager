@@ -28,20 +28,22 @@ import (
 )
 
 type LocationCommand struct {
-	Command              string          `json:"command"`
-	Id                   string          `json:"id"`
-	Owner                string          `json:"owner"`
-	StrictWaitBeforeDone bool            `json:"strict_wait_before_done"`
-	Location             models.Location `json:"location"`
+	Command  string          `json:"command"`
+	Id       string          `json:"id"`
+	Owner    string          `json:"owner"`
+	Location models.Location `json:"location"`
+
+	//field has been removed but can still exist as value in kafka
+	//StrictWaitBeforeDone bool          `json:"strict_wait_before_done"`
 }
 
-func (this *Publisher) PublishLocation(Location models.Location, userId string, strictWaitBeforeDone bool) (err error) {
-	cmd := LocationCommand{Command: "PUT", Id: Location.Id, Location: Location, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishLocation(Location models.Location, userId string) (err error) {
+	cmd := LocationCommand{Command: "PUT", Id: Location.Id, Location: Location, Owner: userId}
 	return this.PublishLocationCommand(cmd)
 }
 
-func (this *Publisher) PublishLocationDelete(id string, userId string, strictWaitBeforeDone bool) error {
-	cmd := LocationCommand{Command: "DELETE", Id: id, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishLocationDelete(id string, userId string) error {
+	cmd := LocationCommand{Command: "DELETE", Id: id, Owner: userId}
 	return this.PublishLocationCommand(cmd)
 }
 

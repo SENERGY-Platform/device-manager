@@ -46,7 +46,7 @@ func (this *Controller) PublishConceptCreate(token auth.Token, concept models.Co
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishConcept(concept, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishConcept(concept, token.GetUserId())
 	if err != nil {
 		return concept, err, http.StatusInternalServerError
 	}
@@ -85,7 +85,7 @@ func (this *Controller) PublishConceptUpdate(token auth.Token, id string, concep
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishConcept(concept, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishConcept(concept, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return concept, err, http.StatusInternalServerError
@@ -115,7 +115,7 @@ func (this *Controller) PublishConceptDelete(token auth.Token, id string, option
 		Command:      "DELETE",
 	})
 
-	err = this.publisher.PublishConceptDelete(id, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishConceptDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

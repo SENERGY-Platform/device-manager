@@ -28,20 +28,22 @@ import (
 )
 
 type DeviceTypeCommand struct {
-	Command              string            `json:"command"`
-	Id                   string            `json:"id"`
-	Owner                string            `json:"owner"`
-	StrictWaitBeforeDone bool              `json:"strict_wait_before_done"`
-	DeviceType           models.DeviceType `json:"device_type"`
+	Command    string            `json:"command"`
+	Id         string            `json:"id"`
+	Owner      string            `json:"owner"`
+	DeviceType models.DeviceType `json:"device_type"`
+
+	//field has been removed but can still exist as value in kafka
+	//StrictWaitBeforeDone bool          `json:"strict_wait_before_done"`
 }
 
-func (this *Publisher) PublishDeviceType(device models.DeviceType, userId string, strictWaitBeforeDone bool) (err error) {
-	cmd := DeviceTypeCommand{Command: "PUT", Id: device.Id, DeviceType: device, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishDeviceType(device models.DeviceType, userId string) (err error) {
+	cmd := DeviceTypeCommand{Command: "PUT", Id: device.Id, DeviceType: device, Owner: userId}
 	return this.PublishDeviceTypeCommand(cmd)
 }
 
-func (this *Publisher) PublishDeviceTypeDelete(id string, userId string, strictWaitBeforeDone bool) error {
-	cmd := DeviceTypeCommand{Command: "DELETE", Id: id, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishDeviceTypeDelete(id string, userId string) error {
+	cmd := DeviceTypeCommand{Command: "DELETE", Id: id, Owner: userId}
 	return this.PublishDeviceTypeCommand(cmd)
 }
 

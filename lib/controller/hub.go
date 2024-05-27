@@ -49,7 +49,7 @@ func (this *Controller) PublishHubCreate(token auth.Token, hubEdit models.HubEdi
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishHub(hub, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishHub(hub, token.GetUserId())
 	if err != nil {
 		return hub, err, http.StatusInternalServerError
 	}
@@ -104,7 +104,7 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishHub(hub, userId, options.Wait)
+	err = this.publisher.PublishHub(hub, userId)
 	if err != nil {
 		return hub, err, http.StatusInternalServerError
 	}
@@ -132,7 +132,7 @@ func (this *Controller) PublishHubDelete(token auth.Token, id string, options mo
 		Command:      "DELETE",
 	})
 
-	err = this.publisher.PublishHubDelete(id, token.GetUserId(), options.Wait)
+	err = this.publisher.PublishHubDelete(id, token.GetUserId())
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}

@@ -28,20 +28,22 @@ import (
 )
 
 type FunctionCommand struct {
-	Command              string          `json:"command"`
-	Id                   string          `json:"id"`
-	Owner                string          `json:"owner"`
-	StrictWaitBeforeDone bool            `json:"strict_wait_before_done"`
-	Function             models.Function `json:"function"`
+	Command  string          `json:"command"`
+	Id       string          `json:"id"`
+	Owner    string          `json:"owner"`
+	Function models.Function `json:"function"`
+
+	//field has been removed but can still exist as value in kafka
+	//StrictWaitBeforeDone bool          `json:"strict_wait_before_done"`
 }
 
-func (this *Publisher) PublishFunction(function models.Function, userId string, strictWaitBeforeDone bool) (err error) {
-	cmd := FunctionCommand{Command: "PUT", Id: function.Id, Function: function, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishFunction(function models.Function, userId string) (err error) {
+	cmd := FunctionCommand{Command: "PUT", Id: function.Id, Function: function, Owner: userId}
 	return this.PublishFunctionCommand(cmd)
 }
 
-func (this *Publisher) PublishFunctionDelete(id string, userId string, strictWaitBeforeDone bool) error {
-	cmd := FunctionCommand{Command: "DELETE", Id: id, Owner: userId, StrictWaitBeforeDone: strictWaitBeforeDone}
+func (this *Publisher) PublishFunctionDelete(id string, userId string) error {
+	cmd := FunctionCommand{Command: "DELETE", Id: id, Owner: userId}
 	return this.PublishFunctionCommand(cmd)
 }
 
