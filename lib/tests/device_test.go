@@ -19,6 +19,7 @@ package tests
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/SENERGY-Platform/device-manager/lib/api"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
 	"github.com/SENERGY-Platform/models/go/models"
@@ -684,6 +685,7 @@ func testDevice(t *testing.T, port string) {
 
 func tryDeviceDisplayNameUpdate(port string, deviceId string, displayName string, expectedDevice models.Device) func(t *testing.T) {
 	return func(t *testing.T) {
+		expectedDevice.OwnerId = userjwtUser
 		resp, err := helper.Jwtput(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(deviceId)+"/display_name", displayName)
 		if err != nil {
 			t.Fatal(err)
@@ -811,7 +813,8 @@ func initDevice(port string, dt models.DeviceType) (models.Device, error) {
 		return models.Device{}, err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return models.Device{}, errors.New(resp.Status)
+		temp, _ := io.ReadAll(resp.Body)
+		return models.Device{}, fmt.Errorf("%v %v", resp.Status, string(temp))
 	}
 	result := models.Device{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
@@ -819,6 +822,7 @@ func initDevice(port string, dt models.DeviceType) (models.Device, error) {
 		return models.Device{}, err
 	}
 	device.Id = result.Id
+	device.OwnerId = userjwtUser
 	if !reflect.DeepEqual(result, device) {
 		log.Printf("ERROR: \n%#v\n!=\n%#v\n", result, device)
 		return models.Device{}, errors.New("returned device != expected device")

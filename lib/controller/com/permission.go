@@ -58,6 +58,27 @@ func (this *Com) GetResourceOwner(token auth.Token, kind string, id string, righ
 	return temp[0].Creator, true, nil
 }
 
+func (this *Com) GetResourceRights(token auth.Token, kind string, id string, rights string) (result permmodel.EntryResult, found bool, err error) {
+	temp, _, err := client.Query[[]permmodel.EntryResult](this.perm, token.Jwt(), client.QueryMessage{
+		Resource: kind,
+		ListIds: &permmodel.QueryListIds{
+			QueryListCommons: permmodel.QueryListCommons{
+				Limit:  1,
+				Offset: 0,
+				Rights: rights,
+			},
+			Ids: []string{id},
+		},
+	})
+	if err != nil {
+		return result, false, err
+	}
+	if len(temp) == 0 {
+		return result, false, nil
+	}
+	return temp[0], true, nil
+}
+
 func (this *Com) PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int) {
 	ids = append(ids, removeIdModifiers(ids)...)
 	ids = RemoveDuplicates(ids)

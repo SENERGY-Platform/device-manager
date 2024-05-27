@@ -145,6 +145,7 @@ type Publisher interface {
 type Com interface {
 	ResourcesEffectedByUserDelete(token auth.Token, resource string) (deleteResourceIds []string, deleteUserFromResourceIds []string, err error)
 	GetResourceOwner(token auth.Token, kind string, id string, rights string) (owner string, found bool, err error)
+	GetResourceRights(token auth.Token, kind string, id string, rights string) (result permmodel.EntryResult, found bool, err error)
 	GetPermissions(token auth.Token, kind string, id string) (permmodel.ResourceRights, error)
 
 	GetTechnicalDeviceGroup(token auth.Token, id string) (dt models.DeviceGroup, err error, code int)

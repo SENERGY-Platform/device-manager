@@ -26,6 +26,7 @@ import (
 	"log"
 	"net/http"
 	"runtime/debug"
+	"slices"
 )
 
 func (this *Controller) DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, errCode int) {
@@ -43,6 +44,11 @@ func (this *Controller) ReadDevice(token auth.Token, id string) (device models.D
 
 func (this *Controller) PublishDeviceCreate(token auth.Token, device models.Device, options model.DeviceCreateOptions) (models.Device, error, int) {
 	device.GenerateId()
+	if device.OwnerId != "" && device.OwnerId != token.GetUserId() {
+		return device, errors.New("new devices must be initialised with the requesting user as owner-id"), http.StatusBadRequest
+	}
+	device.OwnerId = token.GetUserId()
+
 	err, code := this.com.ValidateDevice(token, device)
 	if err != nil {
 		return device, err, code
@@ -80,13 +86,33 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 		}
 	}
 
+	var original models.Device
+	original, err, code = this.com.GetDevice(token, device.Id)
+	if err != nil && code != http.StatusNotFound {
+		return device, err, code
+	} else {
+		//device does not exist, but we want to continue to enable admins to create devices with a predetermined id
+		err, code = nil, 200
+	}
 	if len(options.UpdateOnlySameOriginAttributes) > 0 {
-		var original models.Device
-		original, err, code = this.com.GetDevice(token, device.Id)
-		if err != nil {
-			return device, err, code
-		}
 		device.Attributes = updateSameOriginAttributes(original.Attributes, device.Attributes, options.UpdateOnlySameOriginAttributes)
+	}
+
+	//set device owner-id if none is given
+	//prefer existing owner, fallback to requesting user
+	if device.OwnerId == "" {
+		device.OwnerId = original.OwnerId //may be empty for new devices
+	}
+	if device.OwnerId == "" {
+		device.OwnerId = token.GetUserId()
+	}
+
+	//only old owner or system-admin may set new owner
+	if original.OwnerId != device.OwnerId && //change happened
+		original.OwnerId != "" && //is not a new device
+		!token.IsAdmin() &&
+		original.OwnerId != token.GetUserId() {
+		return device, errors.New("only old owner or system-admin may set new owner"), http.StatusBadRequest
 	}
 
 	err, code = this.com.ValidateDevice(token, device)
@@ -94,13 +120,20 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 		return device, err, code
 	}
 
-	//ensure retention of original owner
-	owner, found, err := this.com.GetResourceOwner(token, this.config.DeviceTopic, device.Id, "w")
+	rights, found, err := this.com.GetResourceRights(token, this.config.DeviceTopic, device.Id, "w")
 	if err != nil {
 		log.Println("ERROR:", err)
 		debug.PrintStack()
 		return device, err, http.StatusInternalServerError
 	}
+
+	//new device owner-id must be existing admin user (ignore for new devices or devices with unchanged owner)
+	if found && device.OwnerId != original.OwnerId && !slices.Contains(rights.PermissionHolders.AdminUsers, device.OwnerId) {
+		return device, errors.New("new owner must have existing user admin rights"), http.StatusBadRequest
+	}
+
+	//ensure retention of original owner
+	owner := rights.Creator
 	if !found || owner == "" {
 		owner = token.GetUserId()
 	}
