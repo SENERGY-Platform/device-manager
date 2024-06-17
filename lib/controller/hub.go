@@ -26,6 +26,7 @@ import (
 	"log"
 	"net/http"
 	"runtime/debug"
+	"slices"
 )
 
 func (this *Controller) ReadHub(token auth.Token, id string) (hub models.Hub, err error, code int) {
@@ -38,6 +39,10 @@ func (this *Controller) PublishHubCreate(token auth.Token, hubEdit models.HubEdi
 		return hub, err, code
 	}
 	hub.GenerateId()
+	if hub.OwnerId != "" && hub.OwnerId != token.GetUserId() {
+		return hub, errors.New("new devices must be initialised with the requesting user as owner-id"), http.StatusBadRequest
+	}
+	hub.OwnerId = token.GetUserId()
 	err, code = this.com.ValidateHub(token, hub)
 	if err != nil {
 		return hub, err, code
@@ -79,9 +84,50 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 		}
 	}
 
+	var original models.Hub
+	original, err, code = this.com.GetHub(token, hub.Id)
+	if err != nil && code != http.StatusNotFound {
+		return hub, err, code
+	} else {
+		//hub does not exist, but we want to continue to enable admins to create devices with a predetermined id
+		err, code = nil, 200
+	}
+
+	//set device owner-id if none is given
+	//prefer existing owner, fallback to requesting user
+	if hub.OwnerId == "" {
+		hub.OwnerId = original.OwnerId //may be empty for new devices
+	}
+	if hub.OwnerId == "" {
+		hub.OwnerId = token.GetUserId()
+	}
+
+	//only old owner or system-admin may set new owner
+	if original.OwnerId != hub.OwnerId && //change happened
+		original.OwnerId != "" && //is not a new device
+		!token.IsAdmin() &&
+		original.OwnerId != token.GetUserId() {
+		return hub, errors.New("only old owner or system-admin may set new owner"), http.StatusBadRequest
+	}
+
 	err, code = this.com.ValidateHub(token, hub)
 	if err != nil {
 		return hub, err, code
+	}
+
+	rights, found, err := this.com.GetResourceRights(token, this.config.DeviceTopic, hub.Id, "w")
+	if err != nil {
+		log.Println("ERROR:", err)
+		debug.PrintStack()
+		return hub, err, http.StatusInternalServerError
+	}
+
+	//new device owner-id must be existing admin user (ignore for new devices or devices with unchanged owner)
+	if found && hub.OwnerId != original.OwnerId && !slices.Contains(rights.PermissionHolders.AdminUsers, hub.OwnerId) {
+		return hub, errors.New("new owner must have existing user admin rights"), http.StatusBadRequest
+	}
+	if found && hub.OwnerId != original.OwnerId && !slices.Contains(rights.PermissionHolders.AdminUsers, token.GetUserId()) {
+		return hub, errors.New("requesting user must have admin rights"), http.StatusBadRequest
 	}
 
 	//ensure retention of original owner

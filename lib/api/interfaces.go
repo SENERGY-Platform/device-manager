@@ -34,6 +34,7 @@ type Controller interface {
 	PublishDeviceTypeDelete(token auth.Token, id string, options model.DeviceTypeDeleteOptions) (err error, code int)
 
 	ReadDevice(token auth.Token, id string) (device models.Device, err error, code int)
+	//deprecated: TODO: add owner-id
 	ReadDeviceByLocalId(token auth.Token, localId string) (device models.Device, err error, errCode int)
 	PublishDeviceCreate(token auth.Token, device models.Device, options model.DeviceCreateOptions) (result models.Device, err error, code int)
 	PublishDeviceUpdate(token auth.Token, id string, device models.Device, options model.DeviceUpdateOptions) (result models.Device, err error, code int)
@@ -59,6 +60,7 @@ type Controller interface {
 	PublishCharacteristicDelete(token auth.Token, id string, options model.CharacteristicDeleteOptions) (err error, code int)
 	ReadCharacteristic(token auth.Token, id string) (result models.Characteristic, err error, code int)
 
+	//deprecated: TODO: add owner-id
 	DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, errCode int)
 
 	ReadAspect(token auth.Token, id string) (device models.Aspect, err error, code int)

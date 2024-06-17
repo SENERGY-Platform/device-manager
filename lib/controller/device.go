@@ -131,6 +131,9 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 	if found && device.OwnerId != original.OwnerId && !slices.Contains(rights.PermissionHolders.AdminUsers, device.OwnerId) {
 		return device, errors.New("new owner must have existing user admin rights"), http.StatusBadRequest
 	}
+	if found && device.OwnerId != original.OwnerId && !slices.Contains(rights.PermissionHolders.AdminUsers, token.GetUserId()) {
+		return device, errors.New("requesting user must have admin rights"), http.StatusBadRequest
+	}
 
 	//ensure retention of original owner
 	owner := rights.Creator
