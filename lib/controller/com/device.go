@@ -17,21 +17,49 @@
 package com
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/models/go/models"
+	"io"
 	"net/http"
 	"net/url"
+	"runtime/debug"
 )
 
-// expects previous permission check and use own admin jwt to access device
+func (this *Com) ListDevices(token auth.Token, query url.Values) (devices []models.Device, err error, code int) {
+	req, err := http.NewRequest("GET", this.config.DeviceRepoUrl+"/devices?"+query.Encode(), nil)
+	if err != nil {
+		debug.PrintStack()
+		return devices, err, http.StatusInternalServerError
+	}
+	req.Header.Set("Authorization", token.Token)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		debug.PrintStack()
+		return devices, err, http.StatusInternalServerError
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		buf, _ := io.ReadAll(resp.Body)
+		err = fmt.Errorf("error: status=%v; body=%v", resp.StatusCode, string(buf))
+		return devices, err, resp.StatusCode
+	}
+	err = json.NewDecoder(resp.Body).Decode(&devices)
+	if err != nil {
+		debug.PrintStack()
+		return devices, err, http.StatusInternalServerError
+	}
+	return devices, nil, http.StatusOK
+}
+
 func (this *Com) GetDevice(token auth.Token, id string) (device models.Device, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/devices", id, &device)
 	return
 }
 
-// expects previous permission check and use own admin jwt to access device
-func (this *Com) GetDeviceByLocalId(token auth.Token, localid string) (device models.Device, err error, code int) {
-	err, code = getResourceFromServiceWithQueryParam(token, this.config.DeviceRepoUrl+"/devices", localid, url.Values{"as": {"local_id"}}, &device)
+func (this *Com) GetDeviceByLocalId(token auth.Token, ownerId string, localid string) (device models.Device, err error, code int) {
+	err, code = getResourceFromServiceWithQueryParam(token, this.config.DeviceRepoUrl+"/devices", localid, url.Values{"as": {"local_id"}, "owner_id": {ownerId}}, &device)
 	return
 }
 

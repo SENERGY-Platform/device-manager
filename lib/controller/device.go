@@ -25,17 +25,22 @@ import (
 	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"log"
 	"net/http"
+	"net/url"
 	"runtime/debug"
 	"slices"
 )
 
-func (this *Controller) DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, errCode int) {
-	device, err, code := this.com.GetDeviceByLocalId(token, localId)
+func (this *Controller) ListDevices(token auth.Token, query url.Values) (devices []models.Device, err error, code int) {
+	return this.com.ListDevices(token, query)
+}
+
+func (this *Controller) DeviceLocalIdToId(token auth.Token, ownerId string, localId string) (id string, err error, errCode int) {
+	device, err, code := this.com.GetDeviceByLocalId(token, ownerId, localId)
 	return device.Id, err, code
 }
 
-func (this *Controller) ReadDeviceByLocalId(token auth.Token, localId string) (device models.Device, err error, errCode int) {
-	return this.com.GetDeviceByLocalId(token, localId)
+func (this *Controller) ReadDeviceByLocalId(token auth.Token, ownerId string, localId string) (device models.Device, err error, errCode int) {
+	return this.com.GetDeviceByLocalId(token, ownerId, localId)
 }
 
 func (this *Controller) ReadDevice(token auth.Token, id string) (device models.Device, err error, code int) {

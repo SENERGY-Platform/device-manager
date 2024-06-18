@@ -20,6 +20,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"net/url"
 )
 
 type Controller interface {
@@ -33,9 +34,9 @@ type Controller interface {
 	PublishDeviceTypeUpdate(token auth.Token, id string, dt models.DeviceType, options model.DeviceTypeUpdateOptions) (result models.DeviceType, err error, code int)
 	PublishDeviceTypeDelete(token auth.Token, id string, options model.DeviceTypeDeleteOptions) (err error, code int)
 
+	ListDevices(token auth.Token, query url.Values) (devices []models.Device, err error, code int)
 	ReadDevice(token auth.Token, id string) (device models.Device, err error, code int)
-	//deprecated: TODO: add owner-id
-	ReadDeviceByLocalId(token auth.Token, localId string) (device models.Device, err error, errCode int)
+	ReadDeviceByLocalId(token auth.Token, ownerId string, localId string) (device models.Device, err error, errCode int)
 	PublishDeviceCreate(token auth.Token, device models.Device, options model.DeviceCreateOptions) (result models.Device, err error, code int)
 	PublishDeviceUpdate(token auth.Token, id string, device models.Device, options model.DeviceUpdateOptions) (result models.Device, err error, code int)
 	PublishDeviceDelete(token auth.Token, id string, options model.DeviceDeleteOptions) (err error, code int)
@@ -60,8 +61,7 @@ type Controller interface {
 	PublishCharacteristicDelete(token auth.Token, id string, options model.CharacteristicDeleteOptions) (err error, code int)
 	ReadCharacteristic(token auth.Token, id string) (result models.Characteristic, err error, code int)
 
-	//deprecated: TODO: add owner-id
-	DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, errCode int)
+	DeviceLocalIdToId(token auth.Token, ownerId string, localId string) (id string, err error, errCode int)
 
 	ReadAspect(token auth.Token, id string) (device models.Aspect, err error, code int)
 	PublishAspectCreate(token auth.Token, aspect models.Aspect, options model.AspectUpdateOptions) (result models.Aspect, err error, code int)

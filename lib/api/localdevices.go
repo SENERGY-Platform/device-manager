@@ -44,7 +44,11 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.ReadDeviceByLocalId(token, id)
+		ownerId := request.URL.Query().Get("owner_id")
+		if ownerId == "" {
+			ownerId = token.GetUserId()
+		}
+		result, err, errCode := control.ReadDeviceByLocalId(token, ownerId, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -104,7 +108,8 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		id, err, errCode := control.DeviceLocalIdToId(token, id)
+		ownerId := token.GetUserId()
+		id, err, errCode := control.DeviceLocalIdToId(token, ownerId, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -157,7 +162,11 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		id, err, errCode := control.DeviceLocalIdToId(token, id)
+		ownerId := request.URL.Query().Get("owner_id")
+		if ownerId == "" {
+			ownerId = token.GetUserId()
+		}
+		id, err, errCode := control.DeviceLocalIdToId(token, ownerId, id)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
