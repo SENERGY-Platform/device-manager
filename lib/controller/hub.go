@@ -18,6 +18,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
@@ -85,12 +86,16 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 	}
 
 	var original models.Hub
+	var exists bool
 	original, err, code = this.com.GetHub(token, hub.Id)
 	if err != nil && code != http.StatusNotFound {
 		return hub, err, code
-	} else {
-		//hub does not exist, but we want to continue to enable admins to create devices with a predetermined id
+	}
+	if err != nil {
 		err, code = nil, 200
+		exists = false
+	} else {
+		exists = true
 	}
 
 	//set device owner-id if none is given
@@ -102,12 +107,15 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 		hub.OwnerId = token.GetUserId()
 	}
 
-	//only old owner or system-admin may set new owner
-	if original.OwnerId != hub.OwnerId && //change happened
-		original.OwnerId != "" && //is not a new device
-		!token.IsAdmin() &&
-		original.OwnerId != token.GetUserId() {
-		return hub, errors.New("only old owner or system-admin may set new owner"), http.StatusBadRequest
+	if exists && original.OwnerId != hub.OwnerId && !token.IsAdmin() {
+		err, code := this.com.PermissionCheckForHub(token, hub.Id, "a")
+		if err != nil {
+			if code == http.StatusForbidden {
+				return hub, fmt.Errorf("only admins may set new owner: %w", err), http.StatusBadRequest
+			} else {
+				return hub, err, code
+			}
+		}
 	}
 
 	err, code = this.com.ValidateHub(token, hub)
@@ -126,19 +134,16 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 	if found && hub.OwnerId != original.OwnerId && !slices.Contains(rights.PermissionHolders.AdminUsers, hub.OwnerId) {
 		return hub, errors.New("new owner must have existing user admin rights"), http.StatusBadRequest
 	}
-	if found && hub.OwnerId != original.OwnerId && !slices.Contains(rights.PermissionHolders.AdminUsers, token.GetUserId()) {
-		return hub, errors.New("requesting user must have admin rights"), http.StatusBadRequest
-	}
 
-	//ensure retention of original owner
-	owner, found, err := this.com.GetResourceOwner(token, this.config.HubTopic, hub.Id, "w")
+	//ensure retention of original creator
+	creator, found, err := this.com.GetResourceOwner(token, this.config.HubTopic, hub.Id, "w")
 	if err != nil {
 		log.Println("ERROR:", err)
 		debug.PrintStack()
 		return hub, err, http.StatusInternalServerError
 	}
-	if found && owner != "" {
-		userId = owner
+	if found && creator != "" {
+		userId = creator
 	}
 	if userId == "" {
 		userId = token.GetUserId()

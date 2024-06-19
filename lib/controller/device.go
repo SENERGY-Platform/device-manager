@@ -18,6 +18,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
@@ -92,14 +93,19 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 	}
 
 	var original models.Device
+	var exists bool
 	original, err, code = this.com.GetDevice(token, device.Id)
 	if err != nil && code != http.StatusNotFound {
 		return device, err, code
-	} else {
-		//device does not exist, but we want to continue to enable admins to create devices with a predetermined id
-		err, code = nil, 200
 	}
-	if len(options.UpdateOnlySameOriginAttributes) > 0 {
+	if err != nil {
+		err, code = nil, 200
+		exists = false
+	} else {
+		exists = true
+	}
+
+	if exists && len(options.UpdateOnlySameOriginAttributes) > 0 {
 		device.Attributes = updateSameOriginAttributes(original.Attributes, device.Attributes, options.UpdateOnlySameOriginAttributes)
 	}
 
@@ -112,12 +118,15 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 		device.OwnerId = token.GetUserId()
 	}
 
-	//only old owner or system-admin may set new owner
-	if original.OwnerId != device.OwnerId && //change happened
-		original.OwnerId != "" && //is not a new device
-		!token.IsAdmin() &&
-		original.OwnerId != token.GetUserId() {
-		return device, errors.New("only old owner or system-admin may set new owner"), http.StatusBadRequest
+	if exists && original.OwnerId != device.OwnerId && original.OwnerId != "" && !token.IsAdmin() {
+		err, code := this.com.PermissionCheckForDevice(token, device.Id, "a")
+		if err != nil {
+			if code == http.StatusForbidden {
+				return device, fmt.Errorf("only admins may set new owner: %w", err), http.StatusBadRequest
+			} else {
+				return device, err, code
+			}
+		}
 	}
 
 	err, code = this.com.ValidateDevice(token, device)
@@ -136,14 +145,11 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 	if found && device.OwnerId != original.OwnerId && !slices.Contains(rights.PermissionHolders.AdminUsers, device.OwnerId) {
 		return device, errors.New("new owner must have existing user admin rights"), http.StatusBadRequest
 	}
-	if found && device.OwnerId != original.OwnerId && !slices.Contains(rights.PermissionHolders.AdminUsers, token.GetUserId()) {
-		return device, errors.New("requesting user must have admin rights"), http.StatusBadRequest
-	}
 
-	//ensure retention of original owner
-	owner := rights.Creator
-	if !found || owner == "" {
-		owner = token.GetUserId()
+	//ensure retention of original creator
+	creator := rights.Creator
+	if !found || creator == "" {
+		creator = token.GetUserId()
 	}
 
 	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
@@ -152,7 +158,7 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishDevice(device, owner)
+	err = this.publisher.PublishDevice(device, creator)
 	if err != nil {
 		return device, err, http.StatusInternalServerError
 	}
