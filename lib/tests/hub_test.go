@@ -18,6 +18,7 @@ package tests
 
 import (
 	"encoding/json"
+	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
 	"github.com/SENERGY-Platform/models/go/models"
 	"io"
@@ -25,7 +26,348 @@ import (
 	"net/url"
 	"reflect"
 	"testing"
+	"time"
 )
+
+func testHubOwner(t *testing.T, conf config.Config) {
+	//replace sleep with wait=true query parameter
+	tempSleepAfterEdit := helper.SleepAfterEdit
+	helper.SleepAfterEdit = 0
+	defer func() {
+		helper.SleepAfterEdit = tempSleepAfterEdit
+	}()
+
+	hub1 := models.Hub{}
+	t.Run("create hubs with implicit owner", func(t *testing.T) {
+		hub := models.Hub{
+			Name: "hub1",
+		}
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/hubs?wait=true", hub)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&hub1)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		hub.Id = hub1.Id
+		hub.OwnerId = userjwtUser
+		hub.DeviceIds = []string{}
+		hub.DeviceLocalIds = []string{}
+		hub1.DeviceIds = []string{}
+		hub1.DeviceLocalIds = []string{}
+		if !reflect.DeepEqual(hub1, hub) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", hub1, hub)
+			return
+		}
+	})
+
+	t.Run("check hub1 after create", func(t *testing.T) {
+		resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub1.Id)+"?wait=true")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		hub := models.Hub{}
+		err = json.NewDecoder(resp.Body).Decode(&hub)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		hub.DeviceIds = []string{}
+		hub.DeviceLocalIds = []string{}
+		hub1.DeviceIds = []string{}
+		hub1.DeviceLocalIds = []string{}
+		if !reflect.DeepEqual(hub1, hub) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", hub1, hub)
+			return
+		}
+	})
+
+	hub2 := models.Hub{}
+	t.Run("create hub with explicit owner", func(t *testing.T) {
+		hub := models.Hub{
+			Name:    "hub1",
+			OwnerId: userjwtUser,
+		}
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/hubs?wait=true", hub)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&hub2)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		hub.Id = hub2.Id
+		hub.OwnerId = userjwtUser
+		hub.DeviceIds = []string{}
+		hub.DeviceLocalIds = []string{}
+		hub2.DeviceIds = []string{}
+		hub2.DeviceLocalIds = []string{}
+		if !reflect.DeepEqual(hub2, hub) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", hub2, hub)
+			return
+		}
+	})
+
+	t.Run("check hub2 after create", func(t *testing.T) {
+		resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub2.Id)+"?wait=true")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		hub := models.Hub{}
+		err = json.NewDecoder(resp.Body).Decode(&hub)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		hub.DeviceIds = []string{}
+		hub.DeviceLocalIds = []string{}
+		hub2.DeviceIds = []string{}
+		hub2.DeviceLocalIds = []string{}
+		if !reflect.DeepEqual(hub2, hub) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", hub2, hub)
+			return
+		}
+	})
+
+	t.Run("update hub with implicit owner", func(t *testing.T) {
+		hub := hub1
+		hub.Name = "hub1 update1"
+		resp, err := helper.Jwtput(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub.Id)+"?wait=true", hub)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&hub1)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(hub1, hub) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", hub1, hub)
+			return
+		}
+	})
+
+	t.Run("check hub after update", func(t *testing.T) {
+		resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub1.Id)+"?wait=true")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		hub := models.Hub{}
+		err = json.NewDecoder(resp.Body).Decode(&hub)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(hub1, hub) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", hub1, hub)
+			return
+		}
+	})
+
+	t.Run("update hub with explicit owner", func(t *testing.T) {
+		hub := hub1
+		hub.Name = "hub1 update2"
+		hub.OwnerId = userjwtUser
+		resp, err := helper.Jwtput(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub.Id)+"?wait=true", hub)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&hub1)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(hub1, hub) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", hub1, hub)
+			return
+		}
+	})
+
+	t.Run("check hub after update", func(t *testing.T) {
+		resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub1.Id)+"?wait=true")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		hub := models.Hub{}
+		err = json.NewDecoder(resp.Body).Decode(&hub)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(hub1, hub) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", hub1, hub)
+			return
+		}
+	})
+
+	t.Run("try create hub with foreign owner", func(t *testing.T) {
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/hubs?wait=true", models.Hub{
+			Name:    "hub1",
+			OwnerId: userjwtUser,
+		})
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode == http.StatusOK {
+			t.Error("expect error")
+			return
+		}
+	})
+
+	t.Run("try change owner to none admin user", func(t *testing.T) {
+		hub := hub1
+		hub.OwnerId = userid
+		resp, err := helper.Jwtput(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub.Id)+"?wait=true", hub)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode == http.StatusOK {
+			t.Error("expect error")
+			return
+		}
+	})
+
+	t.Run("give user admin rights", func(t *testing.T) {
+		resp, err := helper.Jwtput(userjwt, conf.PermissionsUrl+"/v3/administrate/rights/hubs/"+url.PathEscape(hub1.Id), map[string]interface{}{
+			"user_rights": map[string]interface{}{
+				userjwtUser: map[string]interface{}{
+					"read":         true,
+					"write":        true,
+					"execute":      true,
+					"administrate": true,
+				},
+				userid: map[string]interface{}{
+					"read":         true,
+					"write":        true,
+					"execute":      true,
+					"administrate": true,
+				},
+			},
+			"group_rights": map[string]interface{}{
+				"admin": map[string]interface{}{
+					"read":         true,
+					"write":        true,
+					"execute":      true,
+					"administrate": true,
+				},
+			},
+		})
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		time.Sleep(5 * time.Second)
+	})
+
+	t.Run("change owner to other admin user", func(t *testing.T) {
+		hub := hub1
+		hub.OwnerId = userid
+		resp, err := helper.Jwtput(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub.Id)+"?wait=true", hub)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		err = json.NewDecoder(resp.Body).Decode(&hub1)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(hub1, hub) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", hub1, hub)
+			return
+		}
+	})
+
+	t.Run("check hub after update", func(t *testing.T) {
+		resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/hubs/"+url.PathEscape(hub1.Id)+"?wait=true")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		hub := models.Hub{}
+		err = json.NewDecoder(resp.Body).Decode(&hub)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(hub1, hub) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", hub1, hub)
+			return
+		}
+	})
+}
 
 func testHub(t *testing.T, port string) {
 	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{

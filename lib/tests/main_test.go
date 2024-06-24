@@ -218,8 +218,17 @@ func tests(t *testing.T, conf config.Config, mock bool) {
 	})
 
 	t.Run("testLocalDevice", func(t *testing.T) {
-		t.Skip("missing endpoint in permissions search mock")
+		if mock {
+			t.Skip("missing endpoint in permissions search mock")
+		}
 		testLocalDevice(t, conf.ServerPort)
+	})
+
+	t.Run("test device owner", func(t *testing.T) {
+		if mock {
+			t.Skip("the mocks are not implemented for this test")
+		}
+		testDeviceOwner(t, conf)
 	})
 
 	t.Run("testHub", func(t *testing.T) {
@@ -227,6 +236,13 @@ func tests(t *testing.T, conf config.Config, mock bool) {
 			t.Skip("the mocks are not implemented for this test (completeHub() wont find devices)")
 		}
 		testHub(t, conf.ServerPort)
+	})
+
+	t.Run("test hub owner", func(t *testing.T) {
+		if mock {
+			t.Skip("the mocks are not implemented for this test")
+		}
+		testHubOwner(t, conf)
 	})
 
 	t.Run("testConcepts", func(t *testing.T) {

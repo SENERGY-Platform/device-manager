@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/SENERGY-Platform/device-manager/lib/api"
+	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/google/uuid"
@@ -31,7 +32,405 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+	"time"
 )
+
+func testDeviceOwner(t *testing.T, conf config.Config) {
+	//replace sleep with wait=true query parameter
+	tempSleepAfterEdit := helper.SleepAfterEdit
+	helper.SleepAfterEdit = 0
+	defer func() {
+		helper.SleepAfterEdit = tempSleepAfterEdit
+	}()
+	protocol := models.Protocol{}
+	t.Run("create protocol", func(t *testing.T) {
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/protocols?wait=true", models.Protocol{
+			Name:             "p2",
+			Handler:          "ph1",
+			ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
+		})
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Error(resp.Status, resp.StatusCode, string(b))
+			return
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&protocol)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	})
+
+	dt := models.DeviceType{}
+	t.Run("create device-type", func(t *testing.T) {
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/device-types?wait=true", models.DeviceType{
+			Name:          "foo",
+			DeviceClassId: "dc1",
+			Services: []models.Service{
+				{
+					Name:    "s1name",
+					LocalId: "lid1",
+					Inputs: []models.Content{
+						{
+							ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
+							Serialization:     "json",
+							ContentVariable: models.ContentVariable{
+								Name:       "v1name",
+								Type:       models.String,
+								FunctionId: f1Id,
+								AspectId:   a1Id,
+							},
+						},
+					},
+					ProtocolId: protocol.Id,
+				},
+			},
+		})
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+		err = json.NewDecoder(resp.Body).Decode(&dt)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	})
+
+	device1 := models.Device{}
+	t.Run("create device with implicit owner", func(t *testing.T) {
+		device := models.Device{
+			Name:         "device1",
+			LocalId:      uuid.New().String(),
+			DeviceTypeId: dt.Id,
+		}
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/devices?wait=true", device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&device1)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		device.Id = device1.Id
+		device.OwnerId = userjwtUser
+		if !reflect.DeepEqual(device1, device) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", device1, device)
+			return
+		}
+	})
+
+	t.Run("check device1 after create", func(t *testing.T) {
+		resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device1.Id)+"?wait=true")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		device := models.Device{}
+		err = json.NewDecoder(resp.Body).Decode(&device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(device1, device) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", device1, device)
+			return
+		}
+	})
+
+	device2 := models.Device{}
+	t.Run("create device with explicit owner", func(t *testing.T) {
+		device := models.Device{
+			Name:         "device1",
+			LocalId:      uuid.New().String(),
+			DeviceTypeId: dt.Id,
+			OwnerId:      userjwtUser,
+		}
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/devices?wait=true", device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&device2)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		device.Id = device2.Id
+		device.OwnerId = userjwtUser
+		if !reflect.DeepEqual(device2, device) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", device2, device)
+			return
+		}
+	})
+
+	t.Run("check device2 after create", func(t *testing.T) {
+		resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device2.Id)+"?wait=true")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		device := models.Device{}
+		err = json.NewDecoder(resp.Body).Decode(&device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(device2, device) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", device2, device)
+			return
+		}
+	})
+
+	t.Run("update device with implicit owner", func(t *testing.T) {
+		device := device1
+		device.Name = "device1 update1"
+		resp, err := helper.Jwtput(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device.Id)+"?wait=true", device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&device1)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(device1, device) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", device1, device)
+			return
+		}
+	})
+
+	t.Run("check device after update", func(t *testing.T) {
+		resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device1.Id)+"?wait=true")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		device := models.Device{}
+		err = json.NewDecoder(resp.Body).Decode(&device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(device1, device) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", device1, device)
+			return
+		}
+	})
+
+	t.Run("update device with explicit owner", func(t *testing.T) {
+		device := device1
+		device.Name = "device1 update2"
+		device.OwnerId = userjwtUser
+		resp, err := helper.Jwtput(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device.Id)+"?wait=true", device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+
+		err = json.NewDecoder(resp.Body).Decode(&device1)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(device1, device) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", device1, device)
+			return
+		}
+	})
+
+	t.Run("check device after update", func(t *testing.T) {
+		resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device1.Id)+"?wait=true")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		device := models.Device{}
+		err = json.NewDecoder(resp.Body).Decode(&device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(device1, device) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", device1, device)
+			return
+		}
+	})
+
+	t.Run("try create device with foreign owner", func(t *testing.T) {
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/devices?wait=true", models.Device{
+			Name:         "device1",
+			LocalId:      uuid.New().String(),
+			DeviceTypeId: dt.Id,
+			OwnerId:      userjwtUser,
+		})
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode == http.StatusOK {
+			t.Error("expect error")
+			return
+		}
+	})
+
+	t.Run("try change owner to none admin user", func(t *testing.T) {
+		device := device1
+		device.OwnerId = userid
+		resp, err := helper.Jwtput(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device.Id)+"?wait=true", device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode == http.StatusOK {
+			t.Error("expect error")
+			return
+		}
+	})
+
+	t.Run("give user admin rights", func(t *testing.T) {
+		resp, err := helper.Jwtput(userjwt, conf.PermissionsUrl+"/v3/administrate/rights/devices/"+url.PathEscape(device1.Id), map[string]interface{}{
+			"user_rights": map[string]interface{}{
+				userjwtUser: map[string]interface{}{
+					"read":         true,
+					"write":        true,
+					"execute":      true,
+					"administrate": true,
+				},
+				userid: map[string]interface{}{
+					"read":         true,
+					"write":        true,
+					"execute":      true,
+					"administrate": true,
+				},
+			},
+			"group_rights": map[string]interface{}{
+				"admin": map[string]interface{}{
+					"read":         true,
+					"write":        true,
+					"execute":      true,
+					"administrate": true,
+				},
+			},
+		})
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		time.Sleep(5 * time.Second)
+	})
+
+	t.Run("change owner to other admin user", func(t *testing.T) {
+		device := device1
+		device.OwnerId = userid
+		resp, err := helper.Jwtput(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device.Id)+"?wait=true", device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		err = json.NewDecoder(resp.Body).Decode(&device1)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(device1, device) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", device1, device)
+			return
+		}
+	})
+
+	t.Run("check device after update", func(t *testing.T) {
+		resp, err := helper.Jwtget(userjwt, "http://localhost:"+conf.ServerPort+"/devices/"+url.PathEscape(device1.Id)+"?wait=true")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			temp, _ := io.ReadAll(resp.Body)
+			t.Errorf("%v %v", resp.Status, string(temp))
+			return
+		}
+		device := models.Device{}
+		err = json.NewDecoder(resp.Body).Decode(&device)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if !reflect.DeepEqual(device1, device) {
+			t.Errorf("ERROR: \n%#v\n!=\n%#v\n", device1, device)
+			return
+		}
+	})
+}
 
 func testDeviceAttributes(t *testing.T, port string) {
 	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
