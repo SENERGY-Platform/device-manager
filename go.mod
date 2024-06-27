@@ -12,7 +12,7 @@ require (
 )
 
 require (
-	github.com/SENERGY-Platform/models/go v0.0.0-20240617111104-23d3c83dc312
+	github.com/SENERGY-Platform/models/go v0.0.0-20240627082833-157bd627a94f
 	github.com/SENERGY-Platform/permission-search v0.0.13
 	github.com/SENERGY-Platform/service-commons v0.0.0-20240423132428-8eccbc027e71
 	github.com/testcontainers/testcontainers-go v0.31.0

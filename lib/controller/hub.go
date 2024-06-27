@@ -26,15 +26,17 @@ import (
 	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"log"
 	"net/http"
+	"net/url"
 	"runtime/debug"
 	"slices"
+	"strings"
 )
 
 func (this *Controller) ReadHub(token auth.Token, id string) (hub models.Hub, err error, code int) {
 	return this.com.GetHub(token, id)
 }
 
-func (this *Controller) PublishHubCreate(token auth.Token, hubEdit models.HubEdit, options model.HubUpdateOptions) (models.Hub, error, int) {
+func (this *Controller) PublishHubCreate(token auth.Token, hubEdit models.Hub, options model.HubUpdateOptions) (models.Hub, error, int) {
 	hub, err, code := this.completeHub(token, hubEdit)
 	if err != nil {
 		return hub, err, code
@@ -68,7 +70,7 @@ func (this *Controller) PublishHubCreate(token auth.Token, hubEdit models.HubEdi
 	return hub, nil, http.StatusOK
 }
 
-func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId string, hubEdit models.HubEdit, options model.HubUpdateOptions) (models.Hub, error, int) {
+func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId string, hubEdit models.Hub, options model.HubUpdateOptions) (models.Hub, error, int) {
 	if hubEdit.Id != id {
 		return models.Hub{}, errors.New("hub id in body unequal to hub id in request endpoint"), http.StatusBadRequest
 	}
@@ -200,7 +202,14 @@ type IdWrapper struct {
 	Id string `json:"id"`
 }
 
-func (this *Controller) completeHub(token auth.Token, edit models.HubEdit) (result models.Hub, err error, code int) {
+func (this *Controller) completeHub(token auth.Token, edit models.Hub) (result models.Hub, err error, code int) {
+	result = edit
+	if result.DeviceLocalIds == nil {
+		result.DeviceLocalIds = []string{}
+	}
+	if result.DeviceIds == nil {
+		result.DeviceIds = []string{}
+	}
 	idWrapperList := []IdWrapper{}
 	err, code = this.com.QueryPermissionsSearch(token.Jwt(), com.QueryMessage{
 		Resource: "devices",
@@ -222,11 +231,22 @@ func (this *Controller) completeHub(token auth.Token, edit models.HubEdit) (resu
 	if err != nil {
 		return result, err, code
 	}
-	result = edit.ToHub()
-	result.DeviceIds = []string{}
 	for _, id := range idWrapperList {
-		result.DeviceIds = append(result.DeviceIds, id.Id)
+		if !slices.Contains(result.DeviceIds, id.Id) {
+			result.DeviceIds = append(result.DeviceIds, id.Id)
+		}
 	}
+
+	devicesById, err, code := this.ListDevices(token, url.Values{"ids": {strings.Join(edit.DeviceIds, ",")}})
+	if err != nil {
+		return result, err, code
+	}
+	for _, device := range devicesById {
+		if !slices.Contains(result.DeviceLocalIds, device.LocalId) {
+			result.DeviceLocalIds = append(result.DeviceLocalIds, device.LocalId)
+		}
+	}
+
 	if len(result.DeviceIds) != len(result.DeviceLocalIds) {
 		return result, errors.New("not all local device ids found"), http.StatusBadRequest
 	}

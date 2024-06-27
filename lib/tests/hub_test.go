@@ -370,28 +370,31 @@ func testHubOwner(t *testing.T, conf config.Config) {
 }
 
 func testHub(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols?wait=true", models.Protocol{
 		Name:             "p2",
 		Handler:          "ph1",
 		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
 	})
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
+		t.Error(resp.Status, resp.StatusCode, string(b))
+		return
 	}
 
 	protocol := models.Protocol{}
 	err = json.NewDecoder(resp.Body).Decode(&protocol)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
 		Services: []models.Service{
@@ -415,151 +418,310 @@ func testHub(t *testing.T, port string) {
 		},
 	})
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
+		t.Error(resp.Status, resp.StatusCode, string(b))
+		return
 	}
 
 	dt := models.DeviceType{}
 	err = json.NewDecoder(resp.Body).Decode(&dt)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 
 	if dt.Id == "" {
-		t.Fatal(dt)
+		t.Error(dt)
+		return
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
-		Name:         "d2",
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
+		Name:         "d1",
 		DeviceTypeId: dt.Id,
-		LocalId:      "lid2",
+		LocalId:      "hublid1",
 	})
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		t.Fatal(resp.Status, resp.StatusCode)
+		t.Error(resp.Status, resp.StatusCode)
+		return
 	}
 
-	device := models.Device{}
-	err = json.NewDecoder(resp.Body).Decode(&device)
+	device1 := models.Device{}
+	err = json.NewDecoder(resp.Body).Decode(&device1)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 
-	if device.Id == "" {
-		t.Fatal(device)
+	if device1.Id == "" {
+		t.Error(device1)
+		return
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.Hub{})
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
+		Name:         "d2",
+		DeviceTypeId: dt.Id,
+		LocalId:      "hublid2",
+	})
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Error(resp.Status, resp.StatusCode)
+		return
+	}
+
+	device2 := models.Device{}
+	err = json.NewDecoder(resp.Body).Decode(&device2)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if device2.Id == "" {
+		t.Error(device2)
+		return
+	}
+
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs?wait=true", models.Hub{})
+	if err != nil {
+		t.Error(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	//expect validation error
 	if resp.StatusCode == http.StatusOK {
-		t.Fatal(resp.Status, resp.StatusCode)
+		t.Error(resp.Status, resp.StatusCode)
+		return
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.HubEdit{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs?wait=true", models.Hub{
 		Name:           "h1",
 		DeviceLocalIds: []string{"unknown"},
 	})
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	//expect validation error
 	if resp.StatusCode == http.StatusOK {
-		t.Fatal(resp.Status, resp.StatusCode)
+		t.Error(resp.Status, resp.StatusCode)
+		return
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.HubEdit{
-		Name:           "h1",
-		Hash:           "foobar",
-		DeviceLocalIds: []string{device.LocalId},
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs?wait=true", models.Hub{
+		Name:      "h1",
+		DeviceIds: []string{"unknown"},
 	})
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
+	}
+	defer resp.Body.Close()
+
+	//expect validation error
+	if resp.StatusCode == http.StatusOK {
+		resultHub := models.Hub{}
+		json.NewDecoder(resp.Body).Decode(&resultHub)
+		t.Errorf("%v %#v", resp.Status, resultHub)
+		return
+	}
+
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs?wait=true", models.Hub{
+		Name:           "h1",
+		Hash:           "foobar",
+		DeviceLocalIds: []string{device1.LocalId},
+	})
+	if err != nil {
+		t.Error(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
+		t.Error(resp.Status, resp.StatusCode, string(b))
+		return
 	}
 
 	hub := models.Hub{}
 	err = json.NewDecoder(resp.Body).Decode(&hub)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 
 	if hub.Id == "" {
-		t.Fatal(hub)
+		t.Error(hub)
+		return
+	}
+	if hub.Name != "h1" || hub.Hash != "foobar" || !reflect.DeepEqual(hub.DeviceLocalIds, []string{device1.LocalId}) || !reflect.DeepEqual(hub.DeviceIds, []string{device1.Id}) {
+		t.Error(hub)
+		return
 	}
 
-	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id)+"/name", "h1_changed")
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs?wait=true", models.Hub{
+		Name:      "h2",
+		Hash:      "foobar",
+		DeviceIds: []string{device2.Id},
+	})
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
+		t.Error(resp.Status, resp.StatusCode, string(b))
+		return
 	}
 
-	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
+	hub2 := models.Hub{}
+	err = json.NewDecoder(resp.Body).Decode(&hub2)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
+	}
+
+	if hub2.Id == "" {
+		t.Error(hub)
+		return
+	}
+	if hub2.Name != "h2" || hub2.Hash != "foobar" || !reflect.DeepEqual(hub2.DeviceLocalIds, []string{device2.LocalId}) || !reflect.DeepEqual(hub2.DeviceIds, []string{device2.Id}) {
+		t.Error(hub2)
+		return
+	}
+
+	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id)+"/name?wait=true", "h1_changed")
+	if err != nil {
+		t.Error(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
+		t.Error(resp.Status, resp.StatusCode, string(b))
+		return
+	}
+
+	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub2.Id)+"/name?wait=true", "h2_changed")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(resp.Body)
+		t.Error(resp.Status, resp.StatusCode, string(b))
+		return
 	}
 
 	result := models.Hub{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 
-	if result.Name != "h1_changed" || result.Hash != "foobar" || !reflect.DeepEqual(result.DeviceLocalIds, []string{device.LocalId}) {
-		t.Fatal(result)
+	if result.Name != "h2_changed" || result.Hash != "foobar" || !reflect.DeepEqual(result.DeviceLocalIds, []string{device2.LocalId}) || !reflect.DeepEqual(result.DeviceIds, []string{device2.Id}) {
+		t.Error(result)
+		return
 	}
 
-	resp, err = helper.Jwtdelete(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
+	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
+		t.Error(resp.Status, resp.StatusCode, string(b))
+		return
+	}
+
+	result = models.Hub{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if result.Name != "h1_changed" || result.Hash != "foobar" || !reflect.DeepEqual(result.DeviceLocalIds, []string{device1.LocalId}) || !reflect.DeepEqual(result.DeviceIds, []string{device1.Id}) {
+		t.Error(result)
+		return
+	}
+
+	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub2.Id))
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(resp.Body)
+		t.Error(resp.Status, resp.StatusCode, string(b))
+		return
+	}
+
+	result = models.Hub{}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if result.Name != "h2_changed" || result.Hash != "foobar" || !reflect.DeepEqual(result.DeviceLocalIds, []string{device2.LocalId}) || !reflect.DeepEqual(result.DeviceIds, []string{device2.Id}) {
+		t.Error(result)
+		return
+	}
+
+	resp, err = helper.Jwtdelete(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(resp.Body)
+		t.Error(resp.Status, resp.StatusCode, string(b))
+		return
 	}
 
 	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		return
 	}
 	defer resp.Body.Close()
 
 	//expect 404 error
 	if resp.StatusCode != http.StatusNotFound {
-		t.Fatal(resp.Status, resp.StatusCode)
+		t.Error(resp.Status, resp.StatusCode)
+		return
 	}
 }
 
@@ -682,7 +844,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.HubEdit{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.Hub{
 		Name:           "h2",
 		Hash:           "foobar",
 		DeviceLocalIds: []string{"lid3", "lid4", "lid5"},
@@ -693,7 +855,8 @@ func testHubAssertions(t *testing.T, port string) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		t.Fatal(resp.Status, resp.StatusCode)
+		payload, _ := io.ReadAll(resp.Body)
+		t.Fatal(resp.Status, resp.StatusCode, string(payload))
 	}
 
 	hub := models.Hub{}
@@ -779,7 +942,7 @@ func testHubAssertions(t *testing.T, port string) {
 
 	// only one hub may have device
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.HubEdit{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.Hub{
 		Name:           "h3",
 		Hash:           "foobar",
 		DeviceLocalIds: []string{"lid5"},

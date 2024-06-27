@@ -564,9 +564,9 @@ func TestWaitDone(t *testing.T) {
 		for i := range waitDoneTrys {
 			t.Run(fmt.Sprintf("check hub %v", i), func(t *testing.T) {
 				t.Parallel()
-				hub := models.HubEdit{}
+				hub := models.Hub{}
 				t.Run(fmt.Sprintf("create hub %v", i), func(t *testing.T) {
-					resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/hubs?wait=true", models.HubEdit{
+					resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/hubs?wait=true", models.Hub{
 						Name: fmt.Sprintf("foo-%v", i),
 						Hash: fmt.Sprintf("foo-%v", i),
 					})
@@ -650,9 +650,9 @@ func TestWaitDone(t *testing.T) {
 		for i := range waitDoneTrys {
 			i = i + waitDoneTrys
 			t.Run(fmt.Sprintf("check hub %v", i), func(t *testing.T) {
-				hub := models.HubEdit{}
+				hub := models.Hub{}
 				t.Run(fmt.Sprintf("create hub %v", i), func(t *testing.T) {
-					resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/hubs?wait=true", models.HubEdit{
+					resp, err := helper.Jwtpost(userjwt, "http://localhost:"+conf.ServerPort+"/hubs?wait=true", models.Hub{
 						Name: fmt.Sprintf("foo-%v", i),
 						Hash: fmt.Sprintf("foo-%v", i),
 					})

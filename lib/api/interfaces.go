@@ -42,8 +42,8 @@ type Controller interface {
 	PublishDeviceDelete(token auth.Token, id string, options model.DeviceDeleteOptions) (err error, code int)
 
 	ReadHub(token auth.Token, id string) (hub models.Hub, err error, code int)
-	PublishHubCreate(token auth.Token, hub models.HubEdit, options model.HubUpdateOptions) (result models.Hub, err error, code int)
-	PublishHubUpdate(token auth.Token, id string, userId string, hub models.HubEdit, options model.HubUpdateOptions) (result models.Hub, err error, code int)
+	PublishHubCreate(token auth.Token, hub models.Hub, options model.HubUpdateOptions) (result models.Hub, err error, code int)
+	PublishHubUpdate(token auth.Token, id string, userId string, hub models.Hub, options model.HubUpdateOptions) (result models.Hub, err error, code int)
 	PublishHubDelete(token auth.Token, id string, options model.HubDeleteOptions) (err error, code int)
 
 	ReadProtocol(token auth.Token, id string) (device models.Protocol, err error, code int)

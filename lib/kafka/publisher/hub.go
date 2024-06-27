@@ -48,9 +48,6 @@ func (this *Publisher) PublishHubDelete(id string, userId string) error {
 }
 
 func (this *Publisher) PublishHubCommand(cmd HubCommand) error {
-	if this.config.LogLevel == "DEBUG" {
-		log.Println("DEBUG: produce hub", cmd)
-	}
 	if cmd.Owner == "" {
 		return errors.New("missing owner in command")
 	}
@@ -58,6 +55,9 @@ func (this *Publisher) PublishHubCommand(cmd HubCommand) error {
 	if err != nil {
 		debug.PrintStack()
 		return err
+	}
+	if this.config.Debug {
+		log.Printf("DEBUG: produce hub %v\n", string(message))
 	}
 	err = this.hubs.WriteMessages(
 		context.Background(),

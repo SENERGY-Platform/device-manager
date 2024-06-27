@@ -69,7 +69,7 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 	})
 
 	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		hub := models.HubEdit{}
+		hub := models.Hub{}
 		err := json.NewDecoder(request.Body).Decode(&hub)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -111,7 +111,7 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")
 		userId := request.URL.Query().Get("user_id")
-		hub := models.HubEdit{}
+		hub := models.Hub{}
 		err := json.NewDecoder(request.Body).Decode(&hub)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -178,7 +178,7 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 			}
 		}
 
-		result, err, errCode := control.PublishHubUpdate(token, id, token.GetUserId(), hub.ToHubEdit(), options)
+		result, err, errCode := control.PublishHubUpdate(token, id, token.GetUserId(), hub, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

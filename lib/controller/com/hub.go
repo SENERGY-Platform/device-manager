@@ -19,12 +19,16 @@ package com
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/models/go/models"
+	"log"
 	"net/http"
 )
 
 // expects previous permission check and use own admin jwt to access hub
 func (this *Com) GetHub(token auth.Token, id string) (hub models.Hub, err error, code int) {
 	err, code = getResourceFromService(token, this.config.DeviceRepoUrl+"/hubs", id, &hub)
+	if this.config.Debug {
+		log.Printf("DEBUG: read hub from device-repo: %v %v %#v", code, err, hub)
+	}
 	return
 }
 
