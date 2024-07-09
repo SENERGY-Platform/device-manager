@@ -216,16 +216,11 @@ func (this *Com) iterateResource(token auth.Token, resource string, batchsize in
 	for lastCount == batchsize {
 		query := url.Values{}
 		query.Add("limit", strconv.Itoa(batchsize))
-		query.Add("sort", "name.asc")
+		query.Add("sort", "id")
 		query.Add("rights", rights)
 		if lastElement.Id == "" {
 			query.Add("offset", "0")
 		} else {
-			name, err := json.Marshal(lastElement.Name)
-			if err != nil {
-				return err
-			}
-			query.Add("after.sort_field_value", string(name))
 			query.Add("after.id", lastElement.Id)
 		}
 		temp := []PermSearchElement{}

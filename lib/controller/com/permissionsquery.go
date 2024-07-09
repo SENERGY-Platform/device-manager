@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/SENERGY-Platform/permission-search/lib/client"
 	"log"
 	"net/http"
 	"runtime/debug"
@@ -60,61 +61,26 @@ func (this *Com) QueryPermissionsSearch(token string, query QueryMessage, result
 	return nil, http.StatusOK
 }
 
-type QueryMessage struct {
-	Resource string         `json:"resource"`
-	Find     *QueryFind     `json:"find"`
-	ListIds  *QueryListIds  `json:"list_ids"`
-	CheckIds *QueryCheckIds `json:"check_ids"`
-}
+type QueryMessage = client.QueryMessage
 
-type QueryFind struct {
-	QueryListCommons
-	Search string     `json:"search"`
-	Filter *Selection `json:"filter"`
-}
+type QueryFind = client.QueryFind
 
-type QueryListIds struct {
-	QueryListCommons
-	Ids []string `json:"ids"`
-}
+type QueryListIds = client.QueryListIds
 
-type QueryCheckIds struct {
-	Ids    []string `json:"ids"`
-	Rights string   `json:"rights"`
-}
+type QueryCheckIds = client.QueryCheckIds
 
-type QueryListCommons struct {
-	Limit    int        `json:"limit"`
-	Offset   int        `json:"offset"`
-	After    *ListAfter `json:"after"`
-	Rights   string     `json:"rights"`
-	SortBy   string     `json:"sort_by"`
-	SortDesc bool       `json:"sort_desc"`
-}
+type QueryListCommons = client.QueryListCommons
 
-type ListAfter struct {
-	SortFieldValue interface{} `json:"sort_field_value"`
-	Id             string      `json:"id"`
-}
+type ListAfter = client.ListAfter
 
-type QueryOperationType string
+type QueryOperationType = client.QueryOperationType
 
 const (
-	QueryEqualOperation             QueryOperationType = "=="
-	QueryUnequalOperation           QueryOperationType = "!="
-	QueryAnyValueInFeatureOperation QueryOperationType = "any_value_in_feature"
+	QueryEqualOperation             = client.QueryEqualOperation
+	QueryUnequalOperation           = client.QueryUnequalOperation
+	QueryAnyValueInFeatureOperation = client.QueryAnyValueInFeatureOperation
 )
 
-type ConditionConfig struct {
-	Feature   string             `json:"feature"`
-	Operation QueryOperationType `json:"operation"`
-	Value     interface{}        `json:"value"`
-	Ref       string             `json:"ref"`
-}
+type ConditionConfig = client.ConditionConfig
 
-type Selection struct {
-	And       []Selection     `json:"and"`
-	Or        []Selection     `json:"or"`
-	Not       *Selection      `json:"not"`
-	Condition ConditionConfig `json:"condition"`
-}
+type Selection = client.Selection

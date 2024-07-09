@@ -82,13 +82,13 @@ func (this *Com) GetResourceRights(token auth.Token, kind string, id string, rig
 func (this *Com) PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int) {
 	ids = append(ids, removeIdModifiers(ids)...)
 	ids = RemoveDuplicates(ids)
-	err, code = this.QueryPermissionsSearch(token.Jwt(), QueryMessage{
+	result, code, err = client.Query[map[string]bool](this.perm, token.Jwt(), client.QueryMessage{
 		Resource: "devices",
-		CheckIds: &QueryCheckIds{
+		CheckIds: &client.QueryCheckIds{
 			Ids:    ids,
 			Rights: rights,
 		},
-	}, &result)
+	})
 	return
 }
 
