@@ -23,6 +23,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/service-commons/pkg/jwt"
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
@@ -36,6 +37,55 @@ func init() {
 
 func LocalDevicesEndpoints(config config.Config, control Controller, router *httprouter.Router) {
 	resource := "/local-devices"
+
+	//query-parameter:
+	//		- limit: number; default 100, will be ignored if 'ids' is set
+	//		- offset: number; default 0, will be ignored if 'ids' is set
+	//		- ids: filter by comma seperated id list
+	router.GET(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		token, err := jwt.GetParsedToken(request)
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		ownerId := request.URL.Query().Get("owner_id")
+		if ownerId == "" {
+			ownerId = token.GetUserId()
+		}
+
+		result := []models.Device{}
+
+		query := request.URL.Query()
+		idsStr := query.Get("ids")
+		if idsStr != "" {
+			localIds := strings.Split(idsStr, ",")
+			for _, localId := range localIds {
+				device, err, errCode := control.ReadDeviceByLocalId(token, ownerId, localId)
+				if err == nil {
+					result = append(result, device)
+				}
+				if err != nil && errCode >= 500 {
+					http.Error(writer, err.Error(), errCode)
+					return
+				}
+			}
+		} else {
+			var errCode int
+			result, err, errCode = control.ListDevices(token, query)
+			if err != nil {
+				http.Error(writer, err.Error(), errCode)
+				return
+			}
+		}
+
+		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+		err = json.NewEncoder(writer).Encode(result)
+		if err != nil {
+			log.Println("ERROR: unable to encode response", err)
+		}
+		return
+	})
 
 	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		id := params.ByName("id")

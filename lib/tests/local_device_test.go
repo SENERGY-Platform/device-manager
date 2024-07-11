@@ -218,6 +218,27 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(result)
 	}
 
+	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/local-devices?ids="+url.QueryEscape(device.LocalId+",unknown,foo"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(resp.Body)
+		t.Fatal(resp.Status, resp.StatusCode, string(b))
+	}
+
+	list := []models.Device{}
+	err = json.NewDecoder(resp.Body).Decode(&list)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(list) != 1 || list[0].Name != "updated_device_name" || list[0].LocalId != "lid1" || list[0].DeviceTypeId != dt.Id {
+		t.Fatal(list)
+	}
+
 	//delete
 	resp, err = helper.Jwtdelete(userjwt, "http://localhost:"+port+"/local-devices/"+url.PathEscape(device.LocalId))
 	if err != nil {
