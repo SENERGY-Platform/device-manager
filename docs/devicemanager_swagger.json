@@ -1,0 +1,3647 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Device-Manager API",
+        "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "0.1"
+    },
+    "basePath": "/",
+    "paths": {
+        "/aspects": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create aspect with generated id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "create",
+                    "aspects"
+                ],
+                "summary": "create aspect",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Aspect"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Aspect"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/aspects/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get aspect",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "aspects"
+                ],
+                "summary": "get aspect",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Aspect Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Aspect"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set aspect",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "aspects"
+                ],
+                "summary": "set aspect",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Aspect Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Aspect"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Aspect"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete aspect",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "aspects"
+                ],
+                "summary": "delete aspect",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Aspect Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/characteristics": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create characteristic",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "create",
+                    "characteristics"
+                ],
+                "summary": "create characteristic",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Characteristic"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Characteristic"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/characteristics/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get characteristic",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "characteristics"
+                ],
+                "summary": "get characteristic",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Characteristics Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Characteristic"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set characteristic",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "characteristics"
+                ],
+                "summary": "set characteristic",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Characteristic Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Characteristic"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Characteristic"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete characteristic",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "characteristics"
+                ],
+                "summary": "delete characteristic",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Characteristic Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/concepts": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create concept",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "create",
+                    "concepts"
+                ],
+                "summary": "create concept",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Concept"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Concept"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/concepts/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get concept",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "concepts"
+                ],
+                "summary": "get concept",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Concept Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Concept"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set concept",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "concepts"
+                ],
+                "summary": "set concept",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Concept Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Concept"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Concept"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete concept",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "concepts"
+                ],
+                "summary": "delete concept",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Concept Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/device-classes": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create device-class",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "create",
+                    "device-classes"
+                ],
+                "summary": "create device-class",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceClass"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceClass"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/device-classes/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get device-class",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "device-classes"
+                ],
+                "summary": "get device-class",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DeviceClass Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceClass"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set device-class",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "device-classes"
+                ],
+                "summary": "set device-class",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DeviceClass Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceClass"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceClass"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete device-class",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "device-classes"
+                ],
+                "summary": "delete device-class",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DeviceClass Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/device-groups": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create device-group",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "create",
+                    "device-groups"
+                ],
+                "summary": "create device-group",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceGroup"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/device-groups/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get device-group",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "device-groups"
+                ],
+                "summary": "get device-group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DeviceGroup Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set device-group",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "device-groups"
+                ],
+                "summary": "set device-group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DeviceGroup Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceGroup"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete device-group",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "device-groups"
+                ],
+                "summary": "delete device-group",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DeviceGroup Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/device-types": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create device-type",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "create",
+                    "device-types"
+                ],
+                "summary": "create device-type",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "comma separated list of attribute keys; no other device-type with the same attribute key/value may exist",
+                        "name": "distinct_attributes",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceType"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceType"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/device-types/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get device-type",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "device-types"
+                ],
+                "summary": "get device-type",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DeviceType Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceType"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set device-type",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "device-types"
+                ],
+                "summary": "set device-type",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DeviceType Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "comma separated list of attribute keys; no other device-type with the same attribute key/value may exist",
+                        "name": "distinct_attributes",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceType"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DeviceType"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get device-type",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "device-types"
+                ],
+                "summary": "get device-type",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DeviceType Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/devices": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list devices",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "list",
+                    "devices"
+                ],
+                "summary": "list devices",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "default 100, will be ignored if 'ids' is set",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "default 0, will be ignored if 'ids' is set",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "filter",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "default name.asc",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "filter; ignores limit/offset; comma-seperated list",
+                        "name": "ids",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "filter; comma-seperated list",
+                        "name": "device-type-ids",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "filter; comma-seperated list; lists elements only if they have an attribute key that is in the given list",
+                        "name": "attr-keys",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "filter; comma-seperated list; lists elements only if they have an attribute value that is in the given list",
+                        "name": "attr-values",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "filter; valid values are 'online', 'offline' and an empty string for unknown states",
+                        "name": "connection-state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Device"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create device",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "create",
+                    "devices"
+                ],
+                "summary": "create device",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete multiple devices",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "devices"
+                ],
+                "summary": "delete multiple devices",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "ids to be deleted",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/devices/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get device",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "devices"
+                ],
+                "summary": "get device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set device; admins may create new devices but only without using the UpdateOnlySameOriginAttributesKey query parameter",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "devices"
+                ],
+                "summary": "set device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "comma separated list; ensure that no attribute from another origin is overwritten",
+                        "name": "update-only-same-origin-attributes",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete device",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "devices"
+                ],
+                "summary": "delete device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/devices/{id}/attributes": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set device display name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "devices"
+                ],
+                "summary": "set device display name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "display name",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/functions": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create function",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "create",
+                    "functions"
+                ],
+                "summary": "create function",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Function"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Function"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/functions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get function",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "functions"
+                ],
+                "summary": "get function",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Function Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Function"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set function",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "functions"
+                ],
+                "summary": "set function",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Function Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Function"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Function"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete function",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "functions"
+                ],
+                "summary": "delete function",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Function Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/helper/id": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "transforms short id to long id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "helper"
+                ],
+                "summary": "transforms short id to long id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "short id",
+                        "name": "short_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "prefix added to generated long id",
+                        "name": "prefix",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/hubs": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create hub",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "create",
+                    "hubs"
+                ],
+                "summary": "create hub",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Hub"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Hub"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/hubs/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get hub",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "hubs"
+                ],
+                "summary": "get hub",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hub Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Hub"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set hub",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "hubs"
+                ],
+                "summary": "set hub",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hub Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "only admins may set user_id; overwrites hub.OwnerId; defaults to existing hub.OwnerId and falls back to user-id of requesting user if hub does not exist",
+                        "name": "user_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Hub"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Hub"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete hub",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "hubs"
+                ],
+                "summary": "delete hub",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hub Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "head": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "head hub",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "head",
+                    "hubs"
+                ],
+                "summary": "head hub",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hub Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Hub"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Hub"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/hubs/{id}/name": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set hub name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "hubs"
+                ],
+                "summary": "set hub name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Hub Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "name",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Hub"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/local-devices/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get device by local id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "devices"
+                ],
+                "summary": "get device by local id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device Local Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "defaults to requesting user; used in combination with id to find device",
+                        "name": "owner_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set device (local-id variant)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "devices"
+                ],
+                "summary": "set device (local-id variant)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device Local Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "comma separated list; ensure that no attribute from another origin is overwritten",
+                        "name": "update-only-same-origin-attributes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create device (local-id variant)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "create",
+                    "devices"
+                ],
+                "summary": "create device (local-id variant)",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete device (local-id variant)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "devices"
+                ],
+                "summary": "delete device (local-id variant)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device Local Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "defaults to requesting user; used in combination with id to find device",
+                        "name": "owner_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/locations": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create location",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "create",
+                    "locations"
+                ],
+                "summary": "create location",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Location Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Location"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Location"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/locations/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get location",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "locations"
+                ],
+                "summary": "get location",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Location Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Location"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set location",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "locations"
+                ],
+                "summary": "set location",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Location Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Location"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Location"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete location",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "locations"
+                ],
+                "summary": "delete location",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Location Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/protocols": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get protocol",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "protocols"
+                ],
+                "summary": "get protocol",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Protocol"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Protocol"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/protocols/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get protocol",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "get",
+                    "protocols"
+                ],
+                "summary": "get protocol",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Protocol Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Protocol"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set protocol",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "protocols"
+                ],
+                "summary": "set protocol",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Protocol Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "description": "element",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Protocol"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Protocol"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete protocol",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "delete",
+                    "protocols"
+                ],
+                "summary": "delete protocol",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Protocol Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Aspect": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sub_aspects": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Aspect"
+                    }
+                }
+            }
+        },
+        "models.Attribute": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Characteristic": {
+            "type": "object",
+            "properties": {
+                "allowed_values": {
+                    "type": "array",
+                    "items": {}
+                },
+                "display_unit": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "max_value": {},
+                "min_value": {},
+                "name": {
+                    "type": "string"
+                },
+                "sub_characteristics": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Characteristic"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/models.Type"
+                },
+                "value": {}
+            }
+        },
+        "models.Concept": {
+            "type": "object",
+            "properties": {
+                "base_characteristic_id": {
+                    "type": "string"
+                },
+                "characteristic_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "conversions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ConverterExtension"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Content": {
+            "type": "object",
+            "properties": {
+                "content_variable": {
+                    "$ref": "#/definitions/models.ContentVariable"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "protocol_segment_id": {
+                    "type": "string"
+                },
+                "serialization": {
+                    "$ref": "#/definitions/models.Serialization"
+                }
+            }
+        },
+        "models.ContentVariable": {
+            "type": "object",
+            "properties": {
+                "aspect_id": {
+                    "type": "string"
+                },
+                "characteristic_id": {
+                    "type": "string"
+                },
+                "function_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_void": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "omit_empty": {
+                    "type": "boolean"
+                },
+                "serialization_options": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "sub_content_variables": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ContentVariable"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/models.Type"
+                },
+                "unit_reference": {
+                    "type": "string"
+                },
+                "value": {}
+            }
+        },
+        "models.ConverterExtension": {
+            "type": "object",
+            "properties": {
+                "distance": {
+                    "type": "integer"
+                },
+                "formula": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "placeholder_name": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Device": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Attribute"
+                    }
+                },
+                "device_type_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "local_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.DeviceClass": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.DeviceGroup": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Attribute"
+                    }
+                },
+                "criteria": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DeviceGroupFilterCriteria"
+                    }
+                },
+                "criteria_short": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "device_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.DeviceGroupFilterCriteria": {
+            "type": "object",
+            "properties": {
+                "aspect_id": {
+                    "type": "string"
+                },
+                "device_class_id": {
+                    "type": "string"
+                },
+                "function_id": {
+                    "type": "string"
+                },
+                "interaction": {
+                    "$ref": "#/definitions/models.Interaction"
+                }
+            }
+        },
+        "models.DeviceType": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Attribute"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "device_class_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "service_groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ServiceGroup"
+                    }
+                },
+                "services": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Service"
+                    }
+                }
+            }
+        },
+        "models.Function": {
+            "type": "object",
+            "properties": {
+                "concept_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "display_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rdf_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Hub": {
+            "type": "object",
+            "properties": {
+                "device_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "device_local_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Interaction": {
+            "type": "string",
+            "enum": [
+                "event",
+                "request",
+                "event+request"
+            ],
+            "x-enum-varnames": [
+                "EVENT",
+                "REQUEST",
+                "EVENT_AND_REQUEST"
+            ]
+        },
+        "models.Location": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "device_group_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "device_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Protocol": {
+            "type": "object",
+            "properties": {
+                "constraints": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "handler": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "protocol_segments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ProtocolSegment"
+                    }
+                }
+            }
+        },
+        "models.ProtocolSegment": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Serialization": {
+            "type": "string",
+            "enum": [
+                "xml",
+                "json",
+                "plain-text"
+            ],
+            "x-enum-varnames": [
+                "XML",
+                "JSON",
+                "PlainText"
+            ]
+        },
+        "models.Service": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Attribute"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "inputs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Content"
+                    }
+                },
+                "interaction": {
+                    "$ref": "#/definitions/models.Interaction"
+                },
+                "local_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "outputs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Content"
+                    }
+                },
+                "protocol_id": {
+                    "type": "string"
+                },
+                "service_group_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ServiceGroup": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Type": {
+            "type": "string",
+            "enum": [
+                "https://schema.org/Text",
+                "https://schema.org/Integer",
+                "https://schema.org/Float",
+                "https://schema.org/Boolean",
+                "https://schema.org/ItemList",
+                "https://schema.org/StructuredValue"
+            ],
+            "x-enum-varnames": [
+                "String",
+                "Integer",
+                "Float",
+                "Boolean",
+                "List",
+                "Structure"
+            ]
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

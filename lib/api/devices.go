@@ -24,7 +24,6 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/SENERGY-Platform/service-commons/pkg/jwt"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"strconv"
@@ -32,8 +31,10 @@ import (
 )
 
 func init() {
-	endpoints = append(endpoints, DevicesEndpoints)
+	endpoints = append(endpoints, &DevicesEndpoints{})
 }
+
+type DevicesEndpoints struct{}
 
 const UpdateOnlySameOriginAttributesKey = "update-only-same-origin-attributes"
 const DisplayNameAttributeKey = "shared/nickname"
@@ -41,14 +42,30 @@ const DisplayNameAttributeOrigin = "shared"
 
 const WaitQueryParamName = "wait"
 
-func DevicesEndpoints(config config.Config, control Controller, router *httprouter.Router) {
-	resource := "/devices"
-
-	//query-parameter:
-	//		- limit: number; default 100, will be ignored if 'ids' is set
-	//		- offset: number; default 0, will be ignored if 'ids' is set
-	//		- ids: filter by comma seperated id list
-	router.GET(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// List godoc
+// @Summary      list devices
+// @Description  list devices
+// @Tags         list, devices
+// @Produce      json
+// @Security Bearer
+// @Param        limit query integer false "default 100, will be ignored if 'ids' is set"
+// @Param        offset query integer false "default 0, will be ignored if 'ids' is set"
+// @Param        search query string false "filter"
+// @Param        sort query string false "default name.asc"
+// @Param        ids query string false "filter; ignores limit/offset; comma-seperated list"
+// @Param        device-type-ids query string false "filter; comma-seperated list"
+// @Param        attr-keys query string false "filter; comma-seperated list; lists elements only if they have an attribute key that is in the given list"
+// @Param        attr-values query string false "filter; comma-seperated list; lists elements only if they have an attribute value that is in the given list"
+// @Param        connection-state query integer false "filter; valid values are 'online', 'offline' and an empty string for unknown states"
+// @Success      200 {array}  models.Device
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /devices [GET]
+func (this *DevicesEndpoints) List(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("GET /devices", func(writer http.ResponseWriter, request *http.Request) {
 		token, err := jwt.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -66,9 +83,25 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 		}
 		return
 	})
+}
 
-	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Get godoc
+// @Summary      get device
+// @Description  get device
+// @Tags         get, devices
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Device Id"
+// @Success      200 {object}  models.Device
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /devices/{id} [GET]
+func (this *DevicesEndpoints) Get(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("GET /devices/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -86,8 +119,25 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 		}
 		return
 	})
+}
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// Create godoc
+// @Summary      create device
+// @Description  create device
+// @Tags         create, devices
+// @Produce      json
+// @Security Bearer
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Device true "element"
+// @Success      200 {object}  models.Device
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /devices [POST]
+func (this *DevicesEndpoints) Create(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("POST /devices", func(writer http.ResponseWriter, request *http.Request) {
 		device := models.Device{}
 		err := json.NewDecoder(request.Body).Decode(&device)
 		if err != nil {
@@ -126,10 +176,28 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 		}
 		return
 	})
+}
 
-	//admins may create new devices but only without using the UpdateOnlySameOriginAttributesKey query parameter
-	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Set godoc
+// @Summary      set device
+// @Description  set device; admins may create new devices but only without using the UpdateOnlySameOriginAttributesKey query parameter
+// @Tags         set, devices
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Device Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        update-only-same-origin-attributes query string false "comma separated list; ensure that no attribute from another origin is overwritten"
+// @Param        message body models.Device true "element"
+// @Success      200 {object}  models.Device
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /devices/{id} [PUT]
+func (this *DevicesEndpoints) Set(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("PUT /devices/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		device := models.Device{}
 		err := json.NewDecoder(request.Body).Decode(&device)
 		if err != nil {
@@ -169,9 +237,28 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 		}
 		return
 	})
+}
 
-	router.PUT(resource+"/:id/attributes", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// SetAttributes godoc
+// @Summary      set device attributes
+// @Description  set device attributes
+// @Tags         set, devices
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Device Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        update-only-same-origin-attributes query string false "comma separated list; ensure that no attribute from another origin is overwritten"
+// @Param        message body []models.Attribute true "attributes"
+// @Success      200 {object}  models.Device
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /devices/{id}/attributes [PUT]
+func (this *DevicesEndpoints) SetAttributes(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("PUT /devices/{id}/attributes", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		attributes := []models.Attribute{}
 		err := json.NewDecoder(request.Body).Decode(&attributes)
 		if err != nil {
@@ -218,9 +305,27 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 		}
 		return
 	})
+}
 
-	router.PUT(resource+"/:id/display_name", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// SetDisplayName godoc
+// @Summary      set device display name
+// @Description  set device display name
+// @Tags         set, devices
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Device Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body string true "display name"
+// @Success      200 {object}  models.Device
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /devices/{id}/attributes [PUT]
+func (this *DevicesEndpoints) SetDisplayName(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("PUT /devices/{id}/display_name", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		displayName := ""
 
 		err := json.NewDecoder(request.Body).Decode(&displayName)
@@ -275,9 +380,26 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 		}
 		return
 	})
+}
 
-	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Delete godoc
+// @Summary      delete device
+// @Description  delete device
+// @Tags         delete, devices
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Device Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Success      200
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /devices/{id} [DELETE]
+func (this *DevicesEndpoints) Delete(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("DELETE /devices/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -305,8 +427,25 @@ func DevicesEndpoints(config config.Config, control Controller, router *httprout
 		}
 		return
 	})
+}
 
-	router.DELETE(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// DeleteMany godoc
+// @Summary      delete multiple devices
+// @Description  delete multiple devices
+// @Tags         delete, devices
+// @Produce      json
+// @Security Bearer
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body []string true "ids to be deleted"
+// @Success      200
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /devices [DELETE]
+func (this *DevicesEndpoints) DeleteMany(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("DELETE /devices", func(writer http.ResponseWriter, request *http.Request) {
 		ids := []string{}
 		err := json.NewDecoder(request.Body).Decode(&ids)
 		if err != nil {

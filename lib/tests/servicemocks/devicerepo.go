@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -162,10 +161,10 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router := httprouter.New()
+	router := http.NewServeMux()
 
-	router.GET("/device-groups/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+	router.HandleFunc("GET /device-groups/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		dt, ok := repo.db[id]
 		if ok {
 			json.NewEncoder(writer).Encode(dt)
@@ -174,7 +173,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/device-groups", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("PUT /device-groups", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -198,8 +197,8 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/device-types/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+	router.HandleFunc("GET /device-types/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		dt, ok := repo.db[id]
 		if ok {
 			json.NewEncoder(writer).Encode(dt)
@@ -208,7 +207,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/device-types", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("PUT /device-types", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -235,8 +234,8 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/devices/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+	router.HandleFunc("GET /devices/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		dt, ok := repo.db[id]
 		if ok {
 			json.NewEncoder(writer).Encode(dt)
@@ -245,7 +244,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/devices", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("PUT /devices", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -280,8 +279,8 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/hubs/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+	router.HandleFunc("GET /hubs/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		dt, ok := repo.db[id]
 		if ok {
 			json.NewEncoder(writer).Encode(dt)
@@ -290,7 +289,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/hubs", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("PUT /hubs", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -324,7 +323,7 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.PUT("/protocols", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("PUT /protocols", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -347,8 +346,8 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/aspects/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+	router.HandleFunc("GET /aspects/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		aspect, ok := repo.aspects[id]
 		if ok {
 			json.NewEncoder(writer).Encode(aspect)
@@ -357,7 +356,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.DELETE("/aspects/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("DELETE /aspects/{id}", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -370,7 +369,7 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.PUT("/aspects", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("PUT /aspects", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -393,8 +392,8 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/functions/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+	router.HandleFunc("GET /functions/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		function, ok := repo.functions[id]
 		if ok {
 			json.NewEncoder(writer).Encode(function)
@@ -403,7 +402,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/functions", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("PUT /functions", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -426,7 +425,7 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.DELETE("/functions/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("DELETE /functions/{id}", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -439,8 +438,8 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/device-classes/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+	router.HandleFunc("GET /device-classes/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		deviceclass, ok := repo.deviceclasses[id]
 		if ok {
 			json.NewEncoder(writer).Encode(deviceclass)
@@ -449,7 +448,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/device-classes", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("PUT /device-classes", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -472,7 +471,7 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.DELETE("/device-classes/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("DELETE /device-classes/{id}", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -485,8 +484,8 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/locations/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+	router.HandleFunc("GET /locations/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		location, ok := repo.locations[id]
 		if ok {
 			json.NewEncoder(writer).Encode(location)
@@ -495,7 +494,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/locations", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("PUT /locations", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -518,8 +517,8 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/concepts/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+	router.HandleFunc("GET /concepts/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		concept, ok := repo.concepts[id]
 		if ok {
 			json.NewEncoder(writer).Encode(concept)
@@ -528,7 +527,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.PUT("/concepts", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("PUT /concepts", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -551,7 +550,7 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.DELETE("/concepts/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("DELETE /concepts/{id}", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -564,7 +563,7 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.PUT("/characteristics", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("PUT /characteristics", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -587,8 +586,8 @@ func NewDeviceRepo(producer interface {
 		writer.WriteHeader(http.StatusOK)
 	})
 
-	router.GET("/characteristics/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+	router.HandleFunc("GET /characteristics/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		concept, ok := repo.characteristics[id]
 		if ok {
 			json.NewEncoder(writer).Encode(concept)
@@ -597,7 +596,7 @@ func NewDeviceRepo(producer interface {
 		}
 	})
 
-	router.DELETE("/characteristics/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("DELETE /characteristics/{id}", func(writer http.ResponseWriter, request *http.Request) {
 		dryRun, err := strconv.ParseBool(request.URL.Query().Get("dry-run"))
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

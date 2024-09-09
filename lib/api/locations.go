@@ -23,21 +23,34 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"strconv"
 )
 
 func init() {
-	endpoints = append(endpoints, LocationsEndpoints)
+	endpoints = append(endpoints, &LocationsEndpoints{})
 }
 
-func LocationsEndpoints(config config.Config, control Controller, router *httprouter.Router) {
-	resource := "/locations"
+type LocationsEndpoints struct{}
 
-	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Get godoc
+// @Summary      get location
+// @Description  get location
+// @Tags         get, locations
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Location Id"
+// @Success      200 {object}  models.Location
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /locations/{id} [GET]
+func (this *LocationsEndpoints) Get(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("GET /locations/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -55,8 +68,26 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 		}
 		return
 	})
+}
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// Create godoc
+// @Summary      create location
+// @Description  create location
+// @Tags         create, locations
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Location Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Location true "element"
+// @Success      200 {object}  models.Location
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /locations [POST]
+func (this *LocationsEndpoints) Create(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("POST /locations", func(writer http.ResponseWriter, request *http.Request) {
 		location := models.Location{}
 		err := json.NewDecoder(request.Body).Decode(&location)
 		if err != nil {
@@ -94,9 +125,27 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 		}
 		return
 	})
+}
 
-	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Set godoc
+// @Summary      set location
+// @Description  set location
+// @Tags         set, locations
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Location Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Location true "element"
+// @Success      200 {object}  models.Location
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /locations/{id} [PUT]
+func (this *LocationsEndpoints) Set(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("PUT /locations/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		location := models.Location{}
 		err := json.NewDecoder(request.Body).Decode(&location)
 		if err != nil {
@@ -130,9 +179,26 @@ func LocationsEndpoints(config config.Config, control Controller, router *httpro
 		}
 		return
 	})
+}
 
-	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Delete godoc
+// @Summary      delete location
+// @Description  delete location
+// @Tags         delete, locations
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Location Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Success      200
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /locations/{id} [DELETE]
+func (this *LocationsEndpoints) Delete(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("DELETE /locations/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

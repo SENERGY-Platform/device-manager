@@ -23,21 +23,34 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"strconv"
 )
 
 func init() {
-	endpoints = append(endpoints, ConceptsEndpoints)
+	endpoints = append(endpoints, &ConceptsEndpoints{})
 }
 
-func ConceptsEndpoints(config config.Config, control Controller, router *httprouter.Router) {
-	resource := "/concepts"
+type ConceptsEndpoints struct{}
 
-	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Get godoc
+// @Summary      get concept
+// @Description  get concept
+// @Tags         get, concepts
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Concept Id"
+// @Success      200 {object}  models.Concept
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /concepts/{id} [GET]
+func (this *ConceptsEndpoints) Get(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("GET /concepts/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -55,8 +68,25 @@ func ConceptsEndpoints(config config.Config, control Controller, router *httprou
 		}
 		return
 	})
+}
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// Create godoc
+// @Summary      create concept
+// @Description  create concept
+// @Tags         create, concepts
+// @Produce      json
+// @Security Bearer
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Concept true "element"
+// @Success      200 {object}  models.Concept
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /concepts [POST]
+func (this *ConceptsEndpoints) Create(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("POST /concepts", func(writer http.ResponseWriter, request *http.Request) {
 		concept := models.Concept{}
 		err := json.NewDecoder(request.Body).Decode(&concept)
 		if err != nil {
@@ -95,9 +125,27 @@ func ConceptsEndpoints(config config.Config, control Controller, router *httprou
 		}
 		return
 	})
+}
 
-	router.PUT(resource+"/:conceptId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("conceptId")
+// Set godoc
+// @Summary      set concept
+// @Description  set concept
+// @Tags         set, concepts
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Concept Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Concept true "element"
+// @Success      200 {object}  models.Concept
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /concepts/{id} [PUT]
+func (this *ConceptsEndpoints) Set(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("PUT /concepts/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		concept := models.Concept{}
 		err := json.NewDecoder(request.Body).Decode(&concept)
 		if err != nil {
@@ -131,9 +179,26 @@ func ConceptsEndpoints(config config.Config, control Controller, router *httprou
 		}
 		return
 	})
+}
 
-	router.DELETE(resource+"/:conceptId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("conceptId")
+// Delete godoc
+// @Summary      delete concept
+// @Description  delete concept
+// @Tags         delete, concepts
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Concept Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Success      200
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /concepts/{id} [DELETE]
+func (this *ConceptsEndpoints) Delete(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("DELETE /concepts/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

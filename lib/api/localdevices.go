@@ -24,7 +24,6 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/SENERGY-Platform/service-commons/pkg/jwt"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"strconv"
@@ -32,17 +31,36 @@ import (
 )
 
 func init() {
-	endpoints = append(endpoints, LocalDevicesEndpoints)
+	endpoints = append(endpoints, &LocalDevicesEndpoints{})
 }
 
-func LocalDevicesEndpoints(config config.Config, control Controller, router *httprouter.Router) {
-	resource := "/local-devices"
+type LocalDevicesEndpoints struct{}
 
-	//query-parameter:
-	//		- limit: number; default 100, will be ignored if 'ids' is set
-	//		- offset: number; default 0, will be ignored if 'ids' is set
-	//		- ids: filter by comma seperated id list
-	router.GET(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// List godoc
+// @Summary      list devices (local-id variant)
+// @Description  list devices (local-id variant)
+// @Tags         list, devices
+// @Produce      json
+// @Security Bearer
+// @Param        ids query string false "comma separated list of local ids"
+// @Param        owner_id query string false "defaults to requesting user; used in combination with local_id to find devices"
+// @Param        limit query integer false "default 100, will be ignored if 'ids' is set"
+// @Param        offset query integer false "default 0, will be ignored if 'ids' is set"
+// @Param        search query string false "filter"
+// @Param        sort query string false "default name.asc"
+// @Param        device-type-ids query string false "filter; comma-seperated list"
+// @Param        attr-keys query string false "filter; comma-seperated list; lists elements only if they have an attribute key that is in the given list"
+// @Param        attr-values query string false "filter; comma-seperated list; lists elements only if they have an attribute value that is in the given list"
+// @Param        connection-state query integer false "filter; valid values are 'online', 'offline' and an empty string for unknown states"
+// @Success      200 {array}  models.Device
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /local-devices/{id} [GET]
+func (this *LocalDevicesEndpoints) List(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("GET /local-devices", func(writer http.ResponseWriter, request *http.Request) {
 		token, err := jwt.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -86,9 +104,26 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 		}
 		return
 	})
+}
 
-	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Get godoc
+// @Summary      get device by local id
+// @Description  get device by local id
+// @Tags         get, devices
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Device Local Id"
+// @Param        owner_id query string false "defaults to requesting user; used in combination with id to find device"
+// @Success      200 {object}  models.Device
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /local-devices/{id} [GET]
+func (this *LocalDevicesEndpoints) Get(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("GET /local-devices/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -110,8 +145,25 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 		}
 		return
 	})
+}
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// Create godoc
+// @Summary      create device (local-id variant)
+// @Description  create device (local-id variant)
+// @Tags         create, devices
+// @Produce      json
+// @Security Bearer
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Device true "element"
+// @Success      200 {object}  models.Device
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /local-devices/{id} [POST]
+func (this *LocalDevicesEndpoints) Create(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("POST /local-devices", func(writer http.ResponseWriter, request *http.Request) {
 		device := models.Device{}
 		err := json.NewDecoder(request.Body).Decode(&device)
 		if err != nil {
@@ -150,9 +202,28 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 		}
 		return
 	})
+}
 
-	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Set godoc
+// @Summary      set device (local-id variant)
+// @Description  set device (local-id variant)
+// @Tags         set, devices
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Device Local Id"
+// @Param        update-only-same-origin-attributes query string false "comma separated list; ensure that no attribute from another origin is overwritten"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Device true "element"
+// @Success      200 {object}  models.Device
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /local-devices/{id} [PUT]
+func (this *LocalDevicesEndpoints) Set(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("PUT /local-devices/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -204,9 +275,27 @@ func LocalDevicesEndpoints(config config.Config, control Controller, router *htt
 		}
 		return
 	})
+}
 
-	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Delete godoc
+// @Summary      delete device (local-id variant)
+// @Description  delete device (local-id variant)
+// @Tags         delete, devices
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Device Local Id"
+// @Param        owner_id query string false "defaults to requesting user; used in combination with id to find device"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Success      200
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /local-devices/{id} [DELETE]
+func (this *LocalDevicesEndpoints) Delete(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("DELETE /local-devices/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

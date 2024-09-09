@@ -23,21 +23,34 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"strconv"
 )
 
 func init() {
-	endpoints = append(endpoints, AspectsEndpoints)
+	endpoints = append(endpoints, &AspectEndpoints{})
 }
 
-func AspectsEndpoints(config config.Config, control Controller, router *httprouter.Router) {
-	resource := "/aspects"
+type AspectEndpoints struct{}
 
-	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Get godoc
+// @Summary      get aspect
+// @Description  get aspect
+// @Tags         get, aspects
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Aspect Id"
+// @Success      200 {object}  models.Aspect
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /aspects/{id} [GET]
+func (this *AspectEndpoints) Get(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("GET /aspects/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -55,8 +68,25 @@ func AspectsEndpoints(config config.Config, control Controller, router *httprout
 		}
 		return
 	})
+}
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// Create godoc
+// @Summary      create aspect
+// @Description  create aspect with generated id
+// @Tags         create, aspects
+// @Produce      json
+// @Security Bearer
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Aspect true "element"
+// @Success      200 {object}  models.Aspect
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /aspects [POST]
+func (this *AspectEndpoints) Create(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("POST /aspects", func(writer http.ResponseWriter, request *http.Request) {
 		aspect := models.Aspect{}
 		err := json.NewDecoder(request.Body).Decode(&aspect)
 		if err != nil {
@@ -90,9 +120,27 @@ func AspectsEndpoints(config config.Config, control Controller, router *httprout
 		}
 		return
 	})
+}
 
-	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Set godoc
+// @Summary      set aspect
+// @Description  set aspect
+// @Tags         set, aspects
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Aspect Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Aspect true "element"
+// @Success      200 {object}  models.Aspect
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /aspects/{id} [PUT]
+func (this *AspectEndpoints) Set(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("PUT /aspects/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		aspect := models.Aspect{}
 		err := json.NewDecoder(request.Body).Decode(&aspect)
 		if err != nil {
@@ -127,9 +175,26 @@ func AspectsEndpoints(config config.Config, control Controller, router *httprout
 		}
 		return
 	})
+}
 
-	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Delete godoc
+// @Summary      delete aspect
+// @Description  delete aspect
+// @Tags         delete, aspects
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Aspect Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Success      200
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /aspects/{id} [DELETE]
+func (this *AspectEndpoints) Delete(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("DELETE /aspects/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

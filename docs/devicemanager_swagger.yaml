@@ -1,0 +1,2378 @@
+basePath: /
+definitions:
+  models.Aspect:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      sub_aspects:
+        items:
+          $ref: '#/definitions/models.Aspect'
+        type: array
+    type: object
+  models.Attribute:
+    properties:
+      key:
+        type: string
+      origin:
+        type: string
+      value:
+        type: string
+    type: object
+  models.Characteristic:
+    properties:
+      allowed_values:
+        items: {}
+        type: array
+      display_unit:
+        type: string
+      id:
+        type: string
+      max_value: {}
+      min_value: {}
+      name:
+        type: string
+      sub_characteristics:
+        items:
+          $ref: '#/definitions/models.Characteristic'
+        type: array
+      type:
+        $ref: '#/definitions/models.Type'
+      value: {}
+    type: object
+  models.Concept:
+    properties:
+      base_characteristic_id:
+        type: string
+      characteristic_ids:
+        items:
+          type: string
+        type: array
+      conversions:
+        items:
+          $ref: '#/definitions/models.ConverterExtension'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Content:
+    properties:
+      content_variable:
+        $ref: '#/definitions/models.ContentVariable'
+      id:
+        type: string
+      protocol_segment_id:
+        type: string
+      serialization:
+        $ref: '#/definitions/models.Serialization'
+    type: object
+  models.ContentVariable:
+    properties:
+      aspect_id:
+        type: string
+      characteristic_id:
+        type: string
+      function_id:
+        type: string
+      id:
+        type: string
+      is_void:
+        type: boolean
+      name:
+        type: string
+      omit_empty:
+        type: boolean
+      serialization_options:
+        items:
+          type: string
+        type: array
+      sub_content_variables:
+        items:
+          $ref: '#/definitions/models.ContentVariable'
+        type: array
+      type:
+        $ref: '#/definitions/models.Type'
+      unit_reference:
+        type: string
+      value: {}
+    type: object
+  models.ConverterExtension:
+    properties:
+      distance:
+        type: integer
+      formula:
+        type: string
+      from:
+        type: string
+      placeholder_name:
+        type: string
+      to:
+        type: string
+    type: object
+  models.Device:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/models.Attribute'
+        type: array
+      device_type_id:
+        type: string
+      id:
+        type: string
+      local_id:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: string
+    type: object
+  models.DeviceClass:
+    properties:
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+    type: object
+  models.DeviceGroup:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/models.Attribute'
+        type: array
+      criteria:
+        items:
+          $ref: '#/definitions/models.DeviceGroupFilterCriteria'
+        type: array
+      criteria_short:
+        items:
+          type: string
+        type: array
+      device_ids:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+    type: object
+  models.DeviceGroupFilterCriteria:
+    properties:
+      aspect_id:
+        type: string
+      device_class_id:
+        type: string
+      function_id:
+        type: string
+      interaction:
+        $ref: '#/definitions/models.Interaction'
+    type: object
+  models.DeviceType:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/models.Attribute'
+        type: array
+      description:
+        type: string
+      device_class_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      service_groups:
+        items:
+          $ref: '#/definitions/models.ServiceGroup'
+        type: array
+      services:
+        items:
+          $ref: '#/definitions/models.Service'
+        type: array
+    type: object
+  models.Function:
+    properties:
+      concept_id:
+        type: string
+      description:
+        type: string
+      display_name:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      rdf_type:
+        type: string
+    type: object
+  models.Hub:
+    properties:
+      device_ids:
+        items:
+          type: string
+        type: array
+      device_local_ids:
+        items:
+          type: string
+        type: array
+      hash:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner_id:
+        type: string
+    type: object
+  models.Interaction:
+    enum:
+    - event
+    - request
+    - event+request
+    type: string
+    x-enum-varnames:
+    - EVENT
+    - REQUEST
+    - EVENT_AND_REQUEST
+  models.Location:
+    properties:
+      description:
+        type: string
+      device_group_ids:
+        items:
+          type: string
+        type: array
+      device_ids:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Protocol:
+    properties:
+      constraints:
+        items:
+          type: string
+        type: array
+      handler:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      protocol_segments:
+        items:
+          $ref: '#/definitions/models.ProtocolSegment'
+        type: array
+    type: object
+  models.ProtocolSegment:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Serialization:
+    enum:
+    - xml
+    - json
+    - plain-text
+    type: string
+    x-enum-varnames:
+    - XML
+    - JSON
+    - PlainText
+  models.Service:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/models.Attribute'
+        type: array
+      description:
+        type: string
+      id:
+        type: string
+      inputs:
+        items:
+          $ref: '#/definitions/models.Content'
+        type: array
+      interaction:
+        $ref: '#/definitions/models.Interaction'
+      local_id:
+        type: string
+      name:
+        type: string
+      outputs:
+        items:
+          $ref: '#/definitions/models.Content'
+        type: array
+      protocol_id:
+        type: string
+      service_group_key:
+        type: string
+    type: object
+  models.ServiceGroup:
+    properties:
+      description:
+        type: string
+      key:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Type:
+    enum:
+    - https://schema.org/Text
+    - https://schema.org/Integer
+    - https://schema.org/Float
+    - https://schema.org/Boolean
+    - https://schema.org/ItemList
+    - https://schema.org/StructuredValue
+    type: string
+    x-enum-varnames:
+    - String
+    - Integer
+    - Float
+    - Boolean
+    - List
+    - Structure
+info:
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Device-Manager API
+  version: "0.1"
+paths:
+  /aspects:
+    post:
+      description: create aspect with generated id
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Aspect'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Aspect'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: create aspect
+      tags:
+      - create
+      - aspects
+  /aspects/{id}:
+    delete:
+      description: delete aspect
+      parameters:
+      - description: Aspect Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete aspect
+      tags:
+      - delete
+      - aspects
+    get:
+      description: get aspect
+      parameters:
+      - description: Aspect Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Aspect'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get aspect
+      tags:
+      - get
+      - aspects
+    put:
+      description: set aspect
+      parameters:
+      - description: Aspect Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Aspect'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Aspect'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set aspect
+      tags:
+      - set
+      - aspects
+  /characteristics:
+    post:
+      description: create characteristic
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Characteristic'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Characteristic'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: create characteristic
+      tags:
+      - create
+      - characteristics
+  /characteristics/{id}:
+    delete:
+      description: delete characteristic
+      parameters:
+      - description: Characteristic Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete characteristic
+      tags:
+      - delete
+      - characteristics
+    get:
+      description: get characteristic
+      parameters:
+      - description: Characteristics Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Characteristic'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get characteristic
+      tags:
+      - get
+      - characteristics
+    put:
+      description: set characteristic
+      parameters:
+      - description: Characteristic Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Characteristic'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Characteristic'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set characteristic
+      tags:
+      - set
+      - characteristics
+  /concepts:
+    post:
+      description: create concept
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Concept'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Concept'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: create concept
+      tags:
+      - create
+      - concepts
+  /concepts/{id}:
+    delete:
+      description: delete concept
+      parameters:
+      - description: Concept Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete concept
+      tags:
+      - delete
+      - concepts
+    get:
+      description: get concept
+      parameters:
+      - description: Concept Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Concept'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get concept
+      tags:
+      - get
+      - concepts
+    put:
+      description: set concept
+      parameters:
+      - description: Concept Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Concept'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Concept'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set concept
+      tags:
+      - set
+      - concepts
+  /device-classes:
+    post:
+      description: create device-class
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeviceClass'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeviceClass'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: create device-class
+      tags:
+      - create
+      - device-classes
+  /device-classes/{id}:
+    delete:
+      description: delete device-class
+      parameters:
+      - description: DeviceClass Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete device-class
+      tags:
+      - delete
+      - device-classes
+    get:
+      description: get device-class
+      parameters:
+      - description: DeviceClass Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeviceClass'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get device-class
+      tags:
+      - get
+      - device-classes
+    put:
+      description: set device-class
+      parameters:
+      - description: DeviceClass Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeviceClass'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeviceClass'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set device-class
+      tags:
+      - set
+      - device-classes
+  /device-groups:
+    post:
+      description: create device-group
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeviceGroup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeviceGroup'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: create device-group
+      tags:
+      - create
+      - device-groups
+  /device-groups/{id}:
+    delete:
+      description: delete device-group
+      parameters:
+      - description: DeviceGroup Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete device-group
+      tags:
+      - delete
+      - device-groups
+    get:
+      description: get device-group
+      parameters:
+      - description: DeviceGroup Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeviceGroup'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get device-group
+      tags:
+      - get
+      - device-groups
+    put:
+      description: set device-group
+      parameters:
+      - description: DeviceGroup Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeviceGroup'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeviceGroup'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set device-group
+      tags:
+      - set
+      - device-groups
+  /device-types:
+    post:
+      description: create device-type
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: comma separated list of attribute keys; no other device-type
+          with the same attribute key/value may exist
+        in: query
+        name: distinct_attributes
+        type: string
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeviceType'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeviceType'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: create device-type
+      tags:
+      - create
+      - device-types
+  /device-types/{id}:
+    delete:
+      description: get device-type
+      parameters:
+      - description: DeviceType Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get device-type
+      tags:
+      - get
+      - device-types
+    get:
+      description: get device-type
+      parameters:
+      - description: DeviceType Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeviceType'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get device-type
+      tags:
+      - get
+      - device-types
+    put:
+      description: set device-type
+      parameters:
+      - description: DeviceType Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: comma separated list of attribute keys; no other device-type
+          with the same attribute key/value may exist
+        in: query
+        name: distinct_attributes
+        type: string
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeviceType'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DeviceType'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set device-type
+      tags:
+      - set
+      - device-types
+  /devices:
+    delete:
+      description: delete multiple devices
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: ids to be deleted
+        in: body
+        name: message
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete multiple devices
+      tags:
+      - delete
+      - devices
+    get:
+      description: list devices
+      parameters:
+      - description: default 100, will be ignored if 'ids' is set
+        in: query
+        name: limit
+        type: integer
+      - description: default 0, will be ignored if 'ids' is set
+        in: query
+        name: offset
+        type: integer
+      - description: filter
+        in: query
+        name: search
+        type: string
+      - description: default name.asc
+        in: query
+        name: sort
+        type: string
+      - description: filter; ignores limit/offset; comma-seperated list
+        in: query
+        name: ids
+        type: string
+      - description: filter; comma-seperated list
+        in: query
+        name: device-type-ids
+        type: string
+      - description: filter; comma-seperated list; lists elements only if they have
+          an attribute key that is in the given list
+        in: query
+        name: attr-keys
+        type: string
+      - description: filter; comma-seperated list; lists elements only if they have
+          an attribute value that is in the given list
+        in: query
+        name: attr-values
+        type: string
+      - description: filter; valid values are 'online', 'offline' and an empty string
+          for unknown states
+        in: query
+        name: connection-state
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Device'
+            type: array
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: list devices
+      tags:
+      - list
+      - devices
+    post:
+      description: create device
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Device'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Device'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: create device
+      tags:
+      - create
+      - devices
+  /devices/{id}:
+    delete:
+      description: delete device
+      parameters:
+      - description: Device Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete device
+      tags:
+      - delete
+      - devices
+    get:
+      description: get device
+      parameters:
+      - description: Device Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Device'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get device
+      tags:
+      - get
+      - devices
+    put:
+      description: set device; admins may create new devices but only without using
+        the UpdateOnlySameOriginAttributesKey query parameter
+      parameters:
+      - description: Device Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: comma separated list; ensure that no attribute from another origin
+          is overwritten
+        in: query
+        name: update-only-same-origin-attributes
+        type: string
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Device'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Device'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set device
+      tags:
+      - set
+      - devices
+  /devices/{id}/attributes:
+    put:
+      description: set device display name
+      parameters:
+      - description: Device Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: display name
+        in: body
+        name: message
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Device'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set device display name
+      tags:
+      - set
+      - devices
+  /functions:
+    post:
+      description: create function
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Function'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Function'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: create function
+      tags:
+      - create
+      - functions
+  /functions/{id}:
+    delete:
+      description: delete function
+      parameters:
+      - description: Function Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete function
+      tags:
+      - delete
+      - functions
+    get:
+      description: get function
+      parameters:
+      - description: Function Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Function'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get function
+      tags:
+      - get
+      - functions
+    put:
+      description: set function
+      parameters:
+      - description: Function Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Function'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Function'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set function
+      tags:
+      - set
+      - functions
+  /helper/id:
+    get:
+      description: transforms short id to long id
+      parameters:
+      - description: short id
+        in: query
+        name: short_id
+        required: true
+        type: string
+      - description: prefix added to generated long id
+        in: query
+        name: prefix
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+      security:
+      - Bearer: []
+      summary: transforms short id to long id
+      tags:
+      - helper
+  /hubs:
+    post:
+      description: create hub
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Hub'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Hub'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: create hub
+      tags:
+      - create
+      - hubs
+  /hubs/{id}:
+    delete:
+      description: delete hub
+      parameters:
+      - description: Hub Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete hub
+      tags:
+      - delete
+      - hubs
+    get:
+      description: get hub
+      parameters:
+      - description: Hub Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Hub'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get hub
+      tags:
+      - get
+      - hubs
+    head:
+      description: head hub
+      parameters:
+      - description: Hub Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Hub'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Hub'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: head hub
+      tags:
+      - head
+      - hubs
+    put:
+      description: set hub
+      parameters:
+      - description: Hub Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: only admins may set user_id; overwrites hub.OwnerId; defaults
+          to existing hub.OwnerId and falls back to user-id of requesting user if
+          hub does not exist
+        in: query
+        name: user_id
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Hub'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Hub'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set hub
+      tags:
+      - set
+      - hubs
+  /hubs/{id}/name:
+    put:
+      description: set hub name
+      parameters:
+      - description: Hub Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: name
+        in: body
+        name: message
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Hub'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set hub name
+      tags:
+      - set
+      - hubs
+  /local-devices/{id}:
+    delete:
+      description: delete device (local-id variant)
+      parameters:
+      - description: Device Local Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: defaults to requesting user; used in combination with id to find
+          device
+        in: query
+        name: owner_id
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete device (local-id variant)
+      tags:
+      - delete
+      - devices
+    get:
+      description: get device by local id
+      parameters:
+      - description: Device Local Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: defaults to requesting user; used in combination with id to find
+          device
+        in: query
+        name: owner_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Device'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get device by local id
+      tags:
+      - get
+      - devices
+    post:
+      description: create device (local-id variant)
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Device'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Device'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: create device (local-id variant)
+      tags:
+      - create
+      - devices
+    put:
+      description: set device (local-id variant)
+      parameters:
+      - description: Device Local Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: comma separated list; ensure that no attribute from another origin
+          is overwritten
+        in: query
+        name: update-only-same-origin-attributes
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Device'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Device'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set device (local-id variant)
+      tags:
+      - set
+      - devices
+  /locations:
+    post:
+      description: create location
+      parameters:
+      - description: Location Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Location'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Location'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: create location
+      tags:
+      - create
+      - locations
+  /locations/{id}:
+    delete:
+      description: delete location
+      parameters:
+      - description: Location Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete location
+      tags:
+      - delete
+      - locations
+    get:
+      description: get location
+      parameters:
+      - description: Location Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Location'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get location
+      tags:
+      - get
+      - locations
+    put:
+      description: set location
+      parameters:
+      - description: Location Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Location'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Location'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set location
+      tags:
+      - set
+      - locations
+  /protocols:
+    post:
+      description: get protocol
+      parameters:
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Protocol'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Protocol'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get protocol
+      tags:
+      - get
+      - protocols
+  /protocols/{id}:
+    delete:
+      description: delete protocol
+      parameters:
+      - description: Protocol Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: delete protocol
+      tags:
+      - delete
+      - protocols
+    get:
+      description: get protocol
+      parameters:
+      - description: Protocol Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Protocol'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: get protocol
+      tags:
+      - get
+      - protocols
+    put:
+      description: set protocol
+      parameters:
+      - description: Protocol Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: wait for done message in kafka before responding
+        in: query
+        name: wait
+        type: boolean
+      - description: element
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Protocol'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Protocol'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: set protocol
+      tags:
+      - set
+      - protocols
+securityDefinitions:
+  Bearer:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

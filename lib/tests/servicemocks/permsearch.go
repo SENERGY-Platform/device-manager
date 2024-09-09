@@ -19,7 +19,6 @@ package servicemocks
 import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -33,21 +32,21 @@ type PermSearch struct {
 func NewPermSearch() *PermSearch {
 	repo := &PermSearch{}
 
-	router := httprouter.New()
+	router := http.NewServeMux()
 
-	router.GET("/jwt/check/:resource/:id/:permission/bool", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("GET /jwt/check/{resource}/{id}/:permission/bool", func(writer http.ResponseWriter, request *http.Request) {
 		json.NewEncoder(writer).Encode(true)
 	})
 
-	router.GET("/v3/resources/:resource/:id/access", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("GET /v3/resources/{resource}/{id}/access", func(writer http.ResponseWriter, request *http.Request) {
 		json.NewEncoder(writer).Encode(true)
 	})
 
-	router.GET("/v3/resources/:resource", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("GET /v3/resources/{resource}", func(writer http.ResponseWriter, request *http.Request) {
 		json.NewEncoder(writer).Encode([]interface{}{})
 	})
 
-	router.POST("/v3/query", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	router.HandleFunc("POST /v3/query", func(writer http.ResponseWriter, request *http.Request) {
 		message := com.QueryMessage{}
 		err := json.NewDecoder(request.Body).Decode(&message)
 		if err != nil {

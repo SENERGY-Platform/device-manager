@@ -23,21 +23,34 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"strconv"
 )
 
 func init() {
-	endpoints = append(endpoints, HubsEndpoints)
+	endpoints = append(endpoints, &HubsEndpoints{})
 }
 
-func HubsEndpoints(config config.Config, control Controller, router *httprouter.Router) {
-	resource := "/hubs"
+type HubsEndpoints struct{}
 
-	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Get godoc
+// @Summary      get hub
+// @Description  get hub
+// @Tags         get, hubs
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Hub Id"
+// @Success      200 {object}  models.Hub
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /hubs/{id} [GET]
+func (this *HubsEndpoints) Get(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("GET /hubs/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -55,9 +68,26 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 		}
 		return
 	})
+}
 
-	router.HEAD(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Head godoc
+// @Summary      head hub
+// @Description  head hub
+// @Tags         head, hubs
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Hub Id"
+// @Param        message body models.Hub true "element"
+// @Success      200 {object}  models.Hub
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /hubs/{id} [HEAD]
+func (this *HubsEndpoints) Head(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("HEAD /hubs/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -67,8 +97,25 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 		writer.WriteHeader(errCode)
 		return
 	})
+}
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// Create godoc
+// @Summary      create hub
+// @Description  create hub
+// @Tags         create, hubs
+// @Produce      json
+// @Security Bearer
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Hub true "element"
+// @Success      200 {object}  models.Hub
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /hubs [POST]
+func (this *HubsEndpoints) Create(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("POST /hubs", func(writer http.ResponseWriter, request *http.Request) {
 		hub := models.Hub{}
 		err := json.NewDecoder(request.Body).Decode(&hub)
 		if err != nil {
@@ -107,9 +154,28 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 		}
 		return
 	})
+}
 
-	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Set godoc
+// @Summary      set hub
+// @Description  set hub
+// @Tags         set, hubs
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Hub Id"
+// @Param        user_id query string false "only admins may set user_id; overwrites hub.OwnerId; defaults to existing hub.OwnerId and falls back to user-id of requesting user if hub does not exist"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Hub true "element"
+// @Success      200 {object}  models.Hub
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /hubs/{id} [PUT]
+func (this *HubsEndpoints) Set(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("PUT /hubs/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		userId := request.URL.Query().Get("user_id")
 		hub := models.Hub{}
 		err := json.NewDecoder(request.Body).Decode(&hub)
@@ -148,9 +214,27 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 		}
 		return
 	})
+}
 
-	router.PUT(resource+"/:id/name", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// SetName godoc
+// @Summary      set hub name
+// @Description  set hub name
+// @Tags         set, hubs
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Hub Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body string true "name"
+// @Success      200 {object}  models.Hub
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /hubs/{id}/name [PUT]
+func (this *HubsEndpoints) SetName(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("PUT /hubs/{id}/name", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		name := ""
 		err := json.NewDecoder(request.Body).Decode(&name)
 		if err != nil {
@@ -190,9 +274,26 @@ func HubsEndpoints(config config.Config, control Controller, router *httprouter.
 		}
 		return
 	})
+}
 
-	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Delete godoc
+// @Summary      delete hub
+// @Description  delete hub
+// @Tags         delete, hubs
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Hub Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Success      200
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /hubs/{id} [DELETE]
+func (this *HubsEndpoints) Delete(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("DELETE /hubs/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

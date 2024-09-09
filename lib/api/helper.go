@@ -20,20 +20,30 @@ import (
 	"encoding/json"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"strings"
 )
 
 func init() {
-	endpoints = append(endpoints, HelperEndpoints)
+	endpoints = append(endpoints, &HelperEndpoints{})
 }
 
-func HelperEndpoints(config config.Config, control Controller, router *httprouter.Router) {
-	resource := "/helper"
+type HelperEndpoints struct{}
 
-	router.GET(resource+"/id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// Id godoc
+// @Summary      transforms short id to long id
+// @Description  transforms short id to long id
+// @Tags         helper
+// @Produce      json
+// @Security Bearer
+// @Param        short_id query string true "short id"
+// @Param        prefix query string true "prefix added to generated long id"
+// @Success      200 {object} string
+// @Failure      400
+// @Router       /helper/id [GET]
+func (this *HelperEndpoints) Id(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("GET /helper/id", func(writer http.ResponseWriter, request *http.Request) {
 		shortId := strings.TrimSpace(request.URL.Query().Get("short_id"))
 		prefix := strings.TrimSpace(request.URL.Query().Get("prefix"))
 		uuidPart, err := models.LongId(shortId)

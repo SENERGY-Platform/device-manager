@@ -23,21 +23,34 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"strconv"
 )
 
 func init() {
-	endpoints = append(endpoints, DeviceClassesEndpoints)
+	endpoints = append(endpoints, &DeviceClassesEndpoints{})
 }
 
-func DeviceClassesEndpoints(config config.Config, control Controller, router *httprouter.Router) {
-	resource := "/device-classes"
+type DeviceClassesEndpoints struct{}
 
-	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Get godoc
+// @Summary      get device-class
+// @Description  get device-class
+// @Tags         get, device-classes
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "DeviceClass Id"
+// @Success      200 {object}  models.DeviceClass
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /device-classes/{id} [GET]
+func (this *DeviceClassesEndpoints) Get(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("GET /device-classes/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -55,8 +68,25 @@ func DeviceClassesEndpoints(config config.Config, control Controller, router *ht
 		}
 		return
 	})
+}
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// Create godoc
+// @Summary      create device-class
+// @Description  create device-class
+// @Tags         create, device-classes
+// @Produce      json
+// @Security Bearer
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.DeviceClass true "element"
+// @Success      200 {object}  models.DeviceClass
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /device-classes [POST]
+func (this *DeviceClassesEndpoints) Create(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("POST /device-classes", func(writer http.ResponseWriter, request *http.Request) {
 		deviceClass := models.DeviceClass{}
 		err := json.NewDecoder(request.Body).Decode(&deviceClass)
 		if err != nil {
@@ -95,9 +125,27 @@ func DeviceClassesEndpoints(config config.Config, control Controller, router *ht
 		}
 		return
 	})
+}
 
-	router.PUT(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Set godoc
+// @Summary      set device-class
+// @Description  set device-class
+// @Tags         set, device-classes
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "DeviceClass Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.DeviceClass true "element"
+// @Success      200 {object}  models.DeviceClass
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /device-classes/{id} [PUT]
+func (this *DeviceClassesEndpoints) Set(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("PUT /device-classes/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		deviceClass := models.DeviceClass{}
 		err := json.NewDecoder(request.Body).Decode(&deviceClass)
 		if err != nil {
@@ -131,9 +179,26 @@ func DeviceClassesEndpoints(config config.Config, control Controller, router *ht
 		}
 		return
 	})
+}
 
-	router.DELETE(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Delete godoc
+// @Summary      delete device-class
+// @Description  delete device-class
+// @Tags         delete, device-classes
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "DeviceClass Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Success      200
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /device-classes/{id} [DELETE]
+func (this *DeviceClassesEndpoints) Delete(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("DELETE /device-classes/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

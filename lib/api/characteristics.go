@@ -23,21 +23,34 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"strconv"
 )
 
 func init() {
-	endpoints = append(endpoints, CharacteristicsEndpoints)
+	endpoints = append(endpoints, &CharacteristicsEndpoints{})
 }
 
-func CharacteristicsEndpoints(config config.Config, control Controller, router *httprouter.Router) {
-	resource := "/characteristics"
+type CharacteristicsEndpoints struct{}
 
-	router.GET(resource+"/:id", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("id")
+// Get godoc
+// @Summary      get characteristic
+// @Description  get characteristic
+// @Tags         get, characteristics
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Characteristics Id"
+// @Success      200 {object}  models.Characteristic
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /characteristics/{id} [GET]
+func (this *CharacteristicsEndpoints) Get(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("GET /characteristics/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)
@@ -55,8 +68,25 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 		}
 		return
 	})
+}
 
-	router.POST(resource, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+// Create godoc
+// @Summary      create characteristic
+// @Description  create characteristic
+// @Tags         create, characteristics
+// @Produce      json
+// @Security Bearer
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Characteristic true "element"
+// @Success      200 {object}  models.Characteristic
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /characteristics [POST]
+func (this *CharacteristicsEndpoints) Create(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("POST /characteristics", func(writer http.ResponseWriter, request *http.Request) {
 		characteristic := models.Characteristic{}
 		err := json.NewDecoder(request.Body).Decode(&characteristic)
 		if err != nil {
@@ -95,9 +125,27 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 		}
 		return
 	})
+}
 
-	router.PUT(resource+"/:characteristicId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		characteristicId := params.ByName("characteristicId")
+// Set godoc
+// @Summary      set characteristic
+// @Description  set characteristic
+// @Tags         set, characteristics
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Characteristic Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Param        message body models.Characteristic true "element"
+// @Success      200 {object}  models.Characteristic
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /characteristics/{id} [PUT]
+func (this *CharacteristicsEndpoints) Set(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("PUT /characteristics/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		characteristicId := request.PathValue("id")
 		characteristic := models.Characteristic{}
 		err := json.NewDecoder(request.Body).Decode(&characteristic)
 		if err != nil {
@@ -131,9 +179,26 @@ func CharacteristicsEndpoints(config config.Config, control Controller, router *
 		}
 		return
 	})
+}
 
-	router.DELETE(resource+"/:characteristicId", func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		id := params.ByName("characteristicId")
+// Delete godoc
+// @Summary      delete characteristic
+// @Description  delete characteristic
+// @Tags         delete, characteristics
+// @Produce      json
+// @Security Bearer
+// @Param        id path string true "Characteristic Id"
+// @Param        wait query bool false "wait for done message in kafka before responding"
+// @Success      200
+// @Failure      400
+// @Failure      401
+// @Failure      403
+// @Failure      404
+// @Failure      500
+// @Router       /characteristics/{id} [DELETE]
+func (this *CharacteristicsEndpoints) Delete(config config.Config, router *http.ServeMux, control Controller) {
+	router.HandleFunc("DELETE /characteristics/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
 		token, err := auth.GetParsedToken(request)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusBadRequest)

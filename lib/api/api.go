@@ -20,35 +20,79 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/api/util"
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/service-commons/pkg/accesslog"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
 	"reflect"
-	"runtime"
 )
 
-var endpoints = []func(config config.Config, control Controller, router *httprouter.Router){}
+type EndpointMethod = func(config config.Config, router *http.ServeMux, ctrl Controller)
+
+var endpoints = []interface{}{} //list of objects with EndpointMethod
 
 func Start(config config.Config, control Controller) (srv *http.Server, err error) {
 	log.Println("start api")
-	router := httprouter.New()
-	for _, e := range endpoints {
-		log.Println("add endpoints: " + runtime.FuncForPC(reflect.ValueOf(e).Pointer()).Name())
-		e(config, control, router)
-	}
-	log.Println("add logging and cors")
-	corsHandler := util.NewCors(router)
-	logger := accesslog.New(corsHandler)
-	var handler http.Handler
-	if config.EditForward == "" || config.EditForward == "-" {
-		handler = logger
-	} else {
-		handler = util.NewConditionalForward(logger, config.EditForward, func(r *http.Request) bool {
+	router := GetRouter(config, control)
+	log.Println("listen on port", config.ServerPort)
+	srv = &http.Server{Addr: ":" + config.ServerPort, Handler: router}
+	go func() { log.Println(srv.ListenAndServe()) }()
+	return srv, nil
+}
+
+// GetRouter doc
+// @title         Device-Manager API
+// @version       0.1
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+// @BasePath  /
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
+func GetRouter(config config.Config, control Controller) http.Handler {
+	handler := GetRouterWithoutMiddleware(config, control)
+	handler = util.NewCors(handler)
+	handler = accesslog.New(handler)
+	if config.EditForward != "" && config.EditForward != "-" {
+		handler = util.NewConditionalForward(handler, config.EditForward, func(r *http.Request) bool {
 			return r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete
 		})
 	}
-	log.Println("listen on port", config.ServerPort)
-	srv = &http.Server{Addr: ":" + config.ServerPort, Handler: handler}
-	go func() { log.Println(srv.ListenAndServe()) }()
-	return srv, nil
+	return handler
+}
+
+func GetRouterWithoutMiddleware(config config.Config, command Controller) http.Handler {
+	router := http.NewServeMux()
+	log.Println("add heart beat endpoint")
+	router.HandleFunc("GET /", func(writer http.ResponseWriter, request *http.Request) {
+		writer.WriteHeader(http.StatusOK)
+	})
+	for _, e := range endpoints {
+		for name, call := range getEndpointMethods(e) {
+			log.Println("add endpoint " + name)
+			call(config, router, command)
+		}
+	}
+	return router
+}
+
+func getEndpointMethods(e interface{}) map[string]func(config config.Config, router *http.ServeMux, ctrl Controller) {
+	result := map[string]EndpointMethod{}
+	objRef := reflect.ValueOf(e)
+	methodCount := objRef.NumMethod()
+	for i := 0; i < methodCount; i++ {
+		m := objRef.Method(i)
+		f, ok := m.Interface().(EndpointMethod)
+		if ok {
+			name := getTypeName(objRef.Type()) + "::" + objRef.Type().Method(i).Name
+			result[name] = f
+		}
+	}
+	return result
+}
+
+func getTypeName(t reflect.Type) (res string) {
+	for t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	return t.Name()
 }
