@@ -25,6 +25,9 @@ import (
 	"reflect"
 )
 
+//go:generate go install github.com/swaggo/swag/cmd/swag@latest
+//go:generate swag init --instanceName devicemanager -o ../../docs --parseDependency -d . -g api.go
+
 type EndpointMethod = func(config config.Config, router *http.ServeMux, ctrl Controller)
 
 var endpoints = []interface{}{} //list of objects with EndpointMethod
