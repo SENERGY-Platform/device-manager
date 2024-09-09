@@ -1317,15 +1317,15 @@ const docTemplatedevicemanager = `{
                         "Bearer": []
                     }
                 ],
-                "description": "get device-type",
+                "description": "delete device-type",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "get",
+                    "delete",
                     "device-types"
                 ],
-                "summary": "get device-type",
+                "summary": "delete device-type",
                 "parameters": [
                     {
                         "type": "string",
@@ -1746,6 +1746,80 @@ const docTemplatedevicemanager = `{
             }
         },
         "/devices/{id}/attributes": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set device attributes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "set",
+                    "devices"
+                ],
+                "summary": "set device attributes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "wait for done message in kafka before responding",
+                        "name": "wait",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "comma separated list; ensure that no attribute from another origin is overwritten",
+                        "name": "update-only-same-origin-attributes",
+                        "in": "query"
+                    },
+                    {
+                        "description": "attributes",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Attribute"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Device"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/devices/{id}/display_name": {
             "put": {
                 "security": [
                     {
@@ -2900,15 +2974,15 @@ const docTemplatedevicemanager = `{
                         "Bearer": []
                     }
                 ],
-                "description": "get protocol",
+                "description": "create protocol",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "get",
+                    "create",
                     "protocols"
                 ],
-                "summary": "get protocol",
+                "summary": "create protocol",
                 "parameters": [
                     {
                         "type": "boolean",

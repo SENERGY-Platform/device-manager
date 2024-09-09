@@ -322,7 +322,7 @@ func (this *DevicesEndpoints) SetAttributes(config config.Config, router *http.S
 // @Failure      403
 // @Failure      404
 // @Failure      500
-// @Router       /devices/{id}/attributes [PUT]
+// @Router       /devices/{id}/display_name [PUT]
 func (this *DevicesEndpoints) SetDisplayName(config config.Config, router *http.ServeMux, control Controller) {
 	router.HandleFunc("PUT /devices/{id}/display_name", func(writer http.ResponseWriter, request *http.Request) {
 		id := request.PathValue("id")

@@ -72,9 +72,9 @@ func (this *ProtocolsEndpoints) Get(config config.Config, router *http.ServeMux,
 }
 
 // Create godoc
-// @Summary      get protocol
-// @Description  get protocol
-// @Tags         get, protocols
+// @Summary      create protocol
+// @Description  create protocol
+// @Tags         create, protocols
 // @Produce      json
 // @Security Bearer
 // @Param        wait query bool false "wait for done message in kafka before responding"

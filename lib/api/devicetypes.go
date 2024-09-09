@@ -202,9 +202,9 @@ func (this *DeviceTypesEndpoints) Set(config config.Config, router *http.ServeMu
 }
 
 // Delete godoc
-// @Summary      get device-type
-// @Description  get device-type
-// @Tags         get, device-types
+// @Summary      delete device-type
+// @Description  delete device-type
+// @Tags         delete, device-types
 // @Produce      json
 // @Security Bearer
 // @Param        id path string true "DeviceType Id"
