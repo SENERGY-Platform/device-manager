@@ -33,7 +33,7 @@ type Swagger struct{}
 func (this *Swagger) Swagger(config config.Config, router *http.ServeMux, control Controller) {
 	router.HandleFunc("GET /doc", func(writer http.ResponseWriter, request *http.Request) {
 		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
-		doc, err := swag.ReadDoc("devicerepository")
+		doc, err := swag.ReadDoc("devicemanager")
 		if err != nil {
 			http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
