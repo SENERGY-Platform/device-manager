@@ -40,3 +40,12 @@ func (this *Com) ValidateDeviceGroup(token auth.Token, dg models.DeviceGroup) (e
 	}
 	return validateResources(token, this.config, list, dg)
 }
+
+func (this *Com) ValidateDeviceGroupDelete(token auth.Token, id string) (err error, code int) {
+	if err = PreventIdModifier(id); err != nil {
+		return err, http.StatusBadRequest
+	}
+	return validateResourceDelete(token, this.config, []string{
+		this.config.DeviceRepoUrl + "/device-groups",
+	}, id)
+}

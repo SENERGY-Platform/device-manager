@@ -151,6 +151,7 @@ type Com interface {
 
 	GetTechnicalDeviceGroup(token auth.Token, id string) (dt models.DeviceGroup, err error, code int)
 	ValidateDeviceGroup(token auth.Token, dt models.DeviceGroup) (err error, code int)
+	ValidateDeviceGroupDelete(token auth.Token, id string) (err error, code int)
 	PermissionCheckForDeviceGroup(token auth.Token, id string, permission string) (err error, code int) //permission = "w" | "r" | "x" | "a"
 
 	GetDeviceType(token auth.Token, id string) (dt models.DeviceType, err error, code int)

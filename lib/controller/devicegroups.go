@@ -133,6 +133,11 @@ func (this *Controller) PublishDeviceGroupDelete(token auth.Token, id string, op
 		return err, code
 	}
 
+	err, code = this.com.ValidateDeviceGroupDelete(token, id)
+	if err != nil {
+		return err, code
+	}
+
 	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
 		ResourceKind: this.config.DeviceGroupTopic,
 		ResourceId:   id,
