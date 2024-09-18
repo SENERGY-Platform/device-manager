@@ -11,7 +11,7 @@ require (
 )
 
 require (
-	github.com/SENERGY-Platform/models/go v0.0.0-20240627082833-157bd627a94f
+	github.com/SENERGY-Platform/models/go v0.0.0-20240918081258-d61489cadbb1
 	github.com/SENERGY-Platform/permission-search v0.0.16
 	github.com/SENERGY-Platform/service-commons v0.0.0-20240708085423-94423a495d7f
 	github.com/swaggo/swag v1.16.3
