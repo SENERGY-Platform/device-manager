@@ -18,35 +18,11 @@ package controller
 
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
+	"github.com/SENERGY-Platform/permissions-v2/pkg/client"
 )
-
-func (this *Controller) deleteUserRights(token auth.Token, kind string, id string, userId string) (err error) {
-	rights, err := this.com.GetPermissions(token, kind, id)
-	if err != nil {
-		return err
-	}
-	userrights := map[string]permmodel.Right{}
-	for user, right := range rights.UserRights {
-		if user != userId {
-			userrights[user] = right
-		}
-	}
-	rights.UserRights = userrights
-
-	err = this.publisher.PublishRights(this.config.DeviceTopic, id, rights.ResourceRightsBase)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 func (this *Controller) DeleteUser(userId string) error {
 	token, err := auth.CreateToken("device-manager", userId)
-	if err != nil {
-		return err
-	}
-	admintoken, err := auth.CreateTokenWithRoles("device-manager", userId, []string{"admin", "system", "user"})
 	if err != nil {
 		return err
 	}
@@ -61,8 +37,9 @@ func (this *Controller) DeleteUser(userId string) error {
 			return err
 		}
 	}
-	for _, id := range userToDeleteFromDevices {
-		err = this.deleteUserRights(admintoken, this.config.DeviceTopic, id, userId)
+	for _, r := range userToDeleteFromDevices {
+		delete(r.UserPermissions, userId)
+		_, err, _ = this.com.SetPermission(client.InternalAdminToken, this.config.DeviceTopic, r.Id, r.ResourcePermissions)
 		if err != nil {
 			return err
 		}
@@ -78,8 +55,9 @@ func (this *Controller) DeleteUser(userId string) error {
 			return err
 		}
 	}
-	for _, id := range userToDeleteFromDeviceGroups {
-		err = this.deleteUserRights(admintoken, this.config.DeviceGroupTopic, id, userId)
+	for _, r := range userToDeleteFromDeviceGroups {
+		delete(r.UserPermissions, userId)
+		_, err, _ = this.com.SetPermission(client.InternalAdminToken, this.config.DeviceGroupTopic, r.Id, r.ResourcePermissions)
 		if err != nil {
 			return err
 		}
@@ -95,8 +73,9 @@ func (this *Controller) DeleteUser(userId string) error {
 			return err
 		}
 	}
-	for _, id := range userToDeleteFromHubs {
-		err = this.deleteUserRights(admintoken, this.config.HubTopic, id, userId)
+	for _, r := range userToDeleteFromHubs {
+		delete(r.UserPermissions, userId)
+		_, err, _ = this.com.SetPermission(client.InternalAdminToken, this.config.HubTopic, r.Id, r.ResourcePermissions)
 		if err != nil {
 			return err
 		}
@@ -112,8 +91,9 @@ func (this *Controller) DeleteUser(userId string) error {
 			return err
 		}
 	}
-	for _, id := range userToDeleteFromLocations {
-		err = this.deleteUserRights(admintoken, this.config.LocationTopic, id, userId)
+	for _, r := range userToDeleteFromLocations {
+		delete(r.UserPermissions, userId)
+		_, err, _ = this.com.SetPermission(client.InternalAdminToken, this.config.LocationTopic, r.Id, r.ResourcePermissions)
 		if err != nil {
 			return err
 		}

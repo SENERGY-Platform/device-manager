@@ -3,6 +3,7 @@
   "server_port": "8080",
   "debug": false,
   "permissions_url": "http://perm:8080",
+  "permissions_v2_url": "",
   "device_topic": "devices",
   "hub_topic": "hubs",
   "device_type_topic": "device-types",

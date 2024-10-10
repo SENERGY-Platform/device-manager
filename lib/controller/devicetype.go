@@ -21,6 +21,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"net/http"
@@ -147,56 +148,26 @@ func (this *Controller) ValidateDistinctDeviceTypeAttributes(token auth.Token, d
 		dtAttr[strings.TrimSpace(attr.Key)] = strings.TrimSpace(attr.Value)
 	}
 
-	and := []com.Selection{}
+	options := client.DeviceTypeListOptions{
+		Limit:           9999,
+		AttributeKeys:   nil,
+		AttributeValues: nil,
+	}
+
 	for _, attrKey := range attributeKeys {
 		attrKey = strings.TrimSpace(attrKey)
 		if value, ok := dtAttr[attrKey]; ok {
-			and = append(and, com.Selection{
-				Condition: com.ConditionConfig{
-					Feature:   "features.attributes.key",
-					Operation: com.QueryEqualOperation,
-					Value:     attrKey,
-				},
-			})
-			if value != "" {
-				and = append(and, com.Selection{
-					Condition: com.ConditionConfig{
-						Feature:   "features.attributes.value",
-						Operation: com.QueryEqualOperation,
-						Value:     strings.TrimSpace(value),
-					},
-				})
-			}
+			options.AttributeKeys = append(options.AttributeKeys, attrKey)
+			options.AttributeValues = append(options.AttributeValues, strings.TrimSpace(value))
 		} else {
 			return errors.New("distinct attribute not in device-type attributes found")
 		}
 	}
-
-	var filter com.Selection
-	if len(and) == 1 {
-		filter = and[0]
-	} else {
-		filter = com.Selection{
-			And: and,
-		}
-	}
-
-	searchResult := []models.DeviceType{}
-	err, _ := this.com.QueryPermissionsSearch(token.Jwt(), com.QueryMessage{
-		Resource: this.config.DeviceTypeTopic,
-		Find: &com.QueryFind{
-			QueryListCommons: com.QueryListCommons{
-				Limit:  1000,
-				Offset: 0,
-				Rights: "r",
-			},
-			Filter: &filter,
-		},
-	}, &searchResult)
+	list, err, _ := this.com.ListDeviceTypes(token.Jwt(), options)
 	if err != nil {
 		return err
 	}
-	for _, element := range searchResult {
+	for _, element := range list {
 		eAttr := map[string]string{}
 		for _, attr := range element.Attributes {
 			eAttr[attr.Key] = strings.TrimSpace(attr.Value)

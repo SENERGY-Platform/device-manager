@@ -90,7 +90,7 @@ func (this *LocalDevicesEndpoints) List(config config.Config, router *http.Serve
 			}
 		} else {
 			var errCode int
-			result, err, errCode = control.ListDevices(token, query)
+			result, err, errCode = control.ListDevicesByQuery(token, query)
 			if err != nil {
 				http.Error(writer, err.Error(), errCode)
 				return

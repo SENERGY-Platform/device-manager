@@ -22,14 +22,13 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
+	"github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"log"
 	"net/http"
-	"net/url"
 	"runtime/debug"
 	"slices"
-	"strings"
 )
 
 func (this *Controller) ReadHub(token auth.Token, id string) (hub models.Hub, err error, code int) {
@@ -210,45 +209,45 @@ func (this *Controller) completeHub(token auth.Token, edit models.Hub) (result m
 	if result.DeviceIds == nil {
 		result.DeviceIds = []string{}
 	}
-	idWrapperList := []IdWrapper{}
-	err, code = this.com.QueryPermissionsSearch(token.Jwt(), com.QueryMessage{
-		Resource: "devices",
-		Find: &com.QueryFind{
-			QueryListCommons: com.QueryListCommons{
-				Limit:  len(edit.DeviceLocalIds),
-				Offset: 0,
-				Rights: "r",
-			},
-			Filter: &com.Selection{
-				Condition: com.ConditionConfig{
-					Feature:   "features.local_id",
-					Operation: com.QueryAnyValueInFeatureOperation,
-					Value:     edit.DeviceLocalIds,
-				},
-			},
-		},
-	}, &idWrapperList)
-	if err != nil {
-		return result, err, code
-	}
-	for _, id := range idWrapperList {
-		if !slices.Contains(result.DeviceIds, id.Id) {
-			result.DeviceIds = append(result.DeviceIds, id.Id)
+
+	if len(edit.DeviceLocalIds) > 0 {
+		devices, err, code := this.com.ListDevices(token.Jwt(), client.DeviceListOptions{LocalIds: edit.DeviceLocalIds})
+		if err != nil {
+			return result, err, code
+		}
+		if len(devices) != len(edit.DeviceLocalIds) {
+			return result, errors.New("not all local device ids found"), http.StatusBadRequest
+		}
+		for _, device := range devices {
+			if !slices.Contains(result.DeviceLocalIds, device.LocalId) {
+				result.DeviceLocalIds = append(result.DeviceLocalIds, device.LocalId)
+			}
+			if !slices.Contains(result.DeviceIds, device.Id) {
+				result.DeviceIds = append(result.DeviceIds, device.Id)
+			}
 		}
 	}
 
-	devicesById, err, code := this.ListDevices(token, url.Values{"ids": {strings.Join(edit.DeviceIds, ",")}})
-	if err != nil {
-		return result, err, code
-	}
-	for _, device := range devicesById {
-		if !slices.Contains(result.DeviceLocalIds, device.LocalId) {
-			result.DeviceLocalIds = append(result.DeviceLocalIds, device.LocalId)
+	if len(edit.DeviceIds) > 0 {
+		devices, err, code := this.com.ListDevices(token.Jwt(), client.DeviceListOptions{Ids: edit.DeviceIds})
+		if err != nil {
+			return result, err, code
+		}
+		if len(devices) != len(edit.DeviceIds) {
+			return result, errors.New("not all device ids found"), http.StatusBadRequest
+		}
+		for _, device := range devices {
+			if !slices.Contains(result.DeviceLocalIds, device.LocalId) {
+				result.DeviceLocalIds = append(result.DeviceLocalIds, device.LocalId)
+			}
+			if !slices.Contains(result.DeviceIds, device.Id) {
+				result.DeviceIds = append(result.DeviceIds, device.Id)
+			}
 		}
 	}
 
-	if len(result.DeviceIds) != len(result.DeviceLocalIds) {
-		return result, errors.New("not all local device ids found"), http.StatusBadRequest
+	if len(result.DeviceLocalIds) != len(result.DeviceIds) {
+		return result, errors.New("DeviceLocalIds DeviceIds count mismatch"), http.StatusBadRequest
 	}
 	return result, err, code
 }

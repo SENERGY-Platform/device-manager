@@ -23,7 +23,6 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/controller"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/docker"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
-	"github.com/SENERGY-Platform/device-manager/lib/tests/servicemocks"
 	"github.com/SENERGY-Platform/models/go/models"
 	"strconv"
 	"sync"
@@ -37,105 +36,19 @@ const userjwtUser = "ebbad927-4c39-4d12-8690-89b067dd4ce7"
 
 const userid = "dd69ea0d-f553-4336-80f3-7f4567f85c7b"
 
-func TestWithMock(t *testing.T) {
-	if testing.Short() {
-		t.Skip("short")
-	}
-	conf, err := config.Load("./../../config.json")
-	if err != nil {
-		t.Fatal("ERROR: unable to load config", err)
-	}
-	servicemocks.DtTopic = conf.DeviceTypeTopic
-	servicemocks.ProtocolTopic = conf.ProtocolTopic
-	servicemocks.DeviceTopic = conf.DeviceTopic
-	servicemocks.ConceptTopic = conf.ConceptTopic
-	servicemocks.CharacteristicTopic = conf.ConceptTopic
-	servicemocks.AspectTopic = conf.AspectTopic
-	servicemocks.FunctionTopic = conf.FunctionTopic
-	servicemocks.DeviceClassTopic = conf.DeviceClassTopic
-	servicemocks.DeviceGroupTopic = conf.DeviceGroupTopic
-	servicemocks.LocationTopic = conf.LocationTopic
+const Userid = "testOwner"
+const Userjwt = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwOGM0N2E4OC0yYzc5LTQyMGYtODEwNC02NWJkOWViYmU0MWUiLCJleHAiOjE1NDY1MDcyMzMsIm5iZiI6MCwiaWF0IjoxNTQ2NTA3MTczLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDEvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiZnJvbnRlbmQiLCJzdWIiOiJ0ZXN0T3duZXIiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJmcm9udGVuZCIsIm5vbmNlIjoiOTJjNDNjOTUtNzViMC00NmNmLTgwYWUtNDVkZDk3M2I0YjdmIiwiYXV0aF90aW1lIjoxNTQ2NTA3MDA5LCJzZXNzaW9uX3N0YXRlIjoiNWRmOTI4ZjQtMDhmMC00ZWI5LTliNjAtM2EwYWUyMmVmYzczIiwiYWNyIjoiMCIsImFsbG93ZWQtb3JpZ2lucyI6WyIqIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJ1c2VyIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsibWFzdGVyLXJlYWxtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInF1ZXJ5LXJlYWxtcyIsInZpZXctYXV0aG9yaXphdGlvbiIsInF1ZXJ5LWNsaWVudHMiLCJxdWVyeS11c2VycyIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIiwicXVlcnktZ3JvdXBzIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJyb2xlcyI6WyJ1c2VyIl19.ykpuOmlpzj75ecSI6cHbCATIeY4qpyut2hMc1a67Ycg`
 
-	publ, conf, stop := servicemocks.New(conf)
-	defer stop()
+const AdminTokenUser = "admin"
+const AdminToken = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwOGM0N2E4OC0yYzc5LTQyMGYtODEwNC02NWJkOWViYmU0MWUiLCJleHAiOjE1NDY1MDcyMzMsIm5iZiI6MCwiaWF0IjoxNTQ2NTA3MTczLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDEvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiZnJvbnRlbmQiLCJzdWIiOiJhZG1pbiIsInR5cCI6IkJlYXJlciIsImF6cCI6ImZyb250ZW5kIiwibm9uY2UiOiI5MmM0M2M5NS03NWIwLTQ2Y2YtODBhZS00NWRkOTczYjRiN2YiLCJhdXRoX3RpbWUiOjE1NDY1MDcwMDksInNlc3Npb25fc3RhdGUiOiI1ZGY5MjhmNC0wOGYwLTRlYjktOWI2MC0zYTBhZTIyZWZjNzMiLCJhY3IiOiIwIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbInVzZXIiLCJhZG1pbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7Im1hc3Rlci1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJxdWVyeS1yZWFsbXMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJxdWVyeS1jbGllbnRzIiwicXVlcnktdXNlcnMiLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyIsInF1ZXJ5LWdyb3VwcyJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwicm9sZXMiOlsidXNlciIsImFkbWluIl19.ggcFFFEsjwdfSzEFzmZt_m6W4IiSQub2FRhZVfWttDI`
 
-	port, err := helper.GetFreePort()
-	if err != nil {
-		t.Fatal(err)
-	}
-	conf.ServerPort = strconv.Itoa(port)
+const SecendOwnerTokenUser = "secondOwner"
+const SecondOwnerToken = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIwOGM0N2E4OC0yYzc5LTQyMGYtODEwNC02NWJkOWViYmU0MWUiLCJleHAiOjE1NDY1MDcyMzMsIm5iZiI6MCwiaWF0IjoxNTQ2NTA3MTczLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDEvYXV0aC9yZWFsbXMvbWFzdGVyIiwiYXVkIjoiZnJvbnRlbmQiLCJzdWIiOiJzZWNvbmRPd25lciIsInR5cCI6IkJlYXJlciIsImF6cCI6ImZyb250ZW5kIiwibm9uY2UiOiI5MmM0M2M5NS03NWIwLTQ2Y2YtODBhZS00NWRkOTczYjRiN2YiLCJhdXRoX3RpbWUiOjE1NDY1MDcwMDksInNlc3Npb25fc3RhdGUiOiI1ZGY5MjhmNC0wOGYwLTRlYjktOWI2MC0zYTBhZTIyZWZjNzMiLCJhY3IiOiIwIiwiYWxsb3dlZC1vcmlnaW5zIjpbIioiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbInVzZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1yZWFsbSIsInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwicXVlcnktcmVhbG1zIiwidmlldy1hdXRob3JpemF0aW9uIiwicXVlcnktY2xpZW50cyIsInF1ZXJ5LXVzZXJzIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiLCJxdWVyeS1ncm91cHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInJvbGVzIjpbInVzZXIiXX0.cq8YeUuR0jSsXCEzp634fTzNbGkq_B8KbVrwBPgceJ4`
 
-	ctrl, err := controller.NewWithPublisher(conf, publ)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	srv, err := api.Start(conf, ctrl)
-	if err != nil {
-		t.Fatal("ERROR: unable to start api", err)
-	}
-	defer srv.Shutdown(context.Background())
-
-	time.Sleep(200 * time.Millisecond)
-
-	tests(t, conf, true)
-}
-
-func TestWithEditRedirect(t *testing.T) {
-	if testing.Short() {
-		t.Skip("short")
-	}
-	conf, err := config.Load("./../../config.json")
-	if err != nil {
-		t.Fatal("ERROR: unable to load config", err)
-	}
-	servicemocks.DtTopic = conf.DeviceTypeTopic
-	servicemocks.ProtocolTopic = conf.ProtocolTopic
-	servicemocks.DeviceTopic = conf.DeviceTopic
-	servicemocks.ConceptTopic = conf.ConceptTopic
-	servicemocks.CharacteristicTopic = conf.ConceptTopic
-	servicemocks.AspectTopic = conf.AspectTopic
-	servicemocks.FunctionTopic = conf.FunctionTopic
-	servicemocks.DeviceClassTopic = conf.DeviceClassTopic
-	servicemocks.DeviceGroupTopic = conf.DeviceGroupTopic
-	servicemocks.LocationTopic = conf.LocationTopic
-
-	publ, conf, stop := servicemocks.New(conf)
-	defer stop()
-
-	port, err := helper.GetFreePort()
-	if err != nil {
-		t.Fatal(err)
-	}
-	conf.ServerPort = strconv.Itoa(port)
-
-	ctrl, err := controller.NewWithPublisher(conf, publ)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	editPort, err := helper.GetFreePort()
-	if err != nil {
-		t.Fatal(err)
-	}
-	editConf := conf
-	editConf.ServerPort = strconv.Itoa(editPort)
-	editServ, err := api.Start(editConf, ctrl)
-	if err != nil {
-		t.Fatal("ERROR: unable to start api", err)
-	}
-	defer editServ.Shutdown(context.Background())
-	conf.EditForward = "http://localhost" + editServ.Addr
-
-	srv, err := api.Start(conf, ctrl)
-	if err != nil {
-		t.Fatal("ERROR: unable to start api", err)
-	}
-	defer srv.Shutdown(context.Background())
-
-	time.Sleep(200 * time.Millisecond)
-
-	tests(t, conf, true)
+var userIdToUserToken = map[string]string{
+	Userid:               Userjwt,
+	SecendOwnerTokenUser: SecondOwnerToken,
+	AdminTokenUser:       AdminToken,
 }
 
 func TestWithDocker(t *testing.T) {
@@ -160,7 +73,7 @@ func TestWithDocker(t *testing.T) {
 	}
 	conf.ServerPort = strconv.Itoa(port)
 
-	conf.DeviceRepoUrl, conf.PermissionsUrl, conf.KafkaUrl, err = docker.DeviceRepoWithDependencies(ctx, wg)
+	conf.DeviceRepoUrl, conf.PermissionsUrl, conf.PermissionsV2Url, conf.KafkaUrl, err = docker.DeviceRepoWithDependencies(ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return

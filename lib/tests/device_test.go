@@ -970,116 +970,132 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(dt)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
-		Name:    "d1",
-		LocalId: "lid1",
+	t.Run("missing dt id", func(t *testing.T) {
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+			Name:    "d1",
+			LocalId: "lid1",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		//expect validation error
+		if resp.StatusCode == http.StatusOK {
+			t.Fatal(resp.Status, resp.StatusCode)
+		}
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
 
-	//expect validation error
-	if resp.StatusCode == http.StatusOK {
-		t.Fatal(resp.Status, resp.StatusCode)
-	}
+	t.Run("missing local id", func(t *testing.T) {
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+			Name:         "d1",
+			DeviceTypeId: dt.Id,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
-		Name:         "d1",
-		DeviceTypeId: dt.Id,
+		//expect validation error
+		if resp.StatusCode == http.StatusOK {
+			t.Fatal(resp.Status, resp.StatusCode)
+		}
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	//expect validation error
-	if resp.StatusCode == http.StatusOK {
-		t.Fatal(resp.Status, resp.StatusCode)
-	}
-
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
-		Name:         "d1",
-		DeviceTypeId: dt.Id,
-		LocalId:      "lid1",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
-	}
 
 	device := models.Device{}
-	err = json.NewDecoder(resp.Body).Decode(&device)
-	if err != nil {
-		t.Fatal(err)
-	}
+	t.Run("create", func(t *testing.T) {
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
+			Name:         "d1",
+			DeviceTypeId: dt.Id,
+			LocalId:      "lid1",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
 
-	if device.Id == "" {
-		t.Fatal(device)
-	}
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+		err = json.NewDecoder(resp.Body).Decode(&device)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
-	}
-
-	result := models.Device{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if result.Name != "d1" || result.LocalId != "lid1" || result.DeviceTypeId != dt.Id {
-		t.Fatal(result)
-	}
-
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
-		Name:         "reused_local_id",
-		DeviceTypeId: dt.Id,
-		LocalId:      "lid1",
+		if device.Id == "" {
+			t.Fatal(device)
+		}
+		time.Sleep(time.Second)
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
 
-	//expect validation error
-	if resp.StatusCode == http.StatusOK {
-		t.Fatal("device.local_id should be validated for global uniqueness: ", resp.Status, resp.StatusCode)
-	}
+	t.Run("get", func(t *testing.T) {
+		resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
 
-	resp, err = helper.Jwtdelete(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
 
-	if resp.StatusCode != http.StatusOK {
-		b, _ := io.ReadAll(resp.Body)
-		t.Fatal(resp.Status, resp.StatusCode, string(b))
-	}
+		result := models.Device{}
+		err = json.NewDecoder(resp.Body).Decode(&result)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer resp.Body.Close()
+		if result.Name != "d1" || result.LocalId != "lid1" || result.DeviceTypeId != dt.Id {
+			t.Fatal(result)
+		}
+	})
 
-	//expect 404 error
-	if resp.StatusCode != http.StatusNotFound {
-		t.Fatal(resp.Status, resp.StatusCode)
-	}
+	t.Run("local id duplicate", func(t *testing.T) {
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+			Name:         "reused_local_id",
+			DeviceTypeId: dt.Id,
+			LocalId:      "lid1",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		//expect validation error
+		if resp.StatusCode == http.StatusOK {
+			t.Fatal("device.local_id should be validated for global uniqueness: ", resp.Status, resp.StatusCode)
+		}
+	})
+
+	t.Run("delete", func(t *testing.T) {
+		resp, err = helper.Jwtdelete(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id)+"?wait=true")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			b, _ := io.ReadAll(resp.Body)
+			t.Fatal(resp.Status, resp.StatusCode, string(b))
+		}
+	})
+
+	t.Run("read after update", func(t *testing.T) {
+		time.Sleep(time.Second)
+		resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(device.Id))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer resp.Body.Close()
+
+		//expect 404 error
+		if resp.StatusCode != http.StatusNotFound {
+			t.Fatal(resp.Status, resp.StatusCode)
+		}
+	})
+
 }
 
 func tryDeviceDisplayNameUpdate(port string, deviceId string, displayName string, expectedDevice models.Device) func(t *testing.T) {
@@ -1156,7 +1172,7 @@ func tryDeviceAttributeUpdate(port string, dtId string, deviceId string, localDe
 
 		if resp.StatusCode != http.StatusOK {
 			b, _ := io.ReadAll(resp.Body)
-			t.Fatal(resp.Status, resp.StatusCode, string(b))
+			t.Fatal(endpoint, resp.Status, resp.StatusCode, string(b))
 		}
 
 		device := models.Device{}

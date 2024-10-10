@@ -23,8 +23,11 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/controller/com"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/listener"
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
+	"github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/models/go/models"
 	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
+	permv2 "github.com/SENERGY-Platform/permissions-v2/pkg/client"
+	"github.com/SENERGY-Platform/permissions-v2/pkg/model"
 	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
 	"github.com/SENERGY-Platform/service-commons/pkg/kafka"
 	"net/url"
@@ -139,15 +142,13 @@ type Publisher interface {
 
 	PublishLocation(device models.Location, userID string) (err error)
 	PublishLocationDelete(id string, userID string) error
-
-	PublishRights(kind string, id string, element permmodel.ResourceRightsBase) error
 }
 
 type Com interface {
-	ResourcesEffectedByUserDelete(token auth.Token, resource string) (deleteResourceIds []string, deleteUserFromResourceIds []string, err error)
+	ResourcesEffectedByUserDelete(token auth.Token, resource string) (deleteResourceIds []string, deleteUserFromResource []permv2.Resource, err error)
 	GetResourceOwner(token auth.Token, kind string, id string, rights string) (owner string, found bool, err error)
 	GetResourceRights(token auth.Token, kind string, id string, rights string) (result permmodel.EntryResult, found bool, err error)
-	GetPermissions(token auth.Token, kind string, id string) (permmodel.ResourceRights, error)
+	SetPermission(token string, topicId string, id string, permissions model.ResourcePermissions) (result model.ResourcePermissions, err error, code int)
 
 	GetTechnicalDeviceGroup(token auth.Token, id string) (dt models.DeviceGroup, err error, code int)
 	ValidateDeviceGroup(token auth.Token, dt models.DeviceGroup) (err error, code int)
@@ -161,7 +162,7 @@ type Com interface {
 	GetProtocol(token auth.Token, id string) (models.Protocol, error, int)
 	ValidateProtocol(token auth.Token, protocol models.Protocol) (err error, code int)
 
-	ListDevices(token auth.Token, query url.Values) (devices []models.Device, err error, code int)
+	ListDevicesByQuery(token auth.Token, query url.Values) (devices []models.Device, err error, code int)
 	GetDevice(token auth.Token, id string) (models.Device, error, int)                               //uses internal admin jwt
 	GetDeviceByLocalId(token auth.Token, ownerId string, localid string) (models.Device, error, int) //uses internal admin jwt
 	ValidateDevice(token auth.Token, device models.Device) (err error, code int)
@@ -203,9 +204,10 @@ type Com interface {
 	ValidateDeviceClassDelete(token auth.Token, id string) (err error, code int)
 	ValidateFunctionDelete(token auth.Token, id string) (err error, code int)
 
-	QueryPermissionsSearch(token string, query com.QueryMessage, result interface{}) (err error, code int)
+	ListDeviceTypes(token string, options client.DeviceTypeListOptions) (result []models.DeviceType, err error, code int)
+	ListDevices(token string, options client.DeviceListOptions) (result []models.Device, err error, code int)
 }
 
-func (this *Controller) GetPublisher() Publisher {
-	return this.publisher
+func (this *Controller) GetCom() Com {
+	return this.com
 }

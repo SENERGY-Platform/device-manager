@@ -27,7 +27,7 @@ import (
 	"runtime/debug"
 )
 
-func (this *Com) ListDevices(token auth.Token, query url.Values) (devices []models.Device, err error, code int) {
+func (this *Com) ListDevicesByQuery(token auth.Token, query url.Values) (devices []models.Device, err error, code int) {
 	req, err := http.NewRequest("GET", this.config.DeviceRepoUrl+"/devices?"+query.Encode(), nil)
 	if err != nil {
 		debug.PrintStack()

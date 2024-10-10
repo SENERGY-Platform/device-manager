@@ -71,7 +71,7 @@ func (this *DevicesEndpoints) List(config config.Config, router *http.ServeMux, 
 			http.Error(writer, err.Error(), http.StatusBadRequest)
 			return
 		}
-		result, err, errCode := control.ListDevices(token, request.URL.Query())
+		result, err, errCode := control.ListDevicesByQuery(token, request.URL.Query())
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return

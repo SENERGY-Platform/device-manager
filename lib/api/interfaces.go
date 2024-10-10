@@ -34,7 +34,7 @@ type Controller interface {
 	PublishDeviceTypeUpdate(token auth.Token, id string, dt models.DeviceType, options model.DeviceTypeUpdateOptions) (result models.DeviceType, err error, code int)
 	PublishDeviceTypeDelete(token auth.Token, id string, options model.DeviceTypeDeleteOptions) (err error, code int)
 
-	ListDevices(token auth.Token, query url.Values) (devices []models.Device, err error, code int)
+	ListDevicesByQuery(token auth.Token, query url.Values) (devices []models.Device, err error, code int)
 	ReadDevice(token auth.Token, id string) (device models.Device, err error, code int)
 	ReadDeviceByLocalId(token auth.Token, ownerId string, localId string) (device models.Device, err error, errCode int)
 	PublishDeviceCreate(token auth.Token, device models.Device, options model.DeviceCreateOptions) (result models.Device, err error, code int)

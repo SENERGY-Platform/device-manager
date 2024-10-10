@@ -31,8 +31,8 @@ import (
 	"slices"
 )
 
-func (this *Controller) ListDevices(token auth.Token, query url.Values) (devices []models.Device, err error, code int) {
-	return this.com.ListDevices(token, query)
+func (this *Controller) ListDevicesByQuery(token auth.Token, query url.Values) (devices []models.Device, err error, code int) {
+	return this.com.ListDevicesByQuery(token, query)
 }
 
 func (this *Controller) DeviceLocalIdToId(token auth.Token, ownerId string, localId string) (id string, err error, errCode int) {

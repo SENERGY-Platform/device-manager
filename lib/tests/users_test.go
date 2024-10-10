@@ -28,9 +28,8 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/listener"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/docker"
-	"github.com/SENERGY-Platform/device-manager/lib/tests/servicemocks"
 	"github.com/SENERGY-Platform/models/go/models"
-	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
+	"github.com/SENERGY-Platform/permissions-v2/pkg/client"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"net/http"
@@ -91,17 +90,54 @@ func TestUserDelete(t *testing.T) {
 
 	conf.Debug = true
 
-	mockPublisher := servicemocks.NewPublisher()
-	repo := servicemocks.NewDeviceRepo(mockPublisher)
-	conf.DeviceRepoUrl = repo.Url()
-
 	ctrl, err := controller.New(ctx, conf)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	cache := &map[string]permmodel.ResourceRightsBase{}
+	cache := &map[string]client.ResourcePermissions{}
+
+	dt := models.DeviceType{}
+	t.Run("create device-type", func(t *testing.T) {
+		protocol, err, _ := ctrl.PublishProtocolCreate(user1a, models.Protocol{
+			Name:             "p2",
+			Handler:          "ph1",
+			ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
+		}, model.ProtocolUpdateOptions{Wait: true})
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		dt, err, _ = ctrl.PublishDeviceTypeCreate(user1a, models.DeviceType{
+			Name:          "foo",
+			DeviceClassId: "dc1",
+			Services: []models.Service{
+				{
+					Name:    "s1name",
+					LocalId: "lid1",
+					Inputs: []models.Content{
+						{
+							ProtocolSegmentId: protocol.ProtocolSegments[0].Id,
+							Serialization:     "json",
+							ContentVariable: models.ContentVariable{
+								Name: "v1name",
+								Type: models.String,
+							},
+						},
+					},
+
+					ProtocolId: protocol.Id,
+				},
+			},
+		}, model.DeviceTypeUpdateOptions{Wait: true})
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		time.Sleep(2 * time.Second)
+	})
 
 	t.Run("create devices", func(t *testing.T) {
 		for i := 0; i < 20; i++ {
@@ -111,21 +147,21 @@ func TestUserDelete(t *testing.T) {
 				LocalId:      id,
 				Name:         id + "_name",
 				Attributes:   nil,
-				DeviceTypeId: "test_dt",
+				DeviceTypeId: dt.Id,
 			}
 			_, err, _ = ctrl.PublishDeviceUpdate(user1a, id, device, model.DeviceUpdateOptions{})
 			if err != nil {
 				t.Error(err)
 				return
 			}
-			(*cache)[conf.DeviceTopic+"."+device.Id] = permmodel.ResourceRightsBase{
-				UserRights: map[string]permmodel.Right{user1a.GetUserId(): {
+			(*cache)[conf.DeviceTopic+"."+device.Id] = client.ResourcePermissions{
+				UserPermissions: map[string]client.PermissionsMap{user1a.GetUserId(): {
 					Read:         true,
 					Write:        true,
 					Execute:      true,
 					Administrate: true,
 				}},
-				GroupRights: map[string]permmodel.Right{"admin": {Read: true, Write: true, Execute: true, Administrate: true}},
+				RolePermissions: map[string]client.PermissionsMap{"admin": {Read: true, Write: true, Execute: true, Administrate: true}},
 			}
 		}
 		for i := 20; i < 40; i++ {
@@ -135,7 +171,7 @@ func TestUserDelete(t *testing.T) {
 				LocalId:      id,
 				Name:         id + "_name",
 				Attributes:   nil,
-				DeviceTypeId: "test_dt",
+				DeviceTypeId: dt.Id,
 			}
 			log.Println("test create device", id)
 			_, err, _ = ctrl.PublishDeviceUpdate(user2a, id, device, model.DeviceUpdateOptions{})
@@ -143,14 +179,14 @@ func TestUserDelete(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			(*cache)[conf.DeviceTopic+"."+device.Id] = permmodel.ResourceRightsBase{
-				UserRights: map[string]permmodel.Right{user2a.GetUserId(): {
+			(*cache)[conf.DeviceTopic+"."+device.Id] = client.ResourcePermissions{
+				UserPermissions: map[string]client.PermissionsMap{user2a.GetUserId(): {
 					Read:         true,
 					Write:        true,
 					Execute:      true,
 					Administrate: true,
 				}},
-				GroupRights: map[string]permmodel.Right{"admin": {Read: true, Write: true, Execute: true, Administrate: true}},
+				RolePermissions: map[string]client.PermissionsMap{"admin": {Read: true, Write: true, Execute: true, Administrate: true}},
 			}
 		}
 	})
@@ -158,7 +194,7 @@ func TestUserDelete(t *testing.T) {
 	t.Run("change permissions", func(t *testing.T) {
 		for i := 0; i < 10; i++ {
 			id := strconv.Itoa(i)
-			err = setPermission(ctrl.GetPublisher(), user2.GetUserId(), conf.DeviceTopic, id, "rwxa", cache)
+			err = setPermission(ctrl.GetCom(), user2.GetUserId(), conf.DeviceTopic, id, "rwxa", cache)
 			if err != nil {
 				t.Error(err)
 				return
@@ -166,7 +202,7 @@ func TestUserDelete(t *testing.T) {
 		}
 		for i := 20; i < 30; i++ {
 			id := strconv.Itoa(i)
-			err = setPermission(ctrl.GetPublisher(), user1.GetUserId(), conf.DeviceTopic, id, "rwxa", cache)
+			err = setPermission(ctrl.GetCom(), user1.GetUserId(), conf.DeviceTopic, id, "rwxa", cache)
 			if err != nil {
 				t.Error(err)
 				return
@@ -174,7 +210,7 @@ func TestUserDelete(t *testing.T) {
 		}
 		for i := 5; i < 10; i++ {
 			id := strconv.Itoa(i)
-			err = setPermission(ctrl.GetPublisher(), user1.GetUserId(), conf.DeviceTopic, id, "rx", cache)
+			err = setPermission(ctrl.GetCom(), user1.GetUserId(), conf.DeviceTopic, id, "rx", cache)
 			if err != nil {
 				t.Error(err)
 				return
@@ -182,7 +218,7 @@ func TestUserDelete(t *testing.T) {
 		}
 		for i := 25; i < 30; i++ {
 			id := strconv.Itoa(i)
-			err = setPermission(ctrl.GetPublisher(), user2.GetUserId(), conf.DeviceTopic, id, "rx", cache)
+			err = setPermission(ctrl.GetCom(), user2.GetUserId(), conf.DeviceTopic, id, "rx", cache)
 			if err != nil {
 				t.Error(err)
 				return
@@ -283,8 +319,8 @@ func checkUserDevices(conf config.Config, token auth.Token, expectedDeviceIdsAsI
 	}
 }
 
-func setPermission(publisher controller.Publisher, userId string, kind string, id string, right string, cache *map[string]permmodel.ResourceRightsBase) error {
-	userRight := permmodel.Right{
+func setPermission(com controller.Com, userId string, kind string, id string, right string, cache *map[string]client.ResourcePermissions) error {
+	userRight := client.PermissionsMap{
 		Read:         false,
 		Write:        false,
 		Execute:      false,
@@ -307,13 +343,14 @@ func setPermission(publisher controller.Publisher, userId string, kind string, i
 	cacheKey := kind + "." + id
 	msg, ok := (*cache)[cacheKey]
 	if !ok {
-		msg = permmodel.ResourceRightsBase{
-			UserRights:  map[string]permmodel.Right{},
-			GroupRights: map[string]permmodel.Right{"admin": {Read: true, Write: true, Execute: true, Administrate: true}},
+		msg = client.ResourcePermissions{
+			UserPermissions: map[string]client.PermissionsMap{},
+			RolePermissions: map[string]client.PermissionsMap{"admin": {Read: true, Write: true, Execute: true, Administrate: true}},
 		}
 	}
-	msg.UserRights[userId] = userRight
+	msg.UserPermissions[userId] = userRight
 	(*cache)[cacheKey] = msg
 
-	return publisher.PublishRights(kind, id, msg)
+	_, err, _ := com.SetPermission(client.InternalAdminToken, kind, id, msg)
+	return err
 }

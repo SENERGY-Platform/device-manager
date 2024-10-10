@@ -81,6 +81,25 @@ func CreateTestEnv(baseCtx context.Context, wg *sync.WaitGroup, startConfig conf
 		return config, err
 	}
 	config.PermissionsUrl = "http://" + permIp + ":8080"
+
+	_, mongoIp, err := MongoDB(ctx, wg)
+	if err != nil {
+		return config, err
+	}
+	mongoUrl := "mongodb://" + mongoIp + ":27017"
+
+	_, permV2Ip, err := PermissionsV2(ctx, wg, mongoUrl, config.KafkaUrl)
+	if err != nil {
+		return config, err
+	}
+	config.PermissionsV2Url = "http://" + permV2Ip + ":8080"
+
+	_, repoIp, err := DeviceRepo(ctx, wg, config.KafkaUrl, mongoUrl, config.PermissionsV2Url)
+	if err != nil {
+		return config, err
+	}
+	config.DeviceRepoUrl = "http://" + repoIp + ":8080"
+
 	time.Sleep(10 * time.Second)
 	return
 }

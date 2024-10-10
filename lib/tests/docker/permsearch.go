@@ -17,60 +17,8 @@
 package docker
 
 import (
-	"context"
 	"github.com/SENERGY-Platform/permission-search/lib/tests/docker"
-	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/wait"
-	"io"
-	"log"
-	"sync"
 )
 
 var PermSearch = docker.PermissionSearch
 var OpenSearch = docker.OpenSearch
-
-func PermissionSearchWithCmdCallback(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, dbIp string) (cmdf func(ctx context.Context, cmd []string) error, hostPort string, ipAddress string, err error) {
-	log.Println("start PermissionSearch")
-	c, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: testcontainers.ContainerRequest{
-			Image: "ghcr.io/senergy-platform/permission-search:dev",
-			Env: map[string]string{
-				"KAFKA_URL":                        kafkaUrl,
-				"OPEN_SEARCH_URLS":                 "https://" + dbIp + ":9200",
-				"OPEN_SEARCH_USERNAME":             "admin",
-				"OPEN_SEARCH_PASSWORD":             "admin",
-				"OPEN_SEARCH_INSECURE_SKIP_VERIFY": "true",
-			},
-			ExposedPorts:    []string{"8080/tcp"},
-			WaitingFor:      wait.ForListeningPort("8080/tcp"),
-			AlwaysPullImage: true,
-		},
-		Started: true,
-	})
-	if err != nil {
-		return cmdf, "", "", err
-	}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		<-ctx.Done()
-		log.Println("DEBUG: remove container PermissionSearch", c.Terminate(context.Background()))
-	}()
-
-	ipAddress, err = c.ContainerIP(ctx)
-	if err != nil {
-		return cmdf, "", "", err
-	}
-	temp, err := c.MappedPort(ctx, "8080/tcp")
-	if err != nil {
-		return cmdf, "", "", err
-	}
-	hostPort = temp.Port()
-
-	return func(ctx context.Context, cmd []string) error {
-		_, resp, err := c.Exec(ctx, cmd)
-		temp, _ := io.ReadAll(resp)
-		log.Println("CMD-RESPONSE:", string(temp))
-		return err
-	}, hostPort, ipAddress, err
-}

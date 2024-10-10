@@ -17,28 +17,23 @@
 package com
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
-	"github.com/SENERGY-Platform/permission-search/lib/client"
+	devicerepo "github.com/SENERGY-Platform/device-repository/lib/client"
+	permsearch "github.com/SENERGY-Platform/permission-search/lib/client"
 	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
+	"github.com/SENERGY-Platform/permissions-v2/pkg/model"
 	"log"
 	"net/http"
-	"net/url"
-	"runtime/debug"
 )
-
-func (this *Com) GetPermissions(token auth.Token, kind string, id string) (permmodel.ResourceRights, error) {
-	return this.perm.GetRights(token.Jwt(), kind, id)
-}
 
 // GetResourceOwner queries the permission-search service for the entity identified by kind and id and extracts its owner
 // the rights parameter is a mandatory part of the permission-search api
 // it is used to identify which rights the user (token) must have for the entity, to get the entity as a result
 // for example, if a user has 'r' rights to an entity, the query will find the entity, if requested with rights="r" but not with rights="w" or rights="rw"
+// TODO: replace
 func (this *Com) GetResourceOwner(token auth.Token, kind string, id string, rights string) (owner string, found bool, err error) {
-	temp, _, err := client.Query[[]permmodel.EntryResult](this.perm, token.Jwt(), client.QueryMessage{
+	temp, _, err := permsearch.Query[[]permmodel.EntryResult](this.search, token.Jwt(), permsearch.QueryMessage{
 		Resource: kind,
 		ListIds: &permmodel.QueryListIds{
 			QueryListCommons: permmodel.QueryListCommons{
@@ -58,8 +53,9 @@ func (this *Com) GetResourceOwner(token auth.Token, kind string, id string, righ
 	return temp[0].Creator, true, nil
 }
 
+// TODO: replace
 func (this *Com) GetResourceRights(token auth.Token, kind string, id string, rights string) (result permmodel.EntryResult, found bool, err error) {
-	temp, _, err := client.Query[[]permmodel.EntryResult](this.perm, token.Jwt(), client.QueryMessage{
+	temp, _, err := permsearch.Query[[]permmodel.EntryResult](this.search, token.Jwt(), permsearch.QueryMessage{
 		Resource: kind,
 		ListIds: &permmodel.QueryListIds{
 			QueryListCommons: permmodel.QueryListCommons{
@@ -82,14 +78,11 @@ func (this *Com) GetResourceRights(token auth.Token, kind string, id string, rig
 func (this *Com) PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int) {
 	ids = append(ids, removeIdModifiers(ids)...)
 	ids = RemoveDuplicates(ids)
-	result, code, err = client.Query[map[string]bool](this.perm, token.Jwt(), client.QueryMessage{
-		Resource: "devices",
-		CheckIds: &client.QueryCheckIds{
-			Ids:    ids,
-			Rights: rights,
-		},
-	})
-	return
+	permissions, err := model.PermissionListFromString(rights)
+	if err != nil {
+		return result, err, http.StatusInternalServerError
+	}
+	return this.perm.CheckMultiplePermissions(token.Jwt(), this.config.DeviceTopic, ids, permissions...)
 }
 
 func (this *Com) PermissionCheckForDevice(token auth.Token, id string, permission string) (err error, code int) {
@@ -142,121 +135,41 @@ func (this *Com) PermissionCheckForLocation(token auth.Token, id string, permiss
 }
 
 func (this *Com) PermissionCheck(token auth.Token, id string, permission string, resource string) (err error, code int) {
-	if this.config.PermissionsUrl == "" || this.config.PermissionsUrl == "-" {
-		return nil, 200
-	}
-	id = removeIdModifier(id)
-	req, err := http.NewRequest("GET", this.config.PermissionsUrl+"/v3/resources/"+url.QueryEscape(resource)+"/"+url.QueryEscape(id)+"/access?rights="+url.QueryEscape(permission), nil)
+	permissions, err := model.PermissionListFromString(permission)
 	if err != nil {
-		debug.PrintStack()
 		return err, http.StatusInternalServerError
 	}
-	req.Header.Set("Authorization", token.Token)
-	resp, err := http.DefaultClient.Do(req)
+	log.Printf("DEBUG: PermissionCheck %#v %#v %#v", resource, id, permissions) //TODO: remove
+	access, err, code := this.perm.CheckPermission(token.Jwt(), resource, id, permissions...)
 	if err != nil {
-		debug.PrintStack()
-		return err, http.StatusInternalServerError
+		return err, code
 	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode >= 300 {
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(resp.Body)
-		resp.Body.Close()
-		log.Println("DEBUG: PermissionCheck()", buf.String())
-		err = errors.New("access denied")
-		debug.PrintStack()
-		return err, http.StatusInternalServerError
-	}
-
-	var ok bool
-	err = json.NewDecoder(resp.Body).Decode(&ok)
-	if err != nil {
-		debug.PrintStack()
-		return err, http.StatusInternalServerError
-	}
-	if !ok {
+	if !access {
 		return errors.New("access denied"), http.StatusForbidden
 	}
-	return
+	return nil, http.StatusOK
 }
 
 func (this *Com) DevicesOfTypeExist(token auth.Token, deviceTypeId string) (result bool, err error, code int) {
 	if !token.IsAdmin() {
 		return false, errors.New("only for admins allowed"), http.StatusForbidden
 	}
-	if this.config.PermissionsUrl == "" || this.config.PermissionsUrl == "-" {
-		return false, nil, 200
-	}
 	deviceTypeId = removeIdModifier(deviceTypeId)
-	endpoint := this.config.PermissionsUrl + "/v3/resources/devices?limit=1&rights=x&filter=" + url.QueryEscape("device_type_id:"+deviceTypeId)
-	req, err := http.NewRequest("GET", endpoint, nil)
+	devices, err, code := this.devices.ListDevices(token.Jwt(), devicerepo.DeviceListOptions{
+		DeviceTypeIds: []string{deviceTypeId},
+		Limit:         1,
+		Offset:        0,
+	})
 	if err != nil {
-		debug.PrintStack()
-		return result, err, http.StatusInternalServerError
+		return false, err, code
 	}
-	req.Header.Set("Authorization", token.Token)
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		debug.PrintStack()
-		return result, err, http.StatusInternalServerError
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(resp.Body)
-		debug.PrintStack()
-		return result, errors.New(buf.String()), resp.StatusCode
-	}
-	temp := []interface{}{}
-	err = json.NewDecoder(resp.Body).Decode(&temp)
-	if err != nil {
-		debug.PrintStack()
-		return result, err, http.StatusInternalServerError
-	}
-	return len(temp) > 0, nil, http.StatusOK
+	return len(devices) > 0, nil, http.StatusOK
 }
 
 func (this *Com) DeviceLocalIdToId(token auth.Token, localId string) (id string, err error, code int) {
-	endpoint := this.config.PermissionsUrl + "/v3/resources/devices?limit=1&rights=x&filter=" + url.QueryEscape("local_id:"+localId)
-	req, err := http.NewRequest("GET", endpoint, nil)
+	device, err, code := this.devices.ReadDeviceByLocalId(token.GetUserId(), localId, token.Jwt(), devicerepo.READ)
 	if err != nil {
-		debug.PrintStack()
-		return "", err, http.StatusInternalServerError
+		return "", err, code
 	}
-	req.Header.Set("Authorization", token.Token)
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		debug.PrintStack()
-		return "", err, http.StatusInternalServerError
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(resp.Body)
-		debug.PrintStack()
-		return "", errors.New(buf.String()), resp.StatusCode
-	}
-	temp := []map[string]interface{}{}
-	err = json.NewDecoder(resp.Body).Decode(&temp)
-	if err != nil {
-		debug.PrintStack()
-		return "", err, http.StatusInternalServerError
-	}
-	if len(temp) == 0 {
-		return "", errors.New("not found"), http.StatusNotFound
-	}
-	if idinterface, ok := temp[0]["id"]; !ok {
-		err = errors.New("id field not found")
-		log.Println("ERROR:", err)
-		debug.PrintStack()
-		return "", err, http.StatusInternalServerError
-	} else if id, ok = idinterface.(string); !ok {
-		err = errors.New("id field is not string")
-		log.Println("ERROR:", err)
-		debug.PrintStack()
-		return "", err, http.StatusInternalServerError
-	} else {
-		return id, nil, http.StatusOK
-	}
+	return device.Id, nil, http.StatusOK
 }
