@@ -23,9 +23,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
-	"log"
 	"net/http"
-	"runtime/debug"
 )
 
 func (this *Controller) ReadLocation(token auth.Token, id string) (location models.Location, err error, code int) {
@@ -86,24 +84,13 @@ func (this *Controller) PublishLocationUpdate(token auth.Token, id string, locat
 		return location, err, code
 	}
 
-	//ensure retention of original owner
-	owner, found, err := this.com.GetResourceOwner(token, this.config.LocationTopic, location.Id, "w")
-	if err != nil {
-		log.Println("ERROR:", err)
-		debug.PrintStack()
-		return location, err, http.StatusInternalServerError
-	}
-	if !found || owner == "" {
-		owner = token.GetUserId()
-	}
-
 	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
 		ResourceKind: this.config.LocationTopic,
 		ResourceId:   location.Id,
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishLocation(location, owner)
+	err = this.publisher.PublishLocation(location, token.GetUserId())
 	if err != nil {
 		return location, err, http.StatusInternalServerError
 	}

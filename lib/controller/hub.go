@@ -124,30 +124,16 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 		return hub, err, code
 	}
 
-	rights, found, err := this.com.GetResourceRights(token, this.config.DeviceTopic, hub.Id, "w")
-	if err != nil {
+	rights, err, code := this.com.GetResourceRights(token, this.config.HubTopic, hub.Id)
+	if err != nil && code != http.StatusNotFound {
 		log.Println("ERROR:", err)
 		debug.PrintStack()
-		return hub, err, http.StatusInternalServerError
+		return hub, err, code
 	}
 
 	//new device owner-id must be existing admin user (ignore for new devices or devices with unchanged owner)
-	if found && hub.OwnerId != original.OwnerId && !slices.Contains(rights.PermissionHolders.AdminUsers, hub.OwnerId) {
+	if code != http.StatusNotFound && hub.OwnerId != original.OwnerId && !rights.UserPermissions[hub.OwnerId].Administrate {
 		return hub, errors.New("new owner must have existing user admin rights"), http.StatusBadRequest
-	}
-
-	//ensure retention of original creator
-	creator, found, err := this.com.GetResourceOwner(token, this.config.HubTopic, hub.Id, "w")
-	if err != nil {
-		log.Println("ERROR:", err)
-		debug.PrintStack()
-		return hub, err, http.StatusInternalServerError
-	}
-	if found && creator != "" {
-		userId = creator
-	}
-	if userId == "" {
-		userId = token.GetUserId()
 	}
 
 	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
@@ -156,7 +142,7 @@ func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId str
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishHub(hub, userId)
+	err = this.publisher.PublishHub(hub, hub.OwnerId)
 	if err != nil {
 		return hub, err, http.StatusInternalServerError
 	}

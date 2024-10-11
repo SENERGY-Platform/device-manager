@@ -56,7 +56,7 @@ func TestWaitDone(t *testing.T) {
 	}
 	conf.ServerPort = strconv.Itoa(port)
 
-	conf.DeviceRepoUrl, conf.PermissionsUrl, conf.PermissionsV2Url, conf.KafkaUrl, err = docker.DeviceRepoWithDependencies(ctx, wg)
+	conf.DeviceRepoUrl, conf.PermissionsV2Url, conf.KafkaUrl, err = docker.DeviceRepoWithDependencies(ctx, wg)
 	if err != nil {
 		t.Error(err)
 		return

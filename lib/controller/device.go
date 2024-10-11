@@ -28,7 +28,6 @@ import (
 	"net/http"
 	"net/url"
 	"runtime/debug"
-	"slices"
 )
 
 func (this *Controller) ListDevicesByQuery(token auth.Token, query url.Values) (devices []models.Device, err error, code int) {
@@ -134,22 +133,16 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 		return device, err, code
 	}
 
-	rights, found, err := this.com.GetResourceRights(token, this.config.DeviceTopic, device.Id, "w")
-	if err != nil {
+	rights, err, code := this.com.GetResourceRights(token, this.config.DeviceTopic, device.Id)
+	if err != nil && code != http.StatusNotFound {
 		log.Println("ERROR:", err)
 		debug.PrintStack()
-		return device, err, http.StatusInternalServerError
+		return device, err, code
 	}
 
 	//new device owner-id must be existing admin user (ignore for new devices or devices with unchanged owner)
-	if found && device.OwnerId != original.OwnerId && !slices.Contains(rights.PermissionHolders.AdminUsers, device.OwnerId) {
+	if code != http.StatusNotFound && device.OwnerId != original.OwnerId && !rights.UserPermissions[device.OwnerId].Administrate {
 		return device, errors.New("new owner must have existing user admin rights"), http.StatusBadRequest
-	}
-
-	//ensure retention of original creator
-	creator := rights.Creator
-	if !found || creator == "" {
-		creator = token.GetUserId()
 	}
 
 	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
@@ -158,7 +151,7 @@ func (this *Controller) PublishDeviceUpdate(token auth.Token, id string, device 
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishDevice(device, creator)
+	err = this.publisher.PublishDevice(device, device.OwnerId)
 	if err != nil {
 		return device, err, http.StatusInternalServerError
 	}

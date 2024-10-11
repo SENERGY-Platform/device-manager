@@ -104,24 +104,13 @@ func (this *Controller) PublishDeviceGroupUpdate(token auth.Token, id string, dg
 		return dg, err, code
 	}
 
-	//ensure retention of original owner
-	owner, found, err := this.com.GetResourceOwner(token, this.config.DeviceGroupTopic, dg.Id, "w")
-	if err != nil {
-		log.Println("ERROR:", err)
-		debug.PrintStack()
-		return dg, err, http.StatusInternalServerError
-	}
-	if !found || owner == "" {
-		owner = token.GetUserId()
-	}
-
 	wait := this.optionalWait(options.Wait, donewait.DoneMsg{
 		ResourceKind: this.config.DeviceGroupTopic,
 		ResourceId:   dg.Id,
 		Command:      "PUT",
 	})
 
-	err = this.publisher.PublishDeviceGroup(dg, owner)
+	err = this.publisher.PublishDeviceGroup(dg, token.GetUserId())
 	if err != nil {
 		debug.PrintStack()
 		return dg, err, http.StatusInternalServerError

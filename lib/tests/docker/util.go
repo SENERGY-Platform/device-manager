@@ -71,17 +71,6 @@ func CreateTestEnv(baseCtx context.Context, wg *sync.WaitGroup, startConfig conf
 		return config, err
 	}
 
-	_, elasticIp, err := OpenSearch(ctx, wg)
-	if err != nil {
-		return config, err
-	}
-
-	_, permIp, err := PermSearch(ctx, wg, false, config.KafkaUrl, elasticIp)
-	if err != nil {
-		return config, err
-	}
-	config.PermissionsUrl = "http://" + permIp + ":8080"
-
 	_, mongoIp, err := MongoDB(ctx, wg)
 	if err != nil {
 		return config, err

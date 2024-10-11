@@ -21,6 +21,7 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/helper"
 	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/permissions-v2/pkg/client"
 	"io"
 	"net/http"
 	"net/url"
@@ -285,37 +286,17 @@ func testHubOwner(t *testing.T, conf config.Config) {
 	})
 
 	t.Run("give user admin rights", func(t *testing.T) {
-		resp, err := helper.Jwtput(userjwt, conf.PermissionsUrl+"/v3/administrate/rights/hubs/"+url.PathEscape(hub1.Id), map[string]interface{}{
-			"user_rights": map[string]interface{}{
-				userjwtUser: map[string]interface{}{
-					"read":         true,
-					"write":        true,
-					"execute":      true,
-					"administrate": true,
-				},
-				userid: map[string]interface{}{
-					"read":         true,
-					"write":        true,
-					"execute":      true,
-					"administrate": true,
-				},
+		_, err, _ := client.New(conf.PermissionsV2Url).SetPermission(client.InternalAdminToken, conf.HubTopic, hub1.Id, client.ResourcePermissions{
+			UserPermissions: map[string]client.PermissionsMap{
+				userjwtUser: {Read: true, Write: true, Execute: true, Administrate: true},
+				userid:      {Read: true, Write: true, Execute: true, Administrate: true},
 			},
-			"group_rights": map[string]interface{}{
-				"admin": map[string]interface{}{
-					"read":         true,
-					"write":        true,
-					"execute":      true,
-					"administrate": true,
-				},
+			RolePermissions: map[string]client.PermissionsMap{
+				"admin": {Read: true, Write: true, Execute: true, Administrate: true},
 			},
 		})
 		if err != nil {
 			t.Error(err)
-			return
-		}
-		if resp.StatusCode != http.StatusOK {
-			temp, _ := io.ReadAll(resp.Body)
-			t.Errorf("%v %v", resp.Status, string(temp))
 			return
 		}
 		time.Sleep(5 * time.Second)

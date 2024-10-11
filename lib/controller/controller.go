@@ -25,7 +25,6 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/publisher"
 	"github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/models/go/models"
-	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
 	permv2 "github.com/SENERGY-Platform/permissions-v2/pkg/client"
 	"github.com/SENERGY-Platform/permissions-v2/pkg/model"
 	"github.com/SENERGY-Platform/service-commons/pkg/donewait"
@@ -146,8 +145,7 @@ type Publisher interface {
 
 type Com interface {
 	ResourcesEffectedByUserDelete(token auth.Token, resource string) (deleteResourceIds []string, deleteUserFromResource []permv2.Resource, err error)
-	GetResourceOwner(token auth.Token, kind string, id string, rights string) (owner string, found bool, err error)
-	GetResourceRights(token auth.Token, kind string, id string, rights string) (result permmodel.EntryResult, found bool, err error)
+	GetResourceRights(token auth.Token, kind string, id string) (result model.Resource, err error, code int)
 	SetPermission(token string, topicId string, id string, permissions model.ResourcePermissions) (result model.ResourcePermissions, err error, code int)
 
 	GetTechnicalDeviceGroup(token auth.Token, id string) (dt models.DeviceGroup, err error, code int)

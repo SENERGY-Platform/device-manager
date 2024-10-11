@@ -2,7 +2,6 @@
   "log_level": "CALL",
   "server_port": "8080",
   "debug": false,
-  "permissions_url": "http://perm:8080",
   "permissions_v2_url": "",
   "device_topic": "devices",
   "hub_topic": "hubs",
@@ -24,6 +23,6 @@
   "converter_url": "",
   "handle_done_wait": true,
 
-  "done_topics": ["permissions_done", "device_repository_done"],
-  "done_handler": ["github.com/SENERGY-Platform/permission-search", "github.com/SENERGY-Platform/device-repository"]
+  "done_topics": ["device_repository_done"],
+  "done_handler": ["github.com/SENERGY-Platform/device-repository"]
 }

@@ -25,7 +25,7 @@ import (
 	"time"
 )
 
-func DeviceRepoWithDependencies(basectx context.Context, wg *sync.WaitGroup) (repoUrl string, searchUrl string, permv2Url, kafkaUrl string, err error) {
+func DeviceRepoWithDependencies(basectx context.Context, wg *sync.WaitGroup) (repoUrl string, permv2Url, kafkaUrl string, err error) {
 	ctx, cancel := context.WithCancel(basectx)
 	defer func() {
 		if err != nil {
@@ -35,48 +35,36 @@ func DeviceRepoWithDependencies(basectx context.Context, wg *sync.WaitGroup) (re
 
 	_, zkIp, err := Zookeeper(ctx, wg)
 	if err != nil {
-		return repoUrl, searchUrl, permv2Url, kafkaUrl, err
+		return repoUrl, permv2Url, kafkaUrl, err
 	}
 	zookeeperUrl := zkIp + ":2181"
 
 	kafkaUrl, err = Kafka(ctx, wg, zookeeperUrl)
 	if err != nil {
-		return repoUrl, searchUrl, permv2Url, kafkaUrl, err
+		return repoUrl, permv2Url, kafkaUrl, err
 	}
 
-	time.Sleep(1 * time.Second)
-
-	_, elasticIp, err := OpenSearch(ctx, wg)
-	if err != nil {
-		return repoUrl, searchUrl, permv2Url, kafkaUrl, err
-	}
-
-	_, permIp, err := PermSearch(ctx, wg, false, kafkaUrl, elasticIp)
-	if err != nil {
-		return repoUrl, searchUrl, permv2Url, kafkaUrl, err
-	}
-	searchUrl = "http://" + permIp + ":8080"
 	time.Sleep(10 * time.Second)
 
 	_, mongoIp, err := MongoDB(ctx, wg)
 	if err != nil {
-		return repoUrl, searchUrl, permv2Url, kafkaUrl, err
+		return repoUrl, permv2Url, kafkaUrl, err
 	}
 	mongoUrl := "mongodb://" + mongoIp + ":27017"
 
 	_, permV2Ip, err := PermissionsV2(ctx, wg, mongoUrl, kafkaUrl)
 	if err != nil {
-		return repoUrl, searchUrl, permv2Url, kafkaUrl, err
+		return repoUrl, permv2Url, kafkaUrl, err
 	}
 	permv2Url = "http://" + permV2Ip + ":8080"
 
 	_, repoIp, err := DeviceRepo(ctx, wg, kafkaUrl, mongoUrl, permv2Url)
 	if err != nil {
-		return repoUrl, searchUrl, permv2Url, kafkaUrl, err
+		return repoUrl, permv2Url, kafkaUrl, err
 	}
 	repoUrl = "http://" + repoIp + ":8080"
 
-	return repoUrl, searchUrl, permv2Url, kafkaUrl, err
+	return repoUrl, permv2Url, kafkaUrl, err
 }
 
 func DeviceRepo(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string, mongoUrl string, permv2Url string) (hostPort string, ipAddress string, err error) {

@@ -36,7 +36,6 @@ type Config struct {
 
 	EditForward string `json:"edit_forward"`
 
-	PermissionsUrl      string `json:"permissions_url"`
 	PermissionsV2Url    string `json:"permissions_v2_url"`
 	DeviceTopic         string `json:"device_topic"`
 	DeviceTypeTopic     string `json:"device_type_topic"`

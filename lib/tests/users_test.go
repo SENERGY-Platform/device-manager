@@ -17,7 +17,6 @@
 package tests
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -28,11 +27,11 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/kafka/listener"
 	"github.com/SENERGY-Platform/device-manager/lib/model"
 	"github.com/SENERGY-Platform/device-manager/lib/tests/docker"
+	devicerepo "github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/models/go/models"
 	"github.com/SENERGY-Platform/permissions-v2/pkg/client"
 	"github.com/segmentio/kafka-go"
 	"log"
-	"net/http"
 	"os"
 	"reflect"
 	"sort"
@@ -266,43 +265,14 @@ func TestUserDelete(t *testing.T) {
 
 func checkUserDevices(conf config.Config, token auth.Token, expectedDeviceIdsAsInt []int) func(t *testing.T) {
 	return func(t *testing.T) {
-		req, err := http.NewRequest("GET", conf.PermissionsUrl+"/v3/resources/devices?rights=r&limit=100", nil)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-		req.Header.Set("Authorization", token.Token)
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			t.Error(err)
-			return
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode >= 300 {
-			buf := new(bytes.Buffer)
-			buf.ReadFrom(resp.Body)
-			resp.Body.Close()
-			log.Println("DEBUG: PermissionCheck()", buf.String())
-			err = errors.New("access denied")
-			t.Error(err)
-			return
-		}
-
-		devices := []map[string]interface{}{}
-		err = json.NewDecoder(resp.Body).Decode(&devices)
+		devices, err, _ := devicerepo.NewClient(conf.DeviceRepoUrl).ListDevices(token.Jwt(), devicerepo.DeviceListOptions{Limit: 100})
 		if err != nil {
 			t.Error(err)
 			return
 		}
 		actualIds := []string{}
 		for _, device := range devices {
-			id, ok := device["id"].(string)
-			if !ok {
-				t.Error("expect device id to be string", device)
-				return
-			}
-			actualIds = append(actualIds, id)
+			actualIds = append(actualIds, device.Id)
 		}
 		sort.Strings(actualIds)
 
@@ -311,7 +281,6 @@ func checkUserDevices(conf config.Config, token auth.Token, expectedDeviceIdsAsI
 			expectedIds = append(expectedIds, strconv.Itoa(intId))
 		}
 		sort.Strings(expectedIds)
-
 		if !reflect.DeepEqual(actualIds, expectedIds) {
 			t.Errorf("\n%#v\n%#v\n", actualIds, expectedIds)
 			return

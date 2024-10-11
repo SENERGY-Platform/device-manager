@@ -20,59 +20,13 @@ import (
 	"errors"
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	devicerepo "github.com/SENERGY-Platform/device-repository/lib/client"
-	permsearch "github.com/SENERGY-Platform/permission-search/lib/client"
-	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
 	"github.com/SENERGY-Platform/permissions-v2/pkg/model"
 	"log"
 	"net/http"
 )
 
-// GetResourceOwner queries the permission-search service for the entity identified by kind and id and extracts its owner
-// the rights parameter is a mandatory part of the permission-search api
-// it is used to identify which rights the user (token) must have for the entity, to get the entity as a result
-// for example, if a user has 'r' rights to an entity, the query will find the entity, if requested with rights="r" but not with rights="w" or rights="rw"
-// TODO: replace
-func (this *Com) GetResourceOwner(token auth.Token, kind string, id string, rights string) (owner string, found bool, err error) {
-	temp, _, err := permsearch.Query[[]permmodel.EntryResult](this.search, token.Jwt(), permsearch.QueryMessage{
-		Resource: kind,
-		ListIds: &permmodel.QueryListIds{
-			QueryListCommons: permmodel.QueryListCommons{
-				Limit:  1,
-				Offset: 0,
-				Rights: rights,
-			},
-			Ids: []string{id},
-		},
-	})
-	if err != nil {
-		return owner, false, err
-	}
-	if len(temp) == 0 {
-		return owner, false, nil
-	}
-	return temp[0].Creator, true, nil
-}
-
-// TODO: replace
-func (this *Com) GetResourceRights(token auth.Token, kind string, id string, rights string) (result permmodel.EntryResult, found bool, err error) {
-	temp, _, err := permsearch.Query[[]permmodel.EntryResult](this.search, token.Jwt(), permsearch.QueryMessage{
-		Resource: kind,
-		ListIds: &permmodel.QueryListIds{
-			QueryListCommons: permmodel.QueryListCommons{
-				Limit:  1,
-				Offset: 0,
-				Rights: rights,
-			},
-			Ids: []string{id},
-		},
-	})
-	if err != nil {
-		return result, false, err
-	}
-	if len(temp) == 0 {
-		return result, false, nil
-	}
-	return temp[0], true, nil
+func (this *Com) GetResourceRights(token auth.Token, kind string, id string) (result model.Resource, err error, code int) {
+	return this.perm.GetResource(token.Jwt(), kind, id)
 }
 
 func (this *Com) PermissionCheckForDeviceList(token auth.Token, ids []string, rights string) (result map[string]bool, err error, code int) {

@@ -19,14 +19,12 @@ package com
 import (
 	"github.com/SENERGY-Platform/device-manager/lib/config"
 	devicerepo "github.com/SENERGY-Platform/device-repository/lib/client"
-	permsearch "github.com/SENERGY-Platform/permission-search/lib/client"
 	"github.com/SENERGY-Platform/permissions-v2/pkg/client"
 )
 
 type Com struct {
 	config  config.Config
 	perm    client.Client
-	search  permsearch.Client
 	devices devicerepo.Interface
 }
 
@@ -34,7 +32,6 @@ func New(config config.Config) *Com {
 	return &Com{
 		config:  config,
 		perm:    client.New(config.PermissionsV2Url),
-		search:  permsearch.NewClient(config.PermissionsUrl),
 		devices: devicerepo.NewClient(config.DeviceRepoUrl),
 	}
 }
