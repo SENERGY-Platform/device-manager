@@ -19,7 +19,6 @@ package publisher
 import (
 	"errors"
 	"github.com/SENERGY-Platform/models/go/models"
-	permmodel "github.com/SENERGY-Platform/permission-search/lib/model"
 )
 
 type Void struct{}
@@ -111,9 +110,5 @@ func (this Void) PublishLocation(device models.Location, userID string) (err err
 }
 
 func (this Void) PublishLocationDelete(id string, userID string) error {
-	return VoidPublisherError
-}
-
-func (this Void) PublishRights(kind string, id string, element permmodel.ResourceRightsBase) error {
 	return VoidPublisherError
 }
