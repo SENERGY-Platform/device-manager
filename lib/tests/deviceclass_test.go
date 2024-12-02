@@ -28,7 +28,7 @@ import (
 
 func testDeviceClass(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/device-classes", models.DeviceClass{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/device-classes?wait=true", models.DeviceClass{
 			Name: "foo",
 		})
 		if err != nil {
@@ -74,7 +74,7 @@ func testDeviceClass(port string) func(t *testing.T) {
 			t.Fatal(result)
 		}
 
-		resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-classes/"+url.PathEscape(deviceClass.Id))
+		resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-classes/"+url.PathEscape(deviceClass.Id)+"?wait=true")
 		if err != nil {
 			t.Fatal(err)
 		}

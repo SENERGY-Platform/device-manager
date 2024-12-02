@@ -704,7 +704,7 @@ func testHub(t *testing.T, port string) {
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		resp, err := helper.Jwtdelete(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id))
+		resp, err := helper.Jwtdelete(userjwt, "http://localhost:"+port+"/hubs/"+url.PathEscape(hub.Id)+"?wait=true")
 		if err != nil {
 			t.Error(err)
 			return
@@ -736,7 +736,7 @@ func testHub(t *testing.T, port string) {
 }
 
 func testHubAssertions(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols?wait=true", models.Protocol{
 		Name:             "p2",
 		Handler:          "ph1",
 		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
@@ -757,7 +757,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
 		Services: []models.Service{
@@ -800,7 +800,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(dt)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
 		Name:         "d3",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid3",
@@ -820,7 +820,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
 		Name:         "d4",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid4",
@@ -840,7 +840,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
 		Name:         "d5",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid5",
@@ -854,7 +854,7 @@ func testHubAssertions(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.Hub{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs?wait=true", models.Hub{
 		Name:           "h2",
 		Hash:           "foobar",
 		DeviceLocalIds: []string{"lid3", "lid4", "lid5"},
@@ -881,7 +881,7 @@ func testHubAssertions(t *testing.T, port string) {
 
 	// update hub on device local id change
 
-	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(d3.Id), models.Device{
+	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(d3.Id)+"?wait=true", models.Device{
 		Id:           d3.Id,
 		Name:         "d3",
 		DeviceTypeId: dt.Id,
@@ -919,7 +919,7 @@ func testHubAssertions(t *testing.T, port string) {
 
 	// update hub on device delete
 
-	resp, err = helper.Jwtdelete(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(d4.Id))
+	resp, err = helper.Jwtdelete(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(d4.Id)+"?wait=true")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -952,7 +952,7 @@ func testHubAssertions(t *testing.T, port string) {
 
 	// only one hub may have device
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs", models.Hub{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/hubs?wait=true", models.Hub{
 		Name:           "h3",
 		Hash:           "foobar",
 		DeviceLocalIds: []string{"lid5"},

@@ -31,7 +31,7 @@ import (
 )
 
 func testConcepts(t *testing.T, conf config.Config) {
-	resp, err := helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/urn:infai:ses:characteristic:4711a", models.Characteristic{
+	resp, err := helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/urn:infai:ses:characteristic:4711a?wait=true", models.Characteristic{
 		Id:          "urn:infai:ses:characteristic:4711a",
 		Name:        "urn:infai:ses:characteristic:4711a",
 		DisplayUnit: "urn:infai:ses:characteristic:4711a",
@@ -53,7 +53,7 @@ func testConcepts(t *testing.T, conf config.Config) {
 		CharacteristicIds:    []string{"urn:infai:ses:characteristic:4711a"},
 		BaseCharacteristicId: "urn:infai:ses:characteristic:4711a",
 	}
-	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts", createConcept)
+	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts?wait=true", createConcept)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +82,7 @@ func testConcepts(t *testing.T, conf config.Config) {
 		checkConcept(t, conf, concept.Id, createConcept)
 	})
 
-	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/urn:infai:ses:characteristic:4712322a", models.Characteristic{
+	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/urn:infai:ses:characteristic:4712322a?wait=true", models.Characteristic{
 		Id:          "urn:infai:ses:characteristic:4712322a",
 		Name:        "urn:infai:ses:characteristic:4712322a",
 		DisplayUnit: "urn:infai:ses:characteristic:4712322a",
@@ -105,7 +105,7 @@ func testConcepts(t *testing.T, conf config.Config) {
 		CharacteristicIds:    []string{"urn:infai:ses:characteristic:4712322a"},
 		BaseCharacteristicId: "urn:infai:ses:characteristic:4712322a",
 	}
-	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/"+url.PathEscape(concept.Id), updateConcept)
+	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/"+url.PathEscape(concept.Id)+"?wait=true", updateConcept)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -134,7 +134,7 @@ func testConcepts(t *testing.T, conf config.Config) {
 		checkConcept(t, conf, concept2.Id, updateConcept)
 	})
 
-	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/"+url.PathEscape(concept.Id))
+	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/concepts/"+url.PathEscape(concept.Id)+"?wait=true")
 	if err != nil {
 		t.Fatal(err)
 	}

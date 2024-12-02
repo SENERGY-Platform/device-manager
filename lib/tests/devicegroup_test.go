@@ -29,7 +29,7 @@ import (
 
 func testDeviceGroup(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-groups", models.DeviceGroup{
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-groups?wait=true", models.DeviceGroup{
 			Name: "dg1",
 		})
 		if err != nil {
@@ -73,7 +73,7 @@ func testDeviceGroup(port string) func(t *testing.T) {
 			t.Fatal(result)
 		}
 
-		resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id), models.DeviceGroup{
+		resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id)+"?wait=true", models.DeviceGroup{
 			Id:   deviceGroup.Id,
 			Name: "dg2",
 		})

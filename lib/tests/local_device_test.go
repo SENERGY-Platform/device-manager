@@ -27,7 +27,7 @@ import (
 )
 
 func testLocalDevice(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols?wait=true", models.Protocol{
 		Name:             "p2",
 		Handler:          "ph1",
 		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
@@ -48,7 +48,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
 		Services: []models.Service{
@@ -91,7 +91,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(dt)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", models.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices?wait=true", models.Device{
 		Name:    "d1",
 		LocalId: "lid1",
 	})
@@ -105,7 +105,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", models.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices?wait=true", models.Device{
 		Name:         "d1",
 		DeviceTypeId: dt.Id,
 	})
@@ -119,7 +119,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", models.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices?wait=true", models.Device{
 		Name:         "d1",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid1",
@@ -165,7 +165,7 @@ func testLocalDevice(t *testing.T, port string) {
 		t.Fatal(result)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices", models.Device{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/local-devices?wait=true", models.Device{
 		Name:         "reused_local_id",
 		DeviceTypeId: dt.Id,
 		LocalId:      "lid1",
@@ -181,7 +181,7 @@ func testLocalDevice(t *testing.T, port string) {
 	}
 
 	//update
-	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/local-devices/"+url.PathEscape(device.LocalId), models.Device{
+	resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/local-devices/"+url.PathEscape(device.LocalId)+"?wait=true", models.Device{
 		Name:         "updated_device_name",
 		DeviceTypeId: dt.Id,
 		LocalId:      device.LocalId,
@@ -240,7 +240,7 @@ func testLocalDevice(t *testing.T, port string) {
 	}
 
 	//delete
-	resp, err = helper.Jwtdelete(userjwt, "http://localhost:"+port+"/local-devices/"+url.PathEscape(device.LocalId))
+	resp, err = helper.Jwtdelete(userjwt, "http://localhost:"+port+"/local-devices/"+url.PathEscape(device.LocalId)+"?wait=true")
 	if err != nil {
 		t.Fatal(err)
 	}

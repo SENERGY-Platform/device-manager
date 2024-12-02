@@ -39,7 +39,7 @@ func testCharacteristics(t *testing.T, conf config.Config) {
 			SubCharacteristics: nil,
 		}},
 	}
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics", createCharacteristic)
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics?wait=true", createCharacteristic)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func testCharacteristics(t *testing.T, conf config.Config) {
 			SubCharacteristics: nil,
 		}},
 	}
-	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/"+url.PathEscape(characteristic.Id), updateCharacteristic)
+	resp, err = helper.Jwtput(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/"+url.PathEscape(characteristic.Id)+"?wait=true", updateCharacteristic)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,7 +108,7 @@ func testCharacteristics(t *testing.T, conf config.Config) {
 		checkCharacteristic(t, conf, characteristic2.Id, updateCharacteristic)
 	})
 
-	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/"+url.PathEscape(characteristic2.Id))
+	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+conf.ServerPort+"/characteristics/"+url.PathEscape(characteristic2.Id)+"?wait=true")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -29,7 +29,7 @@ import (
 
 func testDeviceType(t *testing.T, port string) {
 	t.Run("create empty device-type", func(t *testing.T) {
-		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{})
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true", models.DeviceType{})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -43,7 +43,7 @@ func testDeviceType(t *testing.T, port string) {
 
 	protocol := models.Protocol{}
 	t.Run("create protocol", func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols?wait=true", models.Protocol{
 			Name:             "pname1",
 			Handler:          "ph1",
 			ProtocolSegments: []models.ProtocolSegment{{Name: "ps1"}},
@@ -66,7 +66,7 @@ func testDeviceType(t *testing.T, port string) {
 
 	dt := models.DeviceType{}
 	t.Run("create device-type", func(t *testing.T) {
-		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true", models.DeviceType{
 			Name:          "foo",
 			DeviceClassId: "dc1",
 			Services: []models.Service{
@@ -141,7 +141,7 @@ func testDeviceType(t *testing.T, port string) {
 	})
 
 	t.Run("delete device-type", func(t *testing.T) {
-		resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
+		resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id)+"?wait=true")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -165,7 +165,7 @@ func testDeviceType(t *testing.T, port string) {
 func testDeviceTypeWithDistinctAttributes(t *testing.T, port string) {
 	protocol := models.Protocol{}
 	t.Run("create protocol", func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols?wait=true", models.Protocol{
 			Name:             "pname1",
 			Handler:          "ph1",
 			ProtocolSegments: []models.ProtocolSegment{{Name: "ps1"}},
@@ -188,7 +188,7 @@ func testDeviceTypeWithDistinctAttributes(t *testing.T, port string) {
 
 	dt1 := models.DeviceType{}
 	t.Run("create first device-type", func(t *testing.T) {
-		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?distinct_attributes="+url.QueryEscape("senergy/vendor,senergy/model"), models.DeviceType{
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true&distinct_attributes="+url.QueryEscape("senergy/vendor,senergy/model"), models.DeviceType{
 			Name:          "foo",
 			DeviceClassId: "dc1",
 			Attributes: []models.Attribute{
@@ -236,7 +236,7 @@ func testDeviceTypeWithDistinctAttributes(t *testing.T, port string) {
 	})
 
 	t.Run("try to create conflicting device-type", func(t *testing.T) {
-		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?distinct_attributes="+url.QueryEscape("senergy/vendor,senergy/model"), models.DeviceType{
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true&distinct_attributes="+url.QueryEscape("senergy/vendor,senergy/model"), models.DeviceType{
 			Name:          "foo2",
 			DeviceClassId: "dc1",
 			Attributes: []models.Attribute{
@@ -276,7 +276,7 @@ func testDeviceTypeWithDistinctAttributes(t *testing.T, port string) {
 
 	dt2 := models.DeviceType{}
 	t.Run("create second device-type", func(t *testing.T) {
-		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?distinct_attributes="+url.QueryEscape("senergy/vendor,senergy/model"), models.DeviceType{
+		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true&distinct_attributes="+url.QueryEscape("senergy/vendor,senergy/model"), models.DeviceType{
 			Name:          "foo",
 			DeviceClassId: "dc1",
 			Attributes: []models.Attribute{
@@ -324,7 +324,7 @@ func testDeviceTypeWithDistinctAttributes(t *testing.T, port string) {
 	})
 
 	t.Run("delete device-type 1", func(t *testing.T) {
-		resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt1.Id))
+		resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt1.Id)+"?wait=true")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -336,7 +336,7 @@ func testDeviceTypeWithDistinctAttributes(t *testing.T, port string) {
 	})
 
 	t.Run("delete device-type 2", func(t *testing.T) {
-		resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt2.Id))
+		resp, err := helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt2.Id)+"?wait=true")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -349,7 +349,7 @@ func testDeviceTypeWithDistinctAttributes(t *testing.T, port string) {
 }
 
 func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{})
+	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true", models.DeviceType{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -360,7 +360,7 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		t.Fatal(resp.Status, resp.StatusCode)
 	}
 
-	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
+	resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols?wait=true", models.Protocol{
 		Name:             "pname2",
 		Handler:          "ph2",
 		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
@@ -381,7 +381,7 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
 		ServiceGroups: []models.ServiceGroup{
@@ -504,7 +504,7 @@ func testDeviceTypeWithServiceGroups(t *testing.T, port string) {
 		t.Fatal(string(temp))
 	}
 
-	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id))
+	resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/device-types/"+url.PathEscape(dt.Id)+"?wait=true")
 	if err != nil {
 		t.Fatal(err)
 	}

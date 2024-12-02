@@ -28,7 +28,7 @@ import (
 
 func testDeviceBatchDelete(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols?wait=true", models.Protocol{
 			Name:             "p3",
 			Handler:          "ph3",
 			ProtocolSegments: []models.ProtocolSegment{{Name: "ps3"}},
@@ -49,7 +49,7 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true", models.DeviceType{
 			Name:          "foo",
 			DeviceClassId: "dc1",
 			Services: []models.Service{
@@ -92,7 +92,7 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(dt)
 		}
 
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
 			Name:         "delete_d1",
 			DeviceTypeId: dt.Id,
 			LocalId:      "dlid1",
@@ -116,7 +116,7 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(d1)
 		}
 
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
 			Name:         "delete_d2",
 			DeviceTypeId: dt.Id,
 			LocalId:      "dlid2",
@@ -140,7 +140,7 @@ func testDeviceBatchDelete(port string) func(t *testing.T) {
 			t.Fatal(d2)
 		}
 
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
 			Name:         "delete_d3",
 			DeviceTypeId: dt.Id,
 			LocalId:      "dlid3",

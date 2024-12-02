@@ -28,7 +28,7 @@ import (
 
 func testFunction(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/functions", models.Function{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/functions?wait=true", models.Function{
 			Name:    "foo",
 			RdfType: models.SES_ONTOLOGY_CONTROLLING_FUNCTION,
 		})
@@ -75,7 +75,7 @@ func testFunction(port string) func(t *testing.T) {
 			t.Fatal(result)
 		}
 
-		resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/functions/"+url.PathEscape(function.Id))
+		resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/functions/"+url.PathEscape(function.Id)+"?wait=true")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -94,7 +94,7 @@ func testFunction(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode)
 		}
 
-		resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/functions", models.Function{Id: f1Id, Name: f1Id})
+		resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/functions?wait=true", models.Function{Id: f1Id, Name: f1Id})
 		if err != nil {
 			t.Fatal(err)
 		}

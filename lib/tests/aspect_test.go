@@ -28,7 +28,7 @@ import (
 
 func testAspect(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/aspects", models.Aspect{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/aspects?wait=true", models.Aspect{
 			Name: "foo",
 		})
 		if err != nil {
@@ -74,7 +74,7 @@ func testAspect(port string) func(t *testing.T) {
 			t.Fatal(result)
 		}
 
-		resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/aspects/"+url.PathEscape(aspect.Id))
+		resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/aspects/"+url.PathEscape(aspect.Id)+"?wait=true")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -93,7 +93,7 @@ func testAspect(port string) func(t *testing.T) {
 			t.Fatal(resp.Status, resp.StatusCode)
 		}
 
-		resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/aspects", models.Aspect{Id: a1Id, Name: a1Id})
+		resp, err = helper.Jwtpost(adminjwt, "http://localhost:"+port+"/aspects?wait=true", models.Aspect{Id: a1Id, Name: a1Id})
 		if err != nil {
 			t.Fatal(err)
 		}

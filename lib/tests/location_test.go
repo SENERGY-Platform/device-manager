@@ -28,7 +28,7 @@ import (
 
 func testLocation(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/locations", models.Location{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/locations?wait=true", models.Location{
 			Name: "foo",
 		})
 		if err != nil {
@@ -74,7 +74,7 @@ func testLocation(port string) func(t *testing.T) {
 			t.Fatal(result)
 		}
 
-		resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/locations/"+url.PathEscape(Location.Id))
+		resp, err = helper.Jwtdelete(adminjwt, "http://localhost:"+port+"/locations/"+url.PathEscape(Location.Id)+"?wait=true")
 		if err != nil {
 			t.Fatal(err)
 		}

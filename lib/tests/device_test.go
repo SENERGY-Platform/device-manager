@@ -414,7 +414,7 @@ func testDeviceOwner(t *testing.T, conf config.Config) {
 }
 
 func testDeviceAttributes(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols?wait=true", models.Protocol{
 		Name:             "p2",
 		Handler:          "ph1",
 		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
@@ -435,7 +435,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
 		Services: []models.Service{
@@ -886,7 +886,7 @@ func testDeviceAttributes(t *testing.T, port string) {
 }
 
 func testDevice(t *testing.T, port string) {
-	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols", models.Protocol{
+	resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+port+"/protocols?wait=true", models.Protocol{
 		Name:             "p2",
 		Handler:          "ph1",
 		ProtocolSegments: []models.ProtocolSegment{{Name: "ps2"}},
@@ -907,7 +907,7 @@ func testDevice(t *testing.T, port string) {
 		t.Fatal(err)
 	}
 
-	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types", models.DeviceType{
+	resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-types?wait=true", models.DeviceType{
 		Name:          "foo",
 		DeviceClassId: "dc1",
 		Services: []models.Service{
@@ -952,7 +952,7 @@ func testDevice(t *testing.T, port string) {
 	}
 
 	t.Run("missing dt id", func(t *testing.T) {
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
 			Name:    "d1",
 			LocalId: "lid1",
 		})
@@ -968,7 +968,7 @@ func testDevice(t *testing.T, port string) {
 	})
 
 	t.Run("missing local id", func(t *testing.T) {
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
 			Name:         "d1",
 			DeviceTypeId: dt.Id,
 		})
@@ -1034,7 +1034,7 @@ func testDevice(t *testing.T, port string) {
 	})
 
 	t.Run("local id duplicate", func(t *testing.T) {
-		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", models.Device{
+		resp, err = helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", models.Device{
 			Name:         "reused_local_id",
 			DeviceTypeId: dt.Id,
 			LocalId:      "lid1",
@@ -1082,7 +1082,7 @@ func testDevice(t *testing.T, port string) {
 func tryDeviceDisplayNameUpdate(port string, deviceId string, displayName string, expectedDevice models.Device) func(t *testing.T) {
 	return func(t *testing.T) {
 		expectedDevice.OwnerId = userjwtUser
-		resp, err := helper.Jwtput(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(deviceId)+"/display_name", displayName)
+		resp, err := helper.Jwtput(userjwt, "http://localhost:"+port+"/devices/"+url.PathEscape(deviceId)+"/display_name?wait=true", displayName)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1137,7 +1137,9 @@ func tryDeviceAttributeUpdate(port string, dtId string, deviceId string, localDe
 
 		endpoint := "http://localhost:" + port + "/devices/" + url.PathEscape(deviceId)
 		if origin != "" {
-			endpoint = endpoint + "?" + url.Values{api.UpdateOnlySameOriginAttributesKey: {origin}}.Encode()
+			endpoint = endpoint + "?" + url.Values{api.UpdateOnlySameOriginAttributesKey: {origin}, "wait": {"true"}}.Encode()
+		} else {
+			endpoint = endpoint + "?" + url.Values{"wait": {"true"}}.Encode()
 		}
 		resp, err := helper.Jwtput(userjwt, endpoint, models.Device{
 			Id:           deviceId,
@@ -1204,7 +1206,7 @@ func initDevice(port string, dt models.DeviceType) (models.Device, error) {
 		LocalId:      uuid.New().String(),
 		DeviceTypeId: dt.Id,
 	}
-	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices", device)
+	resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/devices?wait=true", device)
 	if err != nil {
 		return models.Device{}, err
 	}
