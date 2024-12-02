@@ -225,7 +225,7 @@ func TestUserDelete(t *testing.T) {
 		}
 	})
 
-	time.Sleep(60 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	t.Run("check user1 before delete", checkUserDevices(conf, user1, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29}))
 	t.Run("check user2 before delete", checkUserDevices(conf, user2, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39}))
@@ -256,7 +256,7 @@ func TestUserDelete(t *testing.T) {
 		)
 	})
 
-	time.Sleep(60 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	t.Run("check user1 after delete", checkUserDevices(conf, user1, []int{}))
 	t.Run("check user2 after delete", checkUserDevices(conf, user2, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 23, 24, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39}))
@@ -282,7 +282,7 @@ func checkUserDevices(conf config.Config, token auth.Token, expectedDeviceIdsAsI
 		}
 		sort.Strings(expectedIds)
 		if !reflect.DeepEqual(actualIds, expectedIds) {
-			t.Errorf("\n%#v\n%#v\n", actualIds, expectedIds)
+			t.Errorf("\na=%#v\ne=%#v\n", actualIds, expectedIds)
 			return
 		}
 	}

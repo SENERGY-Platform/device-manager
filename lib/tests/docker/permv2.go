@@ -18,12 +18,9 @@ package docker
 
 import (
 	"context"
-	"fmt"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"io"
 	"log"
-	"strings"
 	"sync"
 )
 
@@ -53,16 +50,18 @@ func PermissionsV2(ctx context.Context, wg *sync.WaitGroup, mongoUrl string, kaf
 			log.Println("DEBUG: remove container permissions-v2", c.Terminate(context.Background()))
 		}()
 		<-ctx.Done()
-		reader, err := c.Logs(context.Background())
-		if err != nil {
-			log.Println("ERROR: unable to get container log")
-			return
-		}
-		buf := new(strings.Builder)
-		io.Copy(buf, reader)
-		fmt.Println("PERMISSIONS-V2 LOGS: ------------------------------------------")
-		fmt.Println(buf.String())
-		fmt.Println("\n---------------------------------------------------------------")
+		/*
+			reader, err := c.Logs(context.Background())
+			if err != nil {
+				log.Println("ERROR: unable to get container log")
+				return
+			}
+			buf := new(strings.Builder)
+			io.Copy(buf, reader)
+			fmt.Println("PERMISSIONS-V2 LOGS: ------------------------------------------")
+			fmt.Println(buf.String())
+			fmt.Println("\n---------------------------------------------------------------")
+		*/
 	}()
 
 	ipAddress, err = c.ContainerIP(ctx)
