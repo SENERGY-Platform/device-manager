@@ -80,7 +80,7 @@ func TestWaitDone(t *testing.T) {
 	})
 
 	t.Run("aspects", func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/aspects", models.Aspect{Id: a1Id, Name: a1Id})
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/aspects?wait=true", models.Aspect{Id: a1Id, Name: a1Id})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -91,7 +91,7 @@ func TestWaitDone(t *testing.T) {
 		resp.Body.Close()
 	})
 	t.Run("functions", func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/functions", models.Function{Id: f1Id, Name: f1Id})
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/functions?wait=true", models.Function{Id: f1Id, Name: f1Id})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -104,7 +104,7 @@ func TestWaitDone(t *testing.T) {
 
 	protocol := models.Protocol{}
 	t.Run("create protocol", func(t *testing.T) {
-		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/protocols", models.Protocol{
+		resp, err := helper.Jwtpost(adminjwt, "http://localhost:"+conf.ServerPort+"/protocols?wait=true", models.Protocol{
 			Name:             "pname1",
 			Handler:          "ph1",
 			ProtocolSegments: []models.ProtocolSegment{{Name: "ps1"}},
@@ -116,12 +116,14 @@ func TestWaitDone(t *testing.T) {
 
 		if resp.StatusCode != http.StatusOK {
 			b, _ := io.ReadAll(resp.Body)
-			t.Fatal(resp.Status, resp.StatusCode, string(b))
+			t.Error(resp.Status, resp.StatusCode, string(b))
+			return
 		}
 
 		err = json.NewDecoder(resp.Body).Decode(&protocol)
 		if err != nil {
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 	})
 
