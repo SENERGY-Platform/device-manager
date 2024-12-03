@@ -29,94 +29,108 @@ import (
 
 func testDeviceGroup(port string) func(t *testing.T) {
 	return func(t *testing.T) {
-		resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-groups?wait=true", models.DeviceGroup{
-			Name: "dg1",
+		t.Run("delete unknown", func(t *testing.T) {
+			resp, err := helper.Jwtdelete(userjwt, "http://localhost:"+port+"/device-groups/unknown?wait=true")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotFound {
+				b, _ := io.ReadAll(resp.Body)
+				t.Fatal(resp.Status, resp.StatusCode, string(b))
+			}
 		})
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer resp.Body.Close()
 
-		if resp.StatusCode != http.StatusOK {
-			b, _ := io.ReadAll(resp.Body)
-			t.Fatal(resp.Status, resp.StatusCode, string(b))
-		}
+		t.Run("tests", func(t *testing.T) {
+			resp, err := helper.Jwtpost(userjwt, "http://localhost:"+port+"/device-groups?wait=true", models.DeviceGroup{
+				Name: "dg1",
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer resp.Body.Close()
 
-		deviceGroup := models.DeviceGroup{}
-		err = json.NewDecoder(resp.Body).Decode(&deviceGroup)
-		if err != nil {
-			t.Fatal(err)
-		}
+			if resp.StatusCode != http.StatusOK {
+				b, _ := io.ReadAll(resp.Body)
+				t.Fatal(resp.Status, resp.StatusCode, string(b))
+			}
 
-		if deviceGroup.Id == "" {
-			t.Fatal(deviceGroup)
-		}
+			deviceGroup := models.DeviceGroup{}
+			err = json.NewDecoder(resp.Body).Decode(&deviceGroup)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id))
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer resp.Body.Close()
+			if deviceGroup.Id == "" {
+				t.Fatal(deviceGroup)
+			}
 
-		if resp.StatusCode != http.StatusOK {
-			b, _ := io.ReadAll(resp.Body)
-			t.Fatal(resp.Status, resp.StatusCode, string(b))
-		}
+			resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id))
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer resp.Body.Close()
 
-		result := models.DeviceGroup{}
-		err = json.NewDecoder(resp.Body).Decode(&result)
-		if err != nil {
-			t.Fatal(err)
-		}
+			if resp.StatusCode != http.StatusOK {
+				b, _ := io.ReadAll(resp.Body)
+				t.Fatal(resp.Status, resp.StatusCode, string(b))
+			}
 
-		if result.Name != "dg1" {
-			t.Fatal(result)
-		}
+			result := models.DeviceGroup{}
+			err = json.NewDecoder(resp.Body).Decode(&result)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id)+"?wait=true", models.DeviceGroup{
-			Id:   deviceGroup.Id,
-			Name: "dg2",
+			if result.Name != "dg1" {
+				t.Fatal(result)
+			}
+
+			resp, err = helper.Jwtput(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id)+"?wait=true", models.DeviceGroup{
+				Id:   deviceGroup.Id,
+				Name: "dg2",
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode != http.StatusOK {
+				b, _ := io.ReadAll(resp.Body)
+				t.Fatal(resp.Status, resp.StatusCode, string(b))
+			}
+
+			deviceGroup = models.DeviceGroup{}
+			err = json.NewDecoder(resp.Body).Decode(&deviceGroup)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if deviceGroup.Id == "" {
+				t.Fatal(deviceGroup)
+			}
+
+			resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id))
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer resp.Body.Close()
+
+			if resp.StatusCode != http.StatusOK {
+				b, _ := io.ReadAll(resp.Body)
+				t.Fatal(resp.Status, resp.StatusCode, string(b))
+			}
+
+			result = models.DeviceGroup{}
+			err = json.NewDecoder(resp.Body).Decode(&result)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if result.Name != "dg2" {
+				t.Fatal(result)
+			}
 		})
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			b, _ := io.ReadAll(resp.Body)
-			t.Fatal(resp.Status, resp.StatusCode, string(b))
-		}
-
-		deviceGroup = models.DeviceGroup{}
-		err = json.NewDecoder(resp.Body).Decode(&deviceGroup)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if deviceGroup.Id == "" {
-			t.Fatal(deviceGroup)
-		}
-
-		resp, err = helper.Jwtget(userjwt, "http://localhost:"+port+"/device-groups/"+url.PathEscape(deviceGroup.Id))
-		if err != nil {
-			t.Fatal(err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			b, _ := io.ReadAll(resp.Body)
-			t.Fatal(resp.Status, resp.StatusCode, string(b))
-		}
-
-		result = models.DeviceGroup{}
-		err = json.NewDecoder(resp.Body).Decode(&result)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if result.Name != "dg2" {
-			t.Fatal(result)
-		}
 	}
 }
 

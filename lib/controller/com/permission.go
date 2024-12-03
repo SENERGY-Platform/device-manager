@@ -21,7 +21,6 @@ import (
 	"github.com/SENERGY-Platform/device-manager/lib/auth"
 	devicerepo "github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/permissions-v2/pkg/model"
-	"log"
 	"net/http"
 )
 
@@ -93,10 +92,13 @@ func (this *Com) PermissionCheck(token auth.Token, id string, permission string,
 	if err != nil {
 		return err, http.StatusInternalServerError
 	}
-	log.Printf("DEBUG: PermissionCheck %#v %#v %#v", resource, id, permissions) //TODO: remove
-	access, err, code := this.perm.CheckPermission(token.Jwt(), resource, id, permissions...)
+	accessMap, err, code := this.perm.CheckMultiplePermissions(token.Jwt(), resource, []string{id}, permissions...)
 	if err != nil {
 		return err, code
+	}
+	access, ok := accessMap[id]
+	if !ok {
+		return errors.New("not found"), http.StatusNotFound
 	}
 	if !access {
 		return errors.New("access denied"), http.StatusForbidden
