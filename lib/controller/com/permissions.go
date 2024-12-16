@@ -27,7 +27,8 @@ func (this *Com) SetPermission(token string, topicId string, id string, permissi
 }
 
 func (this *Com) ListDeviceTypes(token string, options devicerepo.DeviceTypeListOptions) (result []models.DeviceType, err error, code int) {
-	return this.devices.ListDeviceTypesV3(token, options)
+	result, _, err, code = this.devices.ListDeviceTypesV3(token, options)
+	return
 }
 
 func (this *Com) ListDevices(token string, options devicerepo.DeviceListOptions) (result []models.Device, err error, code int) {

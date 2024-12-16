@@ -104,7 +104,7 @@ func validateResource(token auth.Token, config config.Config, method string, end
 	}
 	req.Header.Set("Authorization", token.Token)
 	client := http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 10 * time.Second,
 	}
 	resp, err := client.Do(req)
 	if err != nil {

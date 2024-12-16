@@ -5,13 +5,11 @@ go 1.23
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.6.0
-	github.com/samuel/go-zookeeper v0.0.0-20201211165307-7117e9ea2414 // indirect
 	github.com/segmentio/kafka-go v0.4.47
-	github.com/wvanbergen/kazoo-go v0.0.0-20180202103751-f72d8611297a
 )
 
 require (
-	github.com/SENERGY-Platform/device-repository v0.1.37
+	github.com/SENERGY-Platform/device-repository v0.1.51
 	github.com/SENERGY-Platform/models/go v0.0.0-20241007061544-de7132ae94e4
 	github.com/SENERGY-Platform/permissions-v2 v0.0.27
 	github.com/SENERGY-Platform/service-commons v0.0.0-20240813072046-91b3195dd8fc

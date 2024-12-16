@@ -93,8 +93,22 @@ func DeviceRepoWithEnv(ctx context.Context, wg *sync.WaitGroup, kafkaUrl string,
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		defer func() {
+			log.Println("DEBUG: remove container device-repository", c.Terminate(context.Background()))
+		}()
 		<-ctx.Done()
-		log.Println("DEBUG: remove container device-repository", c.Terminate(context.Background()))
+		/*
+			reader, err := c.Logs(context.Background())
+			if err != nil {
+				log.Println("ERROR: unable to get container log")
+				return
+			}
+			buf := new(strings.Builder)
+			io.Copy(buf, reader)
+			fmt.Println("DEVICE-REPO LOGS: ------------------------------------------")
+			fmt.Println(buf.String())
+			fmt.Println("\n---------------------------------------------------------------")
+		*/
 	}()
 
 	/*
