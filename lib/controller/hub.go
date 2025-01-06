@@ -197,7 +197,7 @@ func (this *Controller) completeHub(token auth.Token, edit models.Hub) (result m
 	}
 
 	if len(edit.DeviceLocalIds) > 0 {
-		devices, err, code := this.com.ListDevices(token.Jwt(), client.DeviceListOptions{LocalIds: edit.DeviceLocalIds})
+		devices, err, code := this.com.ListDevices(token.Jwt(), client.DeviceListOptions{LocalIds: edit.DeviceLocalIds, Owner: edit.OwnerId})
 		if err != nil {
 			return result, err, code
 		}
