@@ -265,7 +265,7 @@ func TestUserDelete(t *testing.T) {
 
 func checkUserDevices(conf config.Config, token auth.Token, expectedDeviceIdsAsInt []int) func(t *testing.T) {
 	return func(t *testing.T) {
-		devices, err, _ := devicerepo.NewClient(conf.DeviceRepoUrl).ListDevices(token.Jwt(), devicerepo.DeviceListOptions{Limit: 100})
+		devices, err, _ := devicerepo.NewClient(conf.DeviceRepoUrl, nil).ListDevices(token.Jwt(), devicerepo.DeviceListOptions{Limit: 100})
 		if err != nil {
 			t.Error(err)
 			return

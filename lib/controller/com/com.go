@@ -32,6 +32,6 @@ func New(config config.Config) *Com {
 	return &Com{
 		config:  config,
 		perm:    client.New(config.PermissionsV2Url),
-		devices: devicerepo.NewClient(config.DeviceRepoUrl),
+		devices: devicerepo.NewClient(config.DeviceRepoUrl, nil),
 	}
 }
