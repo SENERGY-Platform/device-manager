@@ -69,7 +69,7 @@ func (this *Controller) PublishHubCreate(token auth.Token, hubEdit models.Hub, o
 	return hub, nil, http.StatusOK
 }
 
-func (this *Controller) PublishHubUpdate(token auth.Token, id string, userId string, hubEdit models.Hub, options model.HubUpdateOptions) (models.Hub, error, int) {
+func (this *Controller) PublishHubUpdate(token auth.Token, id string, hubEdit models.Hub, options model.HubUpdateOptions) (models.Hub, error, int) {
 	if hubEdit.Id != id {
 		return models.Hub{}, errors.New("hub id in body unequal to hub id in request endpoint"), http.StatusBadRequest
 	}

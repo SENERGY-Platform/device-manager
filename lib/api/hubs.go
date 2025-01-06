@@ -192,6 +192,9 @@ func (this *HubsEndpoints) Set(config config.Config, router *http.ServeMux, cont
 			http.Error(writer, "only admins may set user_id", http.StatusForbidden)
 			return
 		}
+		if userId != "" {
+			hub.OwnerId = userId
+		}
 
 		options := model.HubUpdateOptions{}
 		if waitQueryParam := request.URL.Query().Get(WaitQueryParamName); waitQueryParam != "" {
@@ -202,7 +205,7 @@ func (this *HubsEndpoints) Set(config config.Config, router *http.ServeMux, cont
 			}
 		}
 
-		result, err, errCode := control.PublishHubUpdate(token, id, userId, hub, options)
+		result, err, errCode := control.PublishHubUpdate(token, id, hub, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
@@ -262,7 +265,7 @@ func (this *HubsEndpoints) SetName(config config.Config, router *http.ServeMux, 
 			}
 		}
 
-		result, err, errCode := control.PublishHubUpdate(token, id, token.GetUserId(), hub, options)
+		result, err, errCode := control.PublishHubUpdate(token, id, hub, options)
 		if err != nil {
 			http.Error(writer, err.Error(), errCode)
 			return
